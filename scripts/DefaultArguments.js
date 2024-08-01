@@ -1,4 +1,4 @@
-class DefaultArguments {
+class DefaultArgumentsLoader {
     async loadDefaultArguments(jsonPath) {
         try {
             const response = await fetch(jsonPath);
@@ -31,7 +31,7 @@ class DefaultArguments {
         }
     }
 
-    setDefaultValues() {
+    setDefaultValues = () => {
         document.getElementById('innerContrastRange').value = this.contrast_inner;
         document.getElementById('coverContrastRange').value = this.contrast_cover;
         document.getElementById('innerLuminanceRange').value = this.luminance_inner;
@@ -40,5 +40,20 @@ class DefaultArguments {
         document.getElementById('mirageSizeInput').value = this.mirage_size;
     }
 }
+
+(() => {
+    const versionInfoElement = document.getElementById('versionInfo');
+    if (versionInfoElement) {
+        versionInfoElement.innerHTML = `version: <b>${applicationState.version}</b>`;
+    }
+
+    let path = document.getElementById('jsonPath').getAttribute('data-json-path');
+    path = path + '?v=' + applicationState.version;
+    applicationState.defaultArguments = new DefaultArgumentsLoader();
+    applicationState.defaultArguments.loadDefaultArguments(path).then(() => {
+        document.addEventListener('DOMContentLoaded', applicationState.defaultArguments.setDefaultValues());
+        applicationState.currPageId = applicationState.defaultArguments.defaultPageId;
+    });
+})();
 
 errorHandling.scriptsLoaded.DefaultArguments = true;

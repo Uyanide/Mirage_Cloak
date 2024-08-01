@@ -78,16 +78,15 @@
                 'CloakUniversal',
                 'CloakDecoder',
                 'CloakEncoder',
+                'UniversalListeners',
                 'DecodeListeners',
                 'EncodeListeners',
-                'UniversalListeners',
                 'init'
             ];
             for (let i = 0; i < requiredScripts.length; i++) {
                 if (!errorHandling.scriptsLoaded[requiredScripts[i]]) {
                     console.error('Script not loaded:', requiredScripts[i]);
                     alert('脚本' + requiredScripts[i] + '未能正确加载，请清空页面缓存后刷新重试。');
-                    return;
                 }
             }
             console.log('All scripts loaded successfully.');
@@ -105,13 +104,14 @@
     <link rel="stylesheet" type="text/css" href="css/switch.css">
     <script id="jsonPath" data-json-path="DefaultArguments.json" defer></script>
     <script src="scripts/DefaultArguments.js" defer data-version></script>
-    <script type="module" src="scripts/processors/CloakUniversal.js" defer data-version></script>
-    <script type="module" src="scripts/processors/CloakDecoder.js" defer data-version></script>
-    <script type="module" src="scripts/processors/CloakEncoder.js" defer data-version></script>
+    <script src="scripts/processors/CloakUniversal.js" defer data-version></script>
+    <script src="scripts/processors/CloakDecoder.js" defer data-version></script>
+    <script src="scripts/processors/CloakEncoder.js" defer data-version></script>
+    <script src="scripts/listeners/ImageLoader.js" defer data-version></script>
     <script src="scripts/listeners/DecodeListeners.js" defer data-version></script>
     <script src="scripts/listeners/EncodeListeners.js" defer data-version></script>
     <script src="scripts/listeners/UniversalListeners.js" defer data-version></script>
-    <script type="module" src="scripts/init.js" defer data-version></script>
+    <script src="scripts/init.js" defer data-version></script>
 </head>
 
 <body class="flexColumn marginTopHigh displayFlex justifyCenter alignCenter marginTopHigh backgroundPrimary frontColor">
