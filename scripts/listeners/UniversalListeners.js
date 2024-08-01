@@ -12,13 +12,13 @@ function copyImage(img) {
 applicationState.currCanvasIndex = 0;
 function handleImageLoadError(error, callback) {
     alert('图像处理失败！' + error);
-    if (errorHandling.defaultImg[errorHandling.currCanvasIndex].src) {
-        const img = new Image();
-        img.src = copyImage(errorHandling.defaultImg[errorHandling.currCanvasIndex]);
-        img.onload = () => {
-            callback(img);
-        };
-    }
+    // if (errorHandling.defaultImg[errorHandling.currCanvasIndex].src) {
+    //     const img = new Image();
+    //     img.src = copyImage(errorHandling.defaultImg[errorHandling.currCanvasIndex]);
+    //     img.onload = () => {
+    //         callback(img);
+    //     };
+    // }
 }
 
 function convertBlobToBase64(blob) {
@@ -192,11 +192,13 @@ function universalSetupEventListeners() {
         const privacyPolicy = document.getElementById('privacyPolicy');
         const state = window.getComputedStyle(privacyPolicy).display;
         if (state === 'none') {
-            privacyPolicy.style.display = 'block';
+            privacyPolicy.classList.remove('displayNone');
+            privacyPolicy.classList.add('displayBlock');
             event.target.textContent = '隐藏使用须知';
             window.scrollTo(0, document.body.scrollHeight);
         } else {
-            privacyPolicy.style.display = 'none';
+            privacyPolicy.classList.remove('displayBlock');
+            privacyPolicy.classList.add('displayNone');
             event.target.textContent = '显示使用须知';
         }
     });
@@ -206,11 +208,13 @@ function universalSetupEventListeners() {
         const changelog = document.getElementById('versionRecordTable');
         const state = window.getComputedStyle(changelog).display;
         if (state === 'none') {
-            changelog.style.display = 'block';
+            changelog.classList.remove('displayNone');
+            changelog.classList.add('displayBlock');
             event.target.textContent = '隐藏主要更新记录';
             window.scrollTo(0, document.body.scrollHeight);
         } else {
-            changelog.style.display = 'none';
+            changelog.classList.remove('displayBlock');
+            changelog.classList.add('displayNone');
             event.target.textContent = '显示主要更新记录';
         }
     });

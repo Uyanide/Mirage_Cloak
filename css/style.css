@@ -17,7 +17,7 @@ input[type=file] {
 }
 
 input[type=number] {
-    width: 80px;
+    width: 60px;
 }
 
 Canvas {
@@ -59,62 +59,15 @@ Canvas {
 
 /**********************************************/
 
-#versionInfo {
-    margin-top: 20px;
-    font-size: var(--large-font-size);
-    margin-bottom: 0px;
-}
-
-#refreshHint {
-    margin-top: 5px;
-    font-size: var(--small-font-size);
-    margin-bottom: 10px;
-}
-
-a {
-    color: var(--link-color);
-}
-
-.link {
-    margin-top: 10px;
-    font-size: var(--small-font-size);
-}
-
-#privacyButton {
-    margin-top: 5px;
-}
-
-#privacyButton button,
-#versionRecordButton button {
-    background-color: var(--background-color);
-    color: var(--link-color);
-    border: 0px;
-    font-size: var(--small-font-size);
-}
-
 #privacyPolicy {
-    background-color: var(--secondary-background-color);
-    text-align: center;
-    color: var(--front-color);
     max-width: min(100%, 600px);
-    font-size: var(--small-font-size);
-    display: none;
-    padding: 10px;
-    border-radius: 20px;
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
 #versionRecordTable {
-    background-color: var(--secondary-background-color);
     border-collapse: collapse;
-    font-size: var(--small-font-size);
     max-width: min(100%, 600px);
-    padding: 10px;
-    border-radius: 20px;
-    display: none;
-    margin-top: 10px;
-    margin-bottom: 10px;
 }
 
 #versionRecordTable td {

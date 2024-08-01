@@ -9,7 +9,6 @@ export default class CloakUniversal {
         this._scale_c = defaultArguments.scale_cover;
         this._offset_i = defaultArguments.offset_inner;
         this._offset_c = defaultArguments.offset_cover;
-        console.log(this._scale_i, this._scale_c, this._offset_i, this._offset_c);
     }
 
     classifyFileType = (extension) => {
@@ -36,13 +35,18 @@ export default class CloakUniversal {
             case 'bmp':
                 const img = new Image();
                 img.onload = () => {
+                    this.clearCanvas(canvas);
                     canvas.width = img.width;
                     canvas.height = img.height;
                     canvas.getContext('2d').drawImage(img, 0, 0);
                 };
                 img.src = dataUrl;
             default:
-                this.showTextOnCanvas(canvas, '暂不支持预览此文件', '文件拓展名: ' + fileExtention);
+                if (!fileExtention) {
+                    this.showTextOnCanvas(canvas, '暂不支持预览此文件', '文件拓展名: ' + fileExtention);
+                } else {
+                    this.showTextOnCanvas(canvas, '暂不支持预览此文件');
+                }
         }
     }
 
@@ -63,22 +67,36 @@ export default class CloakUniversal {
     }
 
     cloneImageData(imageData) {
-        return new ImageData(new Uint8ClampedArray(imageData.data), imageData.width, imageData.height);
+        let ret = new ImageData(new Uint8ClampedArray(imageData.data), imageData.width, imageData.height);
+        console.log(ret);
+        console.log(ret.data);
+        console.log(imageData.data);
+        return ret;
     }
 
     truncate(value) {
         return Math.min(255, Math.max(0, value));
     }
-    adjustContrastImgData(imageData, contrast) {
+
+    adjustImageData(canvas, imageData, contrast, luminance) {
+        let data = new Uint8ClampedArray(imageData.data.length);
+        const oldData = imageData.data;
+
         contrast = (contrast - 50) * 5.1;
-        const data = imageData.data;
         const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+        const offset = luminance * 3 - 150;
 
         for (let i = 0; i < data.length; i += 4) {
-            data[i] = this.truncate(factor * (data[i] - 128) + 128);
-            data[i + 1] = this.truncate(factor * (data[i + 1] - 128) + 128);
-            data[i + 2] = this.truncate(factor * (data[i + 2] - 128) + 128);
+            data[i] = this.truncate(factor * (oldData[i] - 128) + 128 + offset);
+            data[i + 1] = this.truncate(factor * (oldData[i + 1] - 128) + 128 + offset);
+            data[i + 2] = this.truncate(factor * (oldData[i + 2] - 128) + 128 + offset);
+            data[i + 3] = 255;
         }
+
+        const newImageData = new ImageData(data, imageData.width, imageData.height);
+        canvas.width = newImageData.width;
+        canvas.height = newImageData.height;
+        canvas.getContext('2d').putImageData(newImageData, 0, 0);
     }
 
     saveResultFromUrl(dataUrl, fileExtension) {
@@ -89,6 +107,20 @@ export default class CloakUniversal {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    clearCanvas(canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    getImageDataFromImage(image) {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
+        return ctx.getImageData(0, 0, image.width, image.height);
     }
 }
 

@@ -11,5 +11,11 @@
     "offset_cover": 0,
     "contrast_inner": 50,
     "contrast_cover": 50,
-    "encode_size": 131072
+    "luminance_inner": 50,
+    "luminance_cover": 50,
+    "mirage_size": 1920,
+    "encode_size": 131072,
+    "add_mark": true,
+    "mark_path": "/local/mark.png",
+    "mark_ratio": 0.1
 }

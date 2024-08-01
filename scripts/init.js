@@ -4,9 +4,8 @@ applicationState.isDownloadNotSupported = applicationState.isOnPhone && /xiaomi|
 applicationState.isOnTiebaBrowser = /tieba/i.test(errorHandling.userAgent);
 // applicationState.isOnPhone = true;
 
-import CloakDecoder from './processors/CloakDecoder.js';
-import DefaultArguments from './DefaultArguments.js';
-import CloakEncoder from './processors/CloakEncoder.js';
+import CloakDecoder from '/scripts/processors/CloakDecoder.js';
+import CloakEncoder from '/scripts/processors/CloakEncoder.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -67,6 +66,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         //     };
         //     errorHandling.defaultImg[i].src = applicationState.defaultArguments.defaultSrc[i];
         // }
+
+        // 加载水印
+        applicationState.markImage = new Image();
+        applicationState.markImage.crossOrigin = 'anonymous';
+        applicationState.markImage.onload = () => {
+            CloakProcessor.CloakEncoder.updateMarkImage(applicationState.markImage);
+        };
+        applicationState.markImage.onerror = () => {
+            alert('无法加载标记图案: ' + applicationState.defaultArguments.mark_path);
+            CloakProcessor.CloakEncoder.updateMarkImage(null);
+        }
+        applicationState.markImage.src = applicationState.defaultArguments.mark_path;
 
         // 设置全局事件监听器
         universalSetupEventListeners();

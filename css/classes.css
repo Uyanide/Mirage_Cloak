@@ -54,8 +54,16 @@
     margin-right: 5px;
 }
 
+.marginBottomMedium {
+    margin-bottom: 10px;
+}
+
 .marginBottomHigh {
     margin-bottom: 20px;
+}
+
+.marginBottomExtreme {
+    margin-bottom: 40px;
 }
 
 /**************************************/
@@ -86,6 +94,10 @@
 
 .positionRelative {
     position: relative;
+}
+
+.textAlignCenter {
+    text-align: center;
 }
 
 /**************************************/
@@ -134,6 +146,10 @@
     border-radius: 10px;
 }
 
+.borderRadiusExtreme {
+    border-radius: 20px;
+}
+
 .borderRadiusOnlyTop {
     border-radius: 10px 10px 0 0;
 }
@@ -146,8 +162,16 @@
     border: 0px, solid;
 }
 
+.borderCollapse {
+    border-collapse: collapse;
+}
+
 .frontColor {
     color: var(--front-color);
+}
+
+.frontLinkColor {
+    color: var(--link-color);
 }
 
 .backgroundSecondary {

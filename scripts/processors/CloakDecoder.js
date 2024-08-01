@@ -1,6 +1,6 @@
-import CloakUniversal from './CloakUniversal.js';
+import CloakUniversal from "/scripts/processors/CloakUniversal.js";
 
-class CloakDecoder extends CloakUniversal {
+export default class CloakDecoder extends CloakUniversal {
     constructor(defaultArguments, inputCanvasId, outputCanvasId) {
         super(defaultArguments);
         this.srcImage = null;
@@ -120,7 +120,5 @@ class CloakDecoder extends CloakUniversal {
         this.saveResultFromUrl(this.dataUrl, this.fileExtension);
     }
 }
-
-export default CloakDecoder;
 
 errorHandling.scriptsLoaded.CloakDecoder = true;

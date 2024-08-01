@@ -10,7 +10,7 @@
         var CloakProcessor = CloakProcessor || {};
     </script>
     <script>
-        applicationState.version = '1.0.0';
+        applicationState.version = '1.0.1';
         // version check
         (() => {
             console.log('target version:', applicationState.version);
@@ -56,6 +56,15 @@
                     isDarkmodeCheckbox.checked = tarTheme === 'dark';
                 });
             }
+            const isDarkModeLabel = document.getElementById('isDarkModeLabel');
+            if (isDarkModeLabel) {
+                isDarkModeLabel.innerText = tarTheme === 'dark' ? '开灯' : '关灯';
+            } else {
+                document.addEventListener('DOMContentLoaded', function () {
+                    const isDarkModeLabel = document.getElementById('isDarkModeLabel');
+                    isDarkModeLabel.innerText = tarTheme === 'dark' ? '开灯' : '关灯';
+                });
+            }
         }
         applyTheme();
         window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme);
@@ -95,7 +104,7 @@
     <link rel="stylesheet" type="text/css" href="css/classes.css">
     <link rel="stylesheet" type="text/css" href="css/switch.css">
     <script id="jsonPath" data-json-path="DefaultArguments.json" defer></script>
-    <script type="module" src="scripts/DefaultArguments.js" defer data-version></script>
+    <script src="scripts/DefaultArguments.js" defer data-version></script>
     <script type="module" src="scripts/processors/CloakUniversal.js" defer data-version></script>
     <script type="module" src="scripts/processors/CloakDecoder.js" defer data-version></script>
     <script type="module" src="scripts/processors/CloakEncoder.js" defer data-version></script>
@@ -110,7 +119,7 @@
     <h1 class="title">这是一个标题</h1>
 
     <div class="switchContainer">
-        <p>切换明/暗主题</p>
+        <p id="isDarkModeLabel">切换明/暗主题</p>
         <label class="switch" id="isDarkmodeSwitch">
             <input type="checkbox" id="isDarkmodeCheckbox" title="switch from themes">
             <span class="switchSlider"></span>
@@ -159,7 +168,8 @@
 
             <canvas id="decodeOutputCanvas" class="marginTopHigh"></canvas>
 
-            <button id="decodeSaveButton" class="inputReact marginTopHigh marginBottomHigh transformSize">保存结果</button>
+            <button id="decodeSaveButton"
+                class="inputReact marginTopHigh marginBottomExtreme transformSize">保存结果</button>
 
         </div>
 
@@ -167,39 +177,60 @@
             id="encodePage">
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopHigh refWidthHigh">
                 <div class="encodeFileInput displayFlex flexColumn justifyCenter alignCenter refWidthHalf">
-                    <label for="innerSourceFileInput" class="fileInputLabel inputReact transformSize">1. 选择里图文件</label>
+                    <label for="innerSourceFileInput" class="fileInputLabel inputReact transformSize">选择里图文件</label>
                     <input type="file" id="innerSourceFileInput" accept="image/*">
                     <label for="innerSourceFileInput" class="encodeDrag marginTopMedium fontSmall">或直接拖动至下方画布</label>
                     <canvas id="innerCanvas" class="refWidthHigh marginTopMedium"></canvas>
                     <slider
                         class="encodeSlider refWidthHigh displayFlex flexColumn alignCenter justifyCenter marginTopMedium">
-                        <label for="innerContrastRange" class="encodeSliderTitle">3. 里图对比度: </label>
+                        <label for="innerContrastRange" class="encodeSliderTitle">1. 里图对比度: </label>
                         <input type="range" id="innerContrastRange" class="refWidthHigh marginTopLow" min="0" max="100">
                         <button id="innerResetContrastButton" class="inputReact marginTopLow">重置对比度</button>
+                        <label for="innerLuminanceRange" class="encodeSliderTitle marginTopMedium">2. 里图亮度: </label>
+                        <input type="range" id="innerLuminanceRange" class="refWidthHigh marginTopLow" min="0"
+                            max="100">
+                        <button id="innerResetLuminanceButton" class="inputReact marginTopLow">重置亮度</button>
                     </slider>
                 </div>
 
                 <div class="encodeFileInput displayFlex flexColumn justifyCenter alignCenter refWidthHalf">
-                    <label for="coverSourceFileInput" class="fileInputLabel inputReact transformSize">2. 选择表图文件</label>
+                    <label for="coverSourceFileInput" class="fileInputLabel inputReact transformSize">选择表图文件</label>
                     <input type="file" id="coverSourceFileInput" accept="image/*">
                     <label for="coverSourceFileInput" class="encodeDrag marginTopMedium fontSmall">或直接拖动至下方画布</label>
                     <canvas id="coverCanvas" class="refWidthHigh marginTopMedium"></canvas>
                     <slider
                         class="encodeSlider  refWidthHigh displayFlex flexColumn alignCenter justifyCenter marginTopMedium">
-                        <label for="coverContrastRange" class="encodeSliderTitle">4. 表图对比度: </label>
+                        <label for="coverContrastRange" class="encodeSliderTitle">3. 表图对比度: </label>
                         <input type="range" id="coverContrastRange" class="refWidthHigh marginTopLow" min="0" max="100">
                         <button id="coverResetContrastButton" class="inputReact marginTopLow">重置对比度</button>
+                        <label for="coverLuminanceRange" class="encodeSliderTitle marginTopMedium">4. 表图亮度: </label>
+                        <input type="range" id="coverLuminanceRange" class="refWidthHigh marginTopLow" min="0"
+                            max="100">
+                        <button id="coverResetLuminanceButton" class="inputReact marginTopLow">重置亮度</button>
                     </slider>
                 </div>
             </div>
 
-            <!-- <label for="encodeSizeLimit" class="marginTopMedium">5. 指定输出图像最大长或宽:</label>
-            <input id="encodeSizeLimit" type="number" class="inputReact marginTopLow"></input>
-            <label for="encodeSizeLimit" class="fontSmall marginTopLow">(0即为不限制)</label> -->
+            <div class="marginTopMedium">5. 预期输出尺寸:</div>
+            <div class="displyFlex flexRow justifyCenter alignCenter marginTopLow">
+                <input id="mirageSizeInput" type="number" class="inputReact"></input>
+                <button id="mirageSizeConfirmButton" class="inputReact transformSize marginLeftLow">确认应用</button>
+            </div>
+            <div class="fontSmall marginTopLow">(指长宽中较大值，0即为不指定)</div>
+            <div class="fontSmall marginTopLow">(若隐藏文件过大则实际输出尺寸可能会大于此值)</div>
 
-            <label for="hiddenSourceFileInput" class="fileInputLabel inputReact transformSize marginTopMedium">6.
-                选择隐写文件</label>
-            <input type="file" id="hiddenSourceFileInput">
+            <div class="displayFlex flexRow justifyCenter alignCenter marginTopHigh">
+                <label for="isAddMarkCheckbox">6. </label>
+                <input type="checkbox" id="isAddMarkCheckbox" class="inputReact marginLeftLow marginRightLow">
+                <label for="isAddMarkCheckbox">是否添加坦克水印</label>
+            </div>
+
+            <div class="displayFlex flexRow justifyCenter alignCenter marginTopHigh">
+                <label for="hiddenSourceFileInput" class="fileInputLabel inputReact transformSize marginLeftLow">
+                    选择隐写文件</label>
+                <input type="file" id="hiddenSourceFileInput">
+            </div>
+
             <label for="hiddenSourceFileInput" class="encodeDrag marginTopMedium fontSmall">或直接拖动至下方画布</label>
             <canvas id="hiddenCanvas" class="marginTopMedium"></canvas>
             <div id="encodeOutputSize" class="marginTopMedium"></div>
@@ -210,57 +241,71 @@
             <canvas id="encodeOutputCanvas" class="marginTopMedium"></canvas>
 
             <button id="encodeSaveButton"
-                class="inputReact marginTopMedium marginBottomHigh transformSize">保存结果</button>
+                class="inputReact marginTopMedium marginBottomExtreme transformSize">保存结果</button>
 
         </div>
 
-        <div id="pageBelow">
-            <p id="versionInfo">version: <b>UNKNOWN</b></p>
+        <div id="pageBelow" class="displayFlex frontColor justifyCenter alignCenter flexColumn">
+            <div id="versionInfo" class="marginTopHigh fontLarge">version: <b>UNKNOWN</b></div>
 
-            <p id="refreshHint">
+            <div class="marginTopLow fontSmall">
                 如发现有功能不正常可手动清理浏览器缓存后刷新
-            </p>
-
-            <div class="link" , id="bugReportLink">
-                <a href="https://github.com/Uyanide/Mirage_Decode/issues/new" target="_blank">Bug反馈</a>
             </div>
 
-            <div class="link" , id="profileLink">
-                <a href="https://github.com/Uyanide" target="_blank">Github - Uyanide (我)</a>
+            <div class="marginTopMedium fontSmall transformSize">
+                <a class="frontLinkColor" href="https://github.com/Uyanide/Mirage_Decode/issues/new"
+                    target="_blank">Bug反馈</a>
             </div>
 
-            <div class="link" , id="repoLink">
-                <a href="https://github.com/Uyanide/Mirage_Decode/tree/main" target="_blank">Github -
+            <div class="marginTopMedium fontSmall transformSize">
+                <a class="frontLinkColor" href="https://github.com/Uyanide" target="_blank">Github - Uyanide (我)</a>
+            </div>
+
+            <div class="marginTopMedium fontSmall transformSize">
+                <a class="frontLinkColor" href="https://github.com/Uyanide/Mirage_Decode/tree/main"
+                    target="_blank">Github -
                     Mirage_Decode (本项目仓库)</a>
             </div>
 
-            <div class="link" , id="repoLink">
-                <a href="https://github.com/Uyanide/Mirage_Decode?tab=readme-ov-file#qa" target="_blank">常见问题Q&A</a>
+            <div class="marginTopMedium fontSmall transformSize">
+                <a class="frontLinkColor" href="https://github.com/Uyanide/Mirage_Decode?tab=readme-ov-file#qa"
+                    target="_blank">常见问题Q&A</a>
             </div>
 
-            <div id="privacyButton">
-                <button id="togglePrivacyPolicy">显示使用须知</button>
+            <div id="privacyButton" class="marginTopLow">
+                <button id="togglePrivacyPolicy"
+                    class="frontLinkColor backgroundPrimary borderNone fontSmall transformSize borderSolidNone">显示使用须知</button>
             </div>
 
-            <div id="privacyPolicy">
+            <div id="privacyPolicy"
+                class="backgroundSecondary frontColor fontSmall displayNone paddingHigh borderRadiusExtreme marginTopMedium textAlignCenter">
                 <p>本网站仅供个人学习交流使用，禁止一切非法用途，否则一切后果由使用者自行承担。</p>
-                <p>本网站使用Google Analytics记录访问者的行为。通过使用本网站，您同意数据按照Google Analytics的条款和隐私政策进行处理。更多信息，请访问:<a
-                        href="https://policies.google.com/privacy" target="_blank">Google
-                        Analytics的隐私政策</a>。</p>
+                <p>本网站使用Google Analytics记录访问者的行为。通过使用本网站，您同意数据按照Google Analytics的条款和隐私政策进行处理。更多信息，请访问:
+                    <a class="frontLinkColor" href="https://policies.google.com/privacy" target="_blank">Google
+                        Analytics的隐私政策</a>。
+                </p>
             </div>
 
-            <div id="versionRecordButton">
-                <button id="toggleVersionRecord">显示主要更新记录</button>
+            <div id="versionRecordButton" class="marginTopLow">
+                <button id="toggleVersionRecord"
+                    class="frontLinkColor backgroundPrimary borderNone fontSmall transformSize borderSolidNone">显示主要更新记录</button>
             </div>
 
-            <div id="versionRecord">
-                <table id="versionRecordTable">
+            <div id="versionRecord" class="marginTopMedium marginBottomMedium">
+                <table id="versionRecordTable"
+                    class="fontSmall paddingHigh borderRadiusExtreme displayNone backgroundSecondary borderCollapse">
                     <tbody>
                         <tr>
-                            <td>1.0</td>
+                            <td>1.0.0</td>
                             <td>初始版本。
                             </td>
                         </tr>
+                        <tr>
+                            <td>1.0.1</td>
+                            <td>增加亮度调整功能；<br>
+                                允许指定输出图像尺寸；<br>
+                                增加水印功能，并可选择是否添加。
+                            </td>
                     </tbody>
                 </table>
             </div>

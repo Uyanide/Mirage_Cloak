@@ -52,7 +52,6 @@ function encodeSetInnerContrast(event) {
 
 // 重置里图对比度
 function resetInnerContrast() {
-    CloakProcessor.CloakEncoder.innerContrast = 50;
     document.getElementById('innerContrastRange').value = 50;
     CloakProcessor.CloakEncoder.adjustInnerContrast(50);
 }
@@ -64,9 +63,45 @@ function encodeSetCoverContrast(event) {
 
 // 重置表图对比度
 function resetCoverContrast() {
-    CloakProcessor.CloakEncoder.coverContrast = 50;
     document.getElementById('coverContrastRange').value = 50;
     CloakProcessor.CloakEncoder.adjustCoverContrast(50);
+}
+
+// 设置里图亮度
+function encodeSetInnerLuminance(event) {
+    CloakProcessor.CloakEncoder.adjustInnerLuminance(parseInt(event.target.value, 10));
+}
+
+// 重置里图亮度
+function resetInnerLuminance() {
+    document.getElementById('innerLuminanceRange').value = 50;
+    CloakProcessor.CloakEncoder.adjustInnerLuminance(50);
+}
+
+// 设置表图亮度
+function encodeSetCoverLuminance(event) {
+    CloakProcessor.CloakEncoder.adjustCoverLuminance(parseInt(event.target.value, 10));
+}
+
+// 重置表图亮度
+function resetCoverLuminance() {
+    document.getElementById('coverLuminanceRange').value = 50;
+    CloakProcessor.CloakEncoder.adjustCoverLuminance(50);
+}
+
+// 设置指定输出图像大小
+function encodeSetMirageSize() {
+    const size = parseInt(document.getElementById('mirageSizeInput').value, 10);
+    if (size < 0 || size > 10000) {
+        alert('请输入合理的整数');
+        return;
+    }
+    CloakProcessor.CloakEncoder.setMirageSize(size);
+}
+
+// 设置是否添加水印
+function encodeSetIsAddMark(event) {
+    CloakProcessor.CloakEncoder.setIsAddMark(event.target.checked);
 }
 
 // 处理图像
@@ -104,6 +139,12 @@ function encodeSetUpEventListeners() {
     document.getElementById('coverContrastRange').addEventListener('input', encodeSetCoverContrast);
     document.getElementById('innerResetContrastButton').addEventListener('click', resetInnerContrast);
     document.getElementById('coverResetContrastButton').addEventListener('click', resetCoverContrast);
+    document.getElementById('innerLuminanceRange').addEventListener('input', encodeSetInnerLuminance);
+    document.getElementById('coverLuminanceRange').addEventListener('input', encodeSetCoverLuminance);
+    document.getElementById('innerResetLuminanceButton').addEventListener('click', resetInnerLuminance);
+    document.getElementById('coverResetLuminanceButton').addEventListener('click', resetCoverLuminance);
+    document.getElementById('mirageSizeConfirmButton').addEventListener('click', encodeSetMirageSize);
+    document.getElementById('isAddMarkCheckbox').addEventListener('change', encodeSetIsAddMark);
     document.getElementById('encodeProcessButton').addEventListener('click', encodeProcessImage);
     document.getElementById('encodeSaveButton').addEventListener('click', encodeSaveImage);
 }
@@ -123,6 +164,12 @@ function encodeRemoveEventListeners() {
     document.getElementById('coverContrastRange').removeEventListener('input', encodeSetCoverContrast);
     document.getElementById('innerResetContrastButton').removeEventListener('click', resetInnerContrast);
     document.getElementById('coverResetContrastButton').removeEventListener('click', resetCoverContrast);
+    document.getElementById('innerLuminanceRange').removeEventListener('input', encodeSetInnerLuminance);
+    document.getElementById('coverLuminanceRange').removeEventListener('input', encodeSetCoverLuminance);
+    document.getElementById('innerResetLuminanceButton').removeEventListener('click', resetInnerLuminance);
+    document.getElementById('coverResetLuminanceButton').removeEventListener('click', resetCoverLuminance);
+    document.getElementById('mirageSizeConfirmButton').removeEventListener('click', encodeSetMirageSize);
+    document.getElementById('isAddMarkCheckbox').removeEventListener('change', encodeSetIsAddMark);
     document.getElementById('encodeProcessButton').removeEventListener('click', encodeProcessImage);
     document.getElementById('encodeSaveButton').removeEventListener('click', encodeSaveImage);
 }
