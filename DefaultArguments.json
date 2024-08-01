@@ -1,0 +1,15 @@
+{
+    "defaultPageId": "encodePage",
+    "version": 1,
+    "threshold": 8,
+    "remained": 16,
+    "padding": 16,
+    "difference": 16,
+    "scale_inner": 0.8,
+    "scale_cover": 0.8,
+    "offset_inner": 32,
+    "offset_cover": 0,
+    "contrast_inner": 50,
+    "contrast_cover": 50,
+    "encode_size": 131072
+}
