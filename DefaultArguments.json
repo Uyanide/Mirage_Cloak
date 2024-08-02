@@ -1,10 +1,10 @@
 {
     "defaultPageId": "encodePage",
     "version": 1,
-    "threshold": 8,
+    "threshold": 16,
     "remained": 16,
     "padding": 16,
-    "difference": 16,
+    "difference": 32,
     "scale_inner": 0.8,
     "scale_cover": 0.8,
     "offset_inner": 32,
@@ -13,9 +13,9 @@
     "contrast_cover": 50,
     "luminance_inner": 50,
     "luminance_cover": 50,
-    "mirage_size": 1920,
+    "mirage_size": 1280,
     "encode_size": 131072,
     "add_mark": true,
-    "mark_path": "/local/mark.png",
+    "mark_path": "https://raw.githubusercontent.com/Uyanide/Mirage_Cloak/main/local/mark.png",
     "mark_ratio": 0.1
 }

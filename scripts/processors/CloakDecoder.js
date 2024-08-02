@@ -10,57 +10,62 @@
     class CloakDecoder extends CloakUniversal {
         constructor(defaultArguments, inputCanvasId, outputCanvasId) {
             super(defaultArguments);
-            this.srcImage = null;
-            this.srcImageData = null;
-            this.inputCanvas = document.getElementById(inputCanvasId);
-            this.outputCanvas = document.getElementById(outputCanvasId);
+            this._srcImage = null;
+            this._srcImageData = null;
+            this._inputCanvas = document.getElementById(inputCanvasId);
+            this._outputCanvas = document.getElementById(outputCanvasId);
+
+            this.__threshold = defaultArguments.threshold;
+            this.__remained = defaultArguments.remained;
+            this.__version = defaultArguments.version;
         }
 
         updateImage = (img) => {
-            if (this.dataUrl) {
-                URL.revokeObjectURL(this.dataUrl);
+            if (this._dataUrl) {
+                URL.revokeObjectURL(this._dataUrl);
             }
-            this.srcImage = img;
-            this.inputCanvas.width = img.width;
-            this.inputCanvas.height = img.height;
-            this.inputCanvas.getContext('2d').drawImage(img, 0, 0);
-            this.srcImageData = this.inputCanvas.getContext('2d').getImageData(0, 0, img.width, img.height);
+            this._srcImage = img;
+            this._inputCanvas.width = img.width;
+            this._inputCanvas.height = img.height;
+            this._inputCanvas.getContext('2d').drawImage(img, 0, 0);
+            this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, img.width, img.height);
 
-            this.threshold = this._threshold;
-            this.remained = this._remained;
-            this.version = this._version;
+            this._threshold = this.__threshold;
+            this._remained = this.__remained;
+            this._version = this.__version;
 
             this.process();
         }
 
         process = () => {
-            if (!this.srcImageData) {
+            if (!this._srcImageData) {
                 throw new Error('请先加载图像');
             }
-            const data = this.srcImageData.data;
-            this.dataLength = data.length;
-            this.pos = 0;
+            const data = this._srcImageData.data;
+            console.log(data);
+            this._dataLength = data.length;
+            this._pos = 0;
             this.decode(this.getByte(data), data)();
-            this.fileType = this.classifyFileType(this.fileExtension);
-            const blob = new Blob([this.byteArray], { type: this.fileType });
-            this.dataUrl = URL.createObjectURL(blob);
-            this.showResult(this.outputCanvas, this.dataUrl, this.fileExtension);
+            this._fileType = this.classifyFileType(this.fileExtension);
+            const blob = new Blob([this.byteArray], { type: this._fileType });
+            this._dataUrl = URL.createObjectURL(blob);
+            this.showResult(this._outputCanvas, this._dataUrl, this.fileExtension);
         }
 
         decode = (version, data) => {
-            this.version = version;
+            this._version = version;
             switch (version) {
                 case 1:
-                    this.remained = 16;
+                    this._remained = 16;
                     return () => {
-                        this.threshold = this.getByte(data);
+                        this._threshold = this.getByte(data);
                         this.hiddenLength = 0;
                         for (let i = 0; i < 32; i += 8) {
                             this.hiddenLength |= this.getByte(data) << i;
                         }
                         this.fileExtension = '';
                         let meetZero = false;
-                        for (let i = 0; i < this.remained - 6; i++) {
+                        for (let i = 0; i < this._remained - 6; i++) {
                             const byte = this.getByte(data);
                             if (!meetZero) {
                                 if (byte === 0) {
@@ -82,34 +87,34 @@
 
         getByte = (data) => {
             let buffer = 0;
-            for (let bitCount = 0; this.pos < this.dataLength; this.pos += 4) {
+            for (let bitCount = 0; this._pos < this._dataLength; this._pos += 4) {
                 let isSet = this.isSetL;
-                if (data[this.pos] > 127) {
+                if (data[this._pos] > 127) {
                     isSet = this.isSetH;
                 }
-                buffer |= isSet(data[this.pos]) << (bitCount++);
-                buffer |= isSet(data[this.pos + 1]) << (bitCount++);
+                buffer |= isSet(data[this._pos]) << (bitCount++);
+                buffer |= isSet(data[this._pos + 1]) << (bitCount++);
                 if (bitCount === 8) {
-                    const isOdd = isSet(data[this.pos + 2]);
+                    const isOdd = isSet(data[this._pos + 2]);
                     if (!this.checkParity(buffer, isOdd)) {
                         throw new Error('数据校验失败');
                     } else {
-                        this.pos += 4;
+                        this._pos += 4;
                         return buffer;
                     }
                 } else {
-                    buffer |= isSet(data[this.pos + 2]) << (bitCount++);
+                    buffer |= isSet(data[this._pos + 2]) << (bitCount++);
                 }
             }
             throw new Error('不期望的文件结尾');
         }
 
         isSetH = (value) => {
-            return value < 255 - this.threshold;
+            return value < 255 - this._threshold;
         }
 
         isSetL = (value) => {
-            return value > this.threshold;
+            return value > this._threshold;
         }
 
         checkParity = (byte, isOdd) => {
@@ -121,10 +126,10 @@
         }
 
         saveResult = () => {
-            if (!this.dataUrl) {
+            if (!this._dataUrl) {
                 throw new Error('没有文件可供保存');
             }
-            this.saveResultFromUrl(this.dataUrl, this.fileExtension);
+            this.saveResultFromUrl(this._dataUrl, this.fileExtension);
         }
     }
 

@@ -8,17 +8,7 @@
     }
 }(typeof self !== 'undefined' ? self : this, function () {
     class CloakUniversal {
-        constructor(defaultArguments) {
-            this._threshold = defaultArguments.threshold;
-            this._remained = defaultArguments.remained;
-            this._version = defaultArguments.version;
-            this._diff = defaultArguments.difference;
-            this._padding = defaultArguments.padding;
-            this._scale_i = defaultArguments.scale_inner;
-            this._scale_c = defaultArguments.scale_cover;
-            this._offset_i = defaultArguments.offset_inner;
-            this._offset_c = defaultArguments.offset_cover;
-        }
+        constructor(defaultArguments) { }
 
         classifyFileType = (extension) => {
             switch (extension) {

@@ -22,14 +22,14 @@
             this._targetSize = defaultArguments.encode_size;
             this._mirageSize = defaultArguments.mirage_size;
 
-            this._remained = this._remained;
-            this._version = this._version;
-            this._diff = this._diff;
-            this._padding = this._padding;
-            this._scale_i = this._scale_i;
-            this._scale_c = this._scale_c;
-            this._offset_i = this._offset_i;
-            this._offset_c = this._offset_c;
+            this._remained = defaultArguments.remained;
+            this._version = defaultArguments.version;
+            this._diff = defaultArguments.difference;
+            this._padding = defaultArguments.padding;
+            this._scale_i = defaultArguments.scale_inner;
+            this._scale_c = defaultArguments.scale_cover;
+            this._offset_i = defaultArguments.offset_inner;
+            this._offset_c = defaultArguments.offset_cover;
 
             this._hiddenFile;
             this._fileExtension;

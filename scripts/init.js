@@ -95,10 +95,11 @@
             applicationState.markImage.onload = () => {
                 CloakProcessor.CloakEncoder.updateMarkImage(applicationState.markImage);
             };
-            applicationState.markImage.onerror = () => {
-                alert('无法加载标记图案: ' + applicationState.defaultArguments.mark_path);
+            applicationState.markImage.onerror = (event) => {
+                console.error('无法加载水印图案: ' + applicationState.defaultArguments.mark_path, event);
+                alert('无法加载水印图案: ' + applicationState.defaultArguments.mark_path + '\n错误详情: ' + event.message);
                 CloakProcessor.CloakEncoder.updateMarkImage(null);
-            }
+            };
             applicationState.markImage.src = applicationState.defaultArguments.mark_path;
 
             // 设置全局事件监听器
