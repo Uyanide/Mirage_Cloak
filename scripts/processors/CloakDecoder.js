@@ -17,7 +17,7 @@
 
             this._version = defaultArguments.version;
 
-            this._decoder_v1 = new decoder_v1(defaultArguments);
+            this._decoder_v1 = new Decoder_v1(defaultArguments);
         }
 
         updateImage = (img) => {
@@ -61,7 +61,7 @@
         }
     }
 
-    class decoder_v1 {
+    class Decoder_v1 {
         constructor(defaultArguments) {
             this._defaultThreshold = defaultArguments.default_threshold;
             this._remained = defaultArguments.version_1.remained;
@@ -81,6 +81,9 @@
             const data = srcImageData.data;
 
             this._threshold = this._getByte(data);
+
+            console.log('Threshold: ' + this._threshold);
+
             let hiddenLength = 0;
             for (let i = 0; i < 32; i += 8) {
                 hiddenLength |= this._getByte(data) << i;

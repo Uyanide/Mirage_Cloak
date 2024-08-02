@@ -74,8 +74,8 @@
 
             if (tarLength > currLength) {
                 const ratio = Math.sqrt(tarLength / currLength);
-                this._width = Math.ceil(img.width * ratio);
-                this._height = Math.ceil(img.height * ratio);
+                this._width = Math.ceil(this._width * ratio);
+                this._height = Math.ceil(this._height * ratio);
             }
             this._innerCanvas.width = this._width;
             this._innerCanvas.height = this._height;
@@ -166,8 +166,7 @@
             reader.onload = (event) => {
                 const arrayBuffer = event.target.result;
                 this._byteArray = new Uint8Array(arrayBuffer);
-                this._targetSize = this._byteArray.length;
-                console.log('Size of hidden file:', this._targetSize);
+                console.log('Size of hidden file:', this._byteArray.length);
                 if (this._innerImage) {
                     this.updateInnerImage(this._innerImage);
                 }
@@ -179,6 +178,7 @@
             if (!this._innerImageData || !this._coverImageData || !this._byteArray) {
                 throw new Error('清先选择图像和文件');
             }
+
             const innerImageDataAdjust = this._innerCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
             const coverImageDataAdjust = this._coverCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
 
@@ -190,7 +190,6 @@
                             coverImageDataAdjust,
                             this._byteArray,
                             this._fileExtension,
-                            this._diff
                         );
                     break;
                 default:
@@ -315,12 +314,24 @@
                 this.updateInnerImage(this._innerImage);
             }
         }
+
+        setDiff = (diff) => {
+            switch (this._version) {
+                case 1:
+                    this._encoder_v1.setDiff(diff);
+                    break;
+                default:
+                    throw new Error('未知编码方式');
+            }
+        }
     }
 
     class Encoder_V1 {
         constructor(defaultArguments) {
             this._version = 1;
-            this._defaultDifference = defaultArguments.default_difference;
+            this._defaultDiff = defaultArguments.default_difference;
+
+            this._diff = defaultArguments.version_1.difference;
             this._remained = defaultArguments.version_1.remained;
             this._padding = defaultArguments.version_1.padding;
 
@@ -330,7 +341,7 @@
             this._offset_c = defaultArguments.version_1.offset_cover;
         }
 
-        encode(innerImageData, coverImageData, hiddenFile, fileExtensionName, defference) {
+        encode(innerImageData, coverImageData, hiddenFile, fileExtensionName) {
             const innerData = innerImageData.data;
             const coverData = coverImageData.data;
             const width = innerImageData.width;
@@ -338,14 +349,13 @@
             const pixelRange = innerData.length >> 2;
             let outputData = new Uint8ClampedArray(innerData.length);
             this._byteArray = hiddenFile;
-            this._diff = defference || this._defaultDifference;
             this._targetSize = this._byteArray.length;
             this._fileExtension = fileExtensionName;
             this._width = width;
             this._height = height;
 
             for (let i = 0; i < pixelRange; i++) {
-                const diff = (i < 2) ? this._defaultDifference : this._diff; // encoding method for version and difference are fixed
+                const diff = (i < 6) ? this._defaultDiff : this._diff; // encoding method for version and difference are fixed
                 if (this._isInner(i)) {
                     const gray = this._scale(innerData[i * 4], this._scale_i, this._offset_i);
                     const { r, g, b } = this._getBits(i);
@@ -434,6 +444,10 @@
                 parity ^= (byte >> i) & 1;
             }
             return parity;
+        }
+
+        setDiff = (diff) => {
+            this._diff = diff;
         }
     }
 

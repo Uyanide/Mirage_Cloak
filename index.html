@@ -2,6 +2,9 @@
 <html lang="zh-CN" data-theme="dark">
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+
     <script>
         // global namespaces
         var applicationState = applicationState || {};
@@ -10,7 +13,7 @@
         var CloakProcessor = CloakProcessor || {};
     </script>
     <script>
-        applicationState.version = '1.0.1.7';
+        applicationState.version = '1.0.2.1';
         // version check
         (() => {
             console.log('target version:', applicationState.version);
@@ -97,8 +100,6 @@
 
     <title>${UNKNOWN}坦克工厂</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
     <link rel="stylesheet" type="text/css" href="/css/classes.css">
     <link rel="stylesheet" type="text/css" href="/css/switch.css">
@@ -220,11 +221,17 @@
             <div class="fontSmall marginTopLow">(指长宽中较大值，0即为不指定)</div>
             <div class="fontSmall marginTopLow">(若隐藏文件过大则实际输出尺寸可能会大于此值)</div>
 
-            <div class="displayFlex flexRow justifyCenter alignCenter marginTopHigh">
+            <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium">
                 <label for="isAddMarkCheckbox">6. </label>
                 <input type="checkbox" id="isAddMarkCheckbox" class="inputReact marginLeftLow marginRightLow">
                 <label for="isAddMarkCheckbox">是否添加坦克水印</label>
             </div>
+
+            <div class="diplayFlex flexRow justifyCenter alignCenter marginTopMedium">
+                <label for="encodeDiffInput">7. 噪声强度:</label>
+                <input type="number" id="encodeDiffInput" class="inputReact marginLeftLow"></input>
+            </div>
+            <div class="fontSmall marginTopLow">(8-64, 越大抗压缩能力越强，但幻影图质量越低)</div>
 
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopHigh">
                 <label for="hiddenSourceFileInput" class="fileInputLabel inputReact transformSize marginLeftLow">
@@ -305,8 +312,13 @@
                             <td>1.0.1</td>
                             <td>增加亮度调整功能；<br>
                                 允许指定输出图像尺寸；<br>
-                                增加水印功能，并可选择是否添加。
+                                增加水印功能，并可选择是否添加；<br>
+                                使用UMD重构代码。
                             </td>
+                        </tr>
+                        <tr>
+                            <td>1.0.2</td>
+                            <td>增加了噪声强度手动调节。</td>
                     </tbody>
                 </table>
             </div>

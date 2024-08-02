@@ -19,6 +19,8 @@
             this.version = defaultArguments.version;
             this.default_threshold = defaultArguments.default_threshold;
             this.default_difference = defaultArguments.default_difference;
+            this.max_difference = defaultArguments.max_difference;
+            this.min_difference = defaultArguments.min_difference;
             this.version_1 = defaultArguments.version_1;
             this.contrast_inner = defaultArguments.contrast_inner;
             this.contrast_cover = defaultArguments.contrast_cover;
@@ -37,6 +39,7 @@
             document.getElementById('coverLuminanceRange').value = this.luminance_cover;
             document.getElementById('isAddMarkCheckbox').checked = this.add_mark;
             document.getElementById('mirageSizeInput').value = this.mirage_size;
+            document.getElementById('encodeDiffInput').value = this.version_1.difference;
         }
     }
 

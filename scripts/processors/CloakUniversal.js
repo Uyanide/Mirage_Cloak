@@ -41,7 +41,7 @@
                     };
                     img.src = dataUrl;
                 default:
-                    if (!fileExtention) {
+                    if (fileExtention) {
                         this.showTextOnCanvas(canvas, '暂不支持预览此文件', '文件拓展名: ' + fileExtention);
                     } else {
                         this.showTextOnCanvas(canvas, '暂不支持预览此文件');
@@ -53,6 +53,7 @@
             canvas.width = 300;
             canvas.height = 150;
             const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.font = '15px Microsoft Yahei';
             ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--front-color');
             ctx.textAlign = 'center';
