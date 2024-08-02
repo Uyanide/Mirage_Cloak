@@ -19,20 +19,13 @@
             this._innerLuminance = defaultArguments.luminance_inner;
             this._coverLuminance = defaultArguments.luminance_cover;
 
-            this._targetSize = defaultArguments.encode_size;
             this._mirageSize = defaultArguments.mirage_size;
 
-            this._remained = defaultArguments.remained;
             this._version = defaultArguments.version;
-            this._diff = defaultArguments.difference;
-            this._padding = defaultArguments.padding;
-            this._scale_i = defaultArguments.scale_inner;
-            this._scale_c = defaultArguments.scale_cover;
-            this._offset_i = defaultArguments.offset_inner;
-            this._offset_c = defaultArguments.offset_cover;
+            this._diff = defaultArguments.default_difference;
 
-            this._hiddenFile;
-            this._fileExtension;
+            this._hiddenFile = null;
+            this._fileExtension = '';
             this._byteArray = null;
             this._outputData = null;
 
@@ -45,6 +38,8 @@
             this._isAddMark = defaultArguments.add_mark;
             this._markImage = null;
             this._markRatio = defaultArguments.mark_ratio;
+
+            this._encoder_v1 = new Encoder_V1(defaultArguments);
         }
 
         updateInnerImage(img) {
@@ -64,7 +59,19 @@
             }
 
             const currLength = this._width * this._height;
-            const tarLength = this.calTargetLength();
+            let tarLength;
+            switch (this._version) {
+                case 1:
+                    if (this._byteArray) {
+                        tarLength = this._encoder_v1.getRequiredLength(this._byteArray);
+                    } else {
+                        tarLength = 0;
+                    }
+                    break;
+                default:
+                    throw new Error('未知编码方式');
+            }
+
             if (tarLength > currLength) {
                 const ratio = Math.sqrt(tarLength / currLength);
                 this._width = Math.ceil(img.width * ratio);
@@ -160,7 +167,7 @@
                 const arrayBuffer = event.target.result;
                 this._byteArray = new Uint8Array(arrayBuffer);
                 this._targetSize = this._byteArray.length;
-                console.log('Target size:', this._targetSize);
+                console.log('Size of hidden file:', this._targetSize);
                 if (this._innerImage) {
                     this.updateInnerImage(this._innerImage);
                 }
@@ -170,107 +177,30 @@
 
         process = () => {
             if (!this._innerImageData || !this._coverImageData || !this._byteArray) {
-                throw new Error('Please select files first');
+                throw new Error('清先选择图像和文件');
             }
-            const pixelRange = this._width * this._height;
-            this._outputData = new Uint8ClampedArray(pixelRange * 4);
-
             const innerImageDataAdjust = this._innerCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
             const coverImageDataAdjust = this._coverCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
-            const innerData = innerImageDataAdjust.data;
-            const coverData = coverImageDataAdjust.data;
 
-            for (let i = 0; i < pixelRange; i++) {
-                if (this.isInner(i)) {
-                    const gray = this.scale(innerData[i * 4], this._scale_i, this._offset_i);
-                    const { r, g, b } = this.getBits(i);
-                    this._outputData[i * 4] = r ? 255 - this._diff : 255;
-                    this._outputData[i * 4 + 1] = g ? 255 - this._diff : 255;
-                    this._outputData[i * 4 + 2] = b ? 255 - this._diff : 255;
-                    this._outputData[i * 4 + 3] = gray;
-                } else {
-                    const gray = this.scale(coverData[i * 4], this._scale_c, this._offset_c);
-                    const { r, g, b } = this.getBits(i);
-                    this._outputData[i * 4] = r ? this._diff : 0;
-                    this._outputData[i * 4 + 1] = g ? this._diff : 0;
-                    this._outputData[i * 4 + 2] = b ? this._diff : 0;
-                    this._outputData[i * 4 + 3] = 255 - gray;
-                }
+            switch (this._version) {
+                case 1:
+                    this._outputData =
+                        this._encoder_v1.encode(
+                            innerImageDataAdjust,
+                            coverImageDataAdjust,
+                            this._byteArray,
+                            this._fileExtension,
+                            this._diff
+                        );
+                    break;
+                default:
+                    throw new Error('未知编码方式');
             }
+
             this._outputCanvas.width = this._width;
             this._outputCanvas.height = this._height;
             const imgData = new ImageData(this._outputData, this._width, this._height);
             this._outputCanvas.getContext('2d').putImageData(imgData, 0, 0);
-        }
-
-        scale = (value, scale, offset) => {
-            return Math.floor(value * scale + offset);
-        }
-
-        isInner = (pixelIndex) => {
-            return (pixelIndex % this._width + Math.floor(pixelIndex / this._width)) % 2 === 0;
-        }
-
-        getBits = (pixelIndex) => {
-            const pixelIndexMod3 = pixelIndex % 3;
-            const byteIndex = Math.floor(pixelIndex / 3);
-
-            if (byteIndex === 0) { // version
-                return this.getBitsFromByte(this._version, pixelIndexMod3);
-            } else if (byteIndex === 1) { // difference
-                return this.getBitsFromByte(Math.floor(this._diff / 2), pixelIndexMod3);
-            } else if (byteIndex <= 5) { // length
-                return this.getBitsFromByte(
-                    (this._targetSize >> ((byteIndex - 2) << 3)) & 0xff,
-                    pixelIndexMod3);
-            } else if (byteIndex < this._remained) { // file extension name
-                return byteIndex - 6 < this._fileExtension.length ?
-                    this.getBitsFromByte(this._fileExtension.charCodeAt(byteIndex - 6), pixelIndexMod3) :
-                    this.getBitsFromByte(0, pixelIndexMod3);
-            } else if (byteIndex < this._targetSize + this._remained) { // data
-                return this.getBitsFromByte(this._byteArray[byteIndex - this._remained], pixelIndexMod3);
-            } else { // random padding
-                return this.getRandomBits();
-            }
-        }
-
-        getBitsFromByte = (origByte, pixelIndex) => {
-            const byte = origByte >> (pixelIndex * 3);
-            const r = byte & 1;
-            const g = (byte >> 1) & 1;
-            if (pixelIndex != 2) {
-                return {
-                    r: r,
-                    g: g,
-                    b: (byte >> 2) & 1
-                };
-            } else {
-                return {
-                    r: r,
-                    g: g,
-                    b: this.calParityBit(origByte)
-                };
-            }
-        }
-
-        getRandomBits = () => {
-            return {
-                r: Math.random() > 0.5 ? 1 : 0,
-                g: Math.random() > 0.5 ? 1 : 0,
-                b: Math.random() > 0.5 ? 1 : 0
-            };
-        }
-
-        calParityBit = (byte) => {
-            let parity = 0;
-            for (let i = 0; i < 8; i++) {
-                parity ^= (byte >> i) & 1;
-            }
-            return parity;
-        }
-
-        calTargetLength = () => {
-            return (this._targetSize + this._remained + this._padding) * 3;
         }
 
         convertGray = (imgData) => {
@@ -380,10 +310,130 @@
         }
 
         setMirageSize = (size) => {
-            this.mirage_size = size;
+            this._mirageSize = size;
             if (this._innerImage) {
                 this.updateInnerImage(this._innerImage);
             }
+        }
+    }
+
+    class Encoder_V1 {
+        constructor(defaultArguments) {
+            this._version = 1;
+            this._defaultDifference = defaultArguments.default_difference;
+            this._remained = defaultArguments.version_1.remained;
+            this._padding = defaultArguments.version_1.padding;
+
+            this._scale_i = defaultArguments.version_1.scale_inner;
+            this._offset_i = defaultArguments.version_1.offset_inner;
+            this._scale_c = defaultArguments.version_1.scale_cover;
+            this._offset_c = defaultArguments.version_1.offset_cover;
+        }
+
+        encode(innerImageData, coverImageData, hiddenFile, fileExtensionName, defference) {
+            const innerData = innerImageData.data;
+            const coverData = coverImageData.data;
+            const width = innerImageData.width;
+            const height = innerImageData.height;
+            const pixelRange = innerData.length >> 2;
+            let outputData = new Uint8ClampedArray(innerData.length);
+            this._byteArray = hiddenFile;
+            this._diff = defference || this._defaultDifference;
+            this._targetSize = this._byteArray.length;
+            this._fileExtension = fileExtensionName;
+            this._width = width;
+            this._height = height;
+
+            for (let i = 0; i < pixelRange; i++) {
+                const diff = (i < 2) ? this._defaultDifference : this._diff; // encoding method for version and difference are fixed
+                if (this._isInner(i)) {
+                    const gray = this._scale(innerData[i * 4], this._scale_i, this._offset_i);
+                    const { r, g, b } = this._getBits(i);
+                    outputData[i * 4] = r ? 255 - diff : 255;
+                    outputData[i * 4 + 1] = g ? 255 - diff : 255;
+                    outputData[i * 4 + 2] = b ? 255 - diff : 255;
+                    outputData[i * 4 + 3] = gray;
+                } else {
+                    const gray = this._scale(coverData[i * 4], this._scale_c, this._offset_c);
+                    const { r, g, b } = this._getBits(i);
+                    outputData[i * 4] = r ? diff : 0;
+                    outputData[i * 4 + 1] = g ? diff : 0;
+                    outputData[i * 4 + 2] = b ? diff : 0;
+                    outputData[i * 4 + 3] = 255 - gray;
+                }
+            }
+
+            return outputData;
+        }
+
+        getRequiredLength(hiddenFile) {
+            return (hiddenFile.length + this._remained + this._padding) * 3;
+        }
+
+        _getBits = (pixelIndex) => {
+            const pixelIndexMod3 = pixelIndex % 3;
+            const byteIndex = Math.floor(pixelIndex / 3);
+
+            if (byteIndex === 0) { // version
+                return this._getBitsFromByte(this._version, pixelIndexMod3);
+            } else if (byteIndex === 1) { // difference
+                return this._getBitsFromByte(Math.floor(this._diff / 2), pixelIndexMod3);
+            } else if (byteIndex <= 5) { // length
+                return this._getBitsFromByte(
+                    (this._targetSize >> ((byteIndex - 2) << 3)) & 0xff,
+                    pixelIndexMod3);
+            } else if (byteIndex < this._remained) { // file extension name
+                return byteIndex - 6 < this._fileExtension.length ?
+                    this._getBitsFromByte(this._fileExtension.charCodeAt(byteIndex - 6), pixelIndexMod3) :
+                    this._getBitsFromByte(0, pixelIndexMod3);
+            } else if (byteIndex < this._targetSize + this._remained) { // data
+                return this._getBitsFromByte(this._byteArray[byteIndex - this._remained], pixelIndexMod3);
+            } else { // random padding
+                return this._getRandomBits();
+            }
+        }
+
+        _scale = (value, scale, offset) => {
+            return Math.floor(value * scale + offset);
+        }
+
+        _isInner = (pixelIndex) => {
+            return (pixelIndex % this._width + Math.floor(pixelIndex / this._width)) % 2 === 0;
+        }
+
+        _getBitsFromByte = (origByte, pixelIndex) => {
+            const byte = origByte >> (pixelIndex * 3);
+            const r = byte & 1;
+            const g = (byte >> 1) & 1;
+            if (pixelIndex != 2) {
+                return {
+                    r: r,
+                    g: g,
+                    b: (byte >> 2) & 1
+                };
+            } else {
+                return {
+                    r: r,
+                    g: g,
+                    b: this._calParityBit(origByte)
+                };
+            }
+        }
+
+        _getRandomBits = () => {
+            return {
+                r: Math.random() > 0.5 ? 1 : 0,
+                g: Math.random() > 0.5 ? 1 : 0,
+                b: Math.random() > 0.5 ? 1 : 0
+            };
+        }
+
+        _calParityBit = (byte) => {
+            let parity = 0;
+            for (let i = 0; i < 8; i++) {
+                parity ^= (byte >> i) & 1;
+            }
+            return parity;
         }
     }
 

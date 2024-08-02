@@ -52,6 +52,18 @@
                 alert('由于浏览器限制，部分功能可能无法使用，建议使用其他浏览器或等待后续更新适配');
             }
 
+            const versionInfoElement = document.getElementById('versionInfo');
+            if (versionInfoElement) {
+                versionInfoElement.innerHTML = `version: <b>${applicationState.version}</b>`;
+            }
+
+            let path = document.getElementById('jsonPath').getAttribute('data-json-path');
+            path = path + '?v=' + applicationState.version;
+            applicationState.defaultArguments = new DefaultArguments();
+            await applicationState.defaultArguments.loadDefaultArguments(path)
+            applicationState.defaultArguments.setDefaultValues();
+            applicationState.currPageId = applicationState.defaultArguments.defaultPageId;
+
             // 实例化解码器和编码器
             CloakProcessor.CloakDecoder = new CloakDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputCanvas');
             CloakProcessor.CloakEncoder = new CloakEncoder(applicationState.defaultArguments, 'innerCanvas', 'coverCanvas', 'hiddenCanvas', 'encodeOutputCanvas', 'encodeOutputSize');
@@ -104,6 +116,25 @@
 
             // 设置全局事件监听器
             UniversalListeners.universalSetupEventListeners();
+
+            switch (applicationState.defaultArguments.defaultPageId) {
+                case 'encodePage':
+                    EncodeListeners.encodeSetUpEventListeners();
+                    document.getElementById('decodePage').classList.add('displayNone');
+                    document.getElementById('encodePage').classList.add('displayFlex');
+                    document.getElementById('decodeButton').classList.add('backgroundNotSelected');
+                    document.getElementById('encodeButton').classList.add('backgroundSecondary');
+                    document.getElementById('decodeButton').addEventListener('click', UniversalListeners.switchPage);
+                    break;
+                case 'decodePage':
+                    DecodeListeners.decodeSetupEventListeners();
+                    document.getElementById('encodePage').classList.add('displayNone');
+                    document.getElementById('decodePage').classList.add('displayFlex');
+                    document.getElementById('encodeButton').classList.add('backgroundNotSelected');
+                    document.getElementById('decodeButton').classList.add('backgroundSecondary');
+                    document.getElementById('encodeButton').addEventListener('click', UniversalListeners.switchPage);
+                    break;
+            }
 
             if (applicationState.isOnPhone) {
                 document.getElementById('decodePasteInput').classList.add('displayNone');

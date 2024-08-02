@@ -53,28 +53,6 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        // 显示默认页面
-        switch (applicationState.defaultArguments.defaultPageId) {
-            case 'encodePage':
-                EncodeListeners.encodeSetUpEventListeners();
-                document.getElementById('decodePage').classList.add('displayNone');
-                document.getElementById('encodePage').classList.add('displayFlex');
-                document.getElementById('decodeButton').classList.add('backgroundNotSelected');
-                document.getElementById('encodeButton').classList.add('backgroundSecondary');
-                document.getElementById('decodeButton').addEventListener('click', switchPage);
-                break;
-            case 'decodePage':
-                DecodeListeners.decodeSetupEventListeners();
-                document.getElementById('encodePage').classList.add('displayNone');
-                document.getElementById('decodePage').classList.add('displayFlex');
-                document.getElementById('encodeButton').classList.add('backgroundNotSelected');
-                document.getElementById('decodeButton').classList.add('backgroundSecondary');
-                document.getElementById('encodeButton').addEventListener('click', switchPage);
-                break;
-        }
-    });
-
     function universalSetupEventListeners() {
         // 隐私政策按钮事件监听
         document.getElementById('togglePrivacyPolicy').addEventListener('click', (event) => {
@@ -121,6 +99,7 @@
     }
 
     const UniversalListeners = {
+        switchPage: switchPage,
         universalSetupEventListeners: universalSetupEventListeners
     };
 
