@@ -131,31 +131,23 @@
                 diff = applicationState.defaultArguments.min_difference;
                 event.target.value = applicationState.defaultArguments.min_difference;
             }
-            CloakProcessor.CloakEncoder.setDiff(diff);
+            CloakProcessor.CloakEncoder.setDiff(diff * 6);
         }, 500);
     }
 
-    // 设置输出图像大小
-    let sizeInputTimeout;
-    function encodeSetSize(event) {
-        clearTimeout(sizeInputTimeout);
-
-        sizeInputTimeout = setTimeout(function () {
-            PrismProcessor.PrismEncoder.size = parseInt(event.target.value, 10);
-            if (isNaN(PrismProcessor.PrismEncoder.size)) {
-                return;
-            }
-            if (PrismProcessor.PrismEncoder.size > applicationState.defaultArguments.maxSize) {
-                PrismProcessor.PrismEncoder.size = applicationState.defaultArguments.maxSize;
-                event.target.value = applicationState.defaultArguments.maxSize;
-            } else if (PrismProcessor.PrismEncoder.size < applicationState.defaultArguments.minSize) {
-                PrismProcessor.PrismEncoder.size = applicationState.defaultArguments.minSize;
-                event.target.value = applicationState.defaultArguments.minSize;
-            }
-            if (PrismProcessor.PrismEncoder.innerImg) {
-                PrismProcessor.PrismEncoder.updateInnerImage(PrismProcessor.PrismEncoder.innerImg);
-            }
-        }, 500);
+    // 设置编码方法
+    function encodeSetMethod(event) {
+        switch (event.target.value) {
+            case '1':
+                document.getElementById('encodeDiffInput').value = applicationState.defaultArguments.version_1.difference / 6;
+                CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_1.difference);
+                break;
+            case '2':
+                document.getElementById('encodeDiffInput').value = applicationState.defaultArguments.version_2.difference / 6;
+                CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_2.difference);
+                break;
+        }
+        CloakProcessor.CloakEncoder.setVersion(parseInt(event.target.value, 10));
     }
 
     // 处理图像
@@ -198,6 +190,7 @@
         document.getElementById('mirageSizeConfirmButton').addEventListener('click', encodeSetMirageSize);
         document.getElementById('isAddMarkCheckbox').addEventListener('change', encodeSetIsAddMark);
         document.getElementById('encodeDiffInput').addEventListener('change', encodeSetDiff);
+        document.getElementById('encodeMethodSelect').addEventListener('change', encodeSetMethod);
         document.getElementById('encodeProcessButton').addEventListener('click', encodeProcessImage);
         document.getElementById('encodeSaveButton').addEventListener('click', encodeSaveImage);
     }
@@ -223,6 +216,7 @@
         document.getElementById('mirageSizeConfirmButton').removeEventListener('click', encodeSetMirageSize);
         document.getElementById('isAddMarkCheckbox').removeEventListener('change', encodeSetIsAddMark);
         document.getElementById('encodeDiffInput').removeEventListener('change', encodeSetDiff);
+        document.getElementById('encodeMethodSelect').removeEventListener('change', encodeSetMethod);
         document.getElementById('encodeProcessButton').removeEventListener('click', encodeProcessImage);
         document.getElementById('encodeSaveButton').removeEventListener('click', encodeSaveImage);
     }

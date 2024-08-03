@@ -50,8 +50,7 @@
         }
 
         showTextOnCanvas(canvas, text = '暂不支持预览此文件', additionalText = '') {
-            canvas.width = 300;
-            canvas.height = 150;
+            this.clearCanvas(canvas);
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.font = '15px Microsoft Yahei';
@@ -110,6 +109,8 @@
         }
 
         clearCanvas(canvas) {
+            canvas.width = 300;
+            canvas.height = 150;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }

@@ -1,0 +1,65 @@
+defaultPageId:
+    the default page which should show up when launched.
+
+version:
+    the default version of encoding algorithm.
+
+defualt_threshold:
+    the globally default threshold, which will be used to decode the version information.
+    should NOT be changed after actual production.
+
+default_difference:
+    the globally default difference, which will be used to encode the version information.
+    should NOT be changed after actual production.
+    should be double of defualt_threshold.
+
+min_difference:
+    the minimum allowed user-configurable difference.
+
+max_difference:
+    the maximum allowed user-configurable difference.
+
+version_x:
+    the configurations for each version.
+
+(for version_1 & version_2):
+    default_threshold:
+        the default threshold, which will be used to decode the actual threshold value.
+        should NOT be changed after actual production.
+
+    default_difference:
+        the default difference, which will be used to encode the actual threshold value.
+        should NOT be changed after actual production.
+
+    remained:
+        the bytes remained at the beginning of the image while encoding, mainly for headers.
+
+    padding:
+        the bytes remained at the end of the image while encoding.
+
+    difference:
+        the default value of user-configurable difference.
+
+    scale_inner/cover:
+        the scale while scaling the gray attitude while encoding, 0 to 1.
+
+    offset_inner/cover:
+        the offset while scaling the gray attitude while encoding, 0 to 255.
+
+contrast_inner/cover:
+    the default value of user-configurable contrast.
+
+luminance_inner/cover:
+    the default value of user-configurable luminance.
+
+mirage_size:
+    the default value of user-configurable expected minimum output size.
+
+add_mark:
+    the default value of whether add the mark on piction or not, can be configured by the user.
+
+mark_path:
+    the path of the mark png.
+
+mark_ratio:
+    the ratio while scaling the mark png to put on the image, with reference of the size of output image.

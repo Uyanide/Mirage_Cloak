@@ -17,7 +17,10 @@
 
             this._version = defaultArguments.version;
 
-            this._decoder_v1 = new Decoder_v1(defaultArguments);
+            this._decoders = [
+                new Decoder_v1(defaultArguments),
+                new Decoder_v2(defaultArguments)
+            ];
         }
 
         updateImage = (img) => {
@@ -37,15 +40,17 @@
             if (!this._srcImageData) {
                 throw new Error('请先加载图像');
             }
-            switch (this._decoder_v1.getVersion(this._srcImageData)) {
-                case 1:
-                    const { fileExtension, byteArray } = this._decoder_v1.decode(this._srcImageData);
-                    this._fileExtension = fileExtension;
-                    this._byteArray = byteArray;
-                    break;
-                default:
-                    throw new Error('未知编码方式');
+
+            this.clearCanvas(this._outputCanvas);
+
+            const version = this._decoders[0].getVersion(this._srcImageData) - 1;
+            console.log('Version: ' + (version + 1));
+            if (version >= this._decoders.length) {
+                throw new Error('未知的编码方式');
             }
+            const { fileExtension, byteArray } = this._decoders[version].decode(this._srcImageData);
+            this._fileExtension = fileExtension;
+            this._byteArray = byteArray;
 
             this._fileType = this.classifyFileType(this._fileExtension);
             const blob = new Blob([this._byteArray], { type: this._fileType });
@@ -63,13 +68,14 @@
 
     class Decoder_v1 {
         constructor(defaultArguments) {
-            this._defaultThreshold = defaultArguments.default_threshold;
+            this._globalDefaultThreshold = defaultArguments.default_threshold;
+            this._defaultThreshold = defaultArguments.version_1.default_threshold;
             this._remained = defaultArguments.version_1.remained;
         }
 
         getVersion = (srcImageData) => {
             this._pos = 0;
-            this._threshold = this._defaultThreshold;
+            this._threshold = this._globalDefaultThreshold;
             this._dataRange = srcImageData.data.length;
             return this._getByte(srcImageData.data);
         }
@@ -81,7 +87,6 @@
             const data = srcImageData.data;
 
             this._threshold = this._getByte(data);
-
             console.log('Threshold: ' + this._threshold);
 
             let hiddenLength = 0;
@@ -102,6 +107,7 @@
                     }
                 }
             }
+            console.log('File extension: ' + fileExtension);
 
             let byteArray = new Uint8Array(hiddenLength);
             for (let i = 0; i < hiddenLength; i++) {
@@ -152,6 +158,106 @@
                 parity ^= (byte >> i) & 1;
             }
             return parity == isOdd;
+        }
+    }
+
+    class Decoder_v2 {
+        constructor(defaultArguments) {
+            this._defaultThreshold = defaultArguments.version_2.default_threshold;
+            this._remained = defaultArguments.version_2.remained;
+        }
+
+        decode = (srcImageData) => {
+            this._pos = 12;
+            this._threshold = this._defaultThreshold;
+            this._dataRange = srcImageData.data.length;
+            const data = srcImageData.data;
+
+            this._threshold = this._getBytePair(data);
+            console.log('Threshold: ' + this._threshold);
+
+            let hiddenLength = 0;
+            for (let i = 0; i < 32; i += 16) {
+                hiddenLength |= this._getBytePair(data) << i;
+            }
+            console.log('Size to be decoded: ' + hiddenLength);
+
+            let fileExtension = '';
+            let meetZero = false;
+            for (let i = 0; i < this._remained - 4; i++) {
+                const byte = this._getBytePair(data);
+                if (!meetZero) {
+                    if (byte === 0) {
+                        meetZero = true;
+                    } else {
+                        fileExtension += String.fromCharCode(byte);
+                    }
+                }
+            }
+
+            console.log('File extension: ' + fileExtension);
+
+            let byteArray = new Uint8Array(hiddenLength);
+            for (let i = 0; i < hiddenLength - 2; i += 2) {
+                const bytePair = this._getBytePair(data);
+                byteArray[i] = bytePair & 0xff;
+                byteArray[i + 1] = bytePair >> 8;
+            }
+            if (hiddenLength & 1) {
+                byteArray[hiddenLength - 1] = this._getBytePair(data);
+            } else {
+                const lastBytePair = this._getBytePair(data);
+                byteArray[hiddenLength - 2] = lastBytePair & 0xff;
+                byteArray[hiddenLength - 1] = lastBytePair >> 8;
+            }
+
+            return {
+                fileExtension: fileExtension,
+                byteArray: byteArray
+            };
+        }
+
+        _getBytePair = (data) => {
+            let buffer = 0;
+            for (let bitCount = 0; this._pos < this._dataRange; this._pos += 4) {
+                let getBitsPair = this._getBitsPairL;
+                if (data[this._pos] > 127) {
+                    getBitsPair = this._getBitsPairH;
+                }
+                buffer |= getBitsPair(data[this._pos]) << ((bitCount++) << 1);
+                buffer |= getBitsPair(data[this._pos + 1]) << ((bitCount++) << 1);
+                if (bitCount === 8) {
+                    const isOddPair = getBitsPair(data[this._pos + 2]);
+                    if (!this._checkParityPair(buffer, isOddPair)) {
+                        throw new Error('数据校验失败');
+                    } else {
+                        this._pos += 4;
+                        return buffer;
+                    }
+                } else {
+                    buffer |= getBitsPair(data[this._pos + 2]) << ((bitCount++) << 1);
+                }
+            }
+            throw new Error('不期望的文件结尾');
+        }
+
+        _getBitsPairH = (value) => {
+            return Math.max(Math.min(Math.floor((255 - value + this._threshold) / (this._threshold << 1)), 3), 0);
+        }
+
+        _getBitsPairL = (value) => {
+            return Math.max(Math.min(Math.floor((value + this._threshold) / (this._threshold << 1)), 3), 0);
+        }
+
+        _checkParityPair = (bytePair, isOddPair) => {
+            let parity = 0;
+            for (let i = 0; i < 8; i++) {
+                parity ^= (bytePair >> i) & 1;
+            }
+            for (let i = 8; i < 16; i++) {
+                parity ^= ((bytePair >> i) & 1) << 1;
+            }
+            return parity == isOddPair;
         }
     }
 
