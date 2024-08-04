@@ -1,5 +1,5 @@
 {
-    "defaultPageId": "decodePage",
+    "defaultPageId": "encodePage",
     "version": 1,
     "default_threshold": 16,
     "default_difference": 32,
@@ -33,6 +33,8 @@
     "luminance_cover": 50,
     "mirage_size": 1280,
     "add_mark": true,
+    "encode_compress": true,
+    "encode_compress_quality": 80,
     "mark_path": "/local/mark.png",
     "mark_ratio": 0.08
 }

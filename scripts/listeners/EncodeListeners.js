@@ -13,6 +13,7 @@
         errorHandling.currCanvasIndex = 1;
         const file = event.target.files[0];
         ImageLoader.updateImageFromFile(file, (img) => {
+            CloakProcessor.CloakEncoder.clearOutputCanvas();
             CloakProcessor.CloakEncoder.updateInnerImage(img);
         });
         event.target.value = '';
@@ -23,6 +24,7 @@
         errorHandling.currCanvasIndex = 2;
         const file = event.target.files[0];
         ImageLoader.updateImageFromFile(file, (img) => {
+            CloakProcessor.CloakEncoder.clearOutputCanvas();
             CloakProcessor.CloakEncoder.updateCoverImage(img);
         });
         event.target.value = '';
@@ -30,6 +32,7 @@
 
     // 从文件加载隐藏文件
     function encodeLoadHiddenFile(event) {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.updateHiddenFile(event.target.files[0]);
     }
 
@@ -37,6 +40,7 @@
     function encodeLoadInnerImageFromDrag(event) {
         errorHandling.currCanvasIndex = 1;
         ImageLoader.dragDropLoadImage(event, (img) => {
+            CloakProcessor.CloakEncoder.clearOutputCanvas();
             CloakProcessor.CloakEncoder.updateInnerImage(img);
         });
     }
@@ -45,6 +49,7 @@
     function encodeLoadCoverImageFromDrag(event) {
         errorHandling.currCanvasIndex = 2;
         ImageLoader.dragDropLoadImage(event, (img) => {
+            CloakProcessor.CloakEncoder.clearOutputCanvas();
             CloakProcessor.CloakEncoder.updateCoverImage(img);
         });
     }
@@ -52,55 +57,65 @@
     // 从拖动加载隐藏文件
     function encodeLoadHiddenFileFromDrag(event) {
         event.preventDefault();
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.updateHiddenFile(event.dataTransfer.files[0]);
     }
 
     // 设置里图对比度
     function encodeSetInnerContrast(event) {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.adjustInnerContrast(parseInt(event.target.value, 10));
     }
 
     // 重置里图对比度
     function resetInnerContrast() {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         document.getElementById('innerContrastRange').value = 50;
         CloakProcessor.CloakEncoder.adjustInnerContrast(50);
     }
 
     // 设置表图对比度
     function encodeSetCoverContrast(event) {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.adjustCoverContrast(parseInt(event.target.value, 10));
     }
 
     // 重置表图对比度
     function resetCoverContrast() {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         document.getElementById('coverContrastRange').value = 50;
         CloakProcessor.CloakEncoder.adjustCoverContrast(50);
     }
 
     // 设置里图亮度
     function encodeSetInnerLuminance(event) {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.adjustInnerLuminance(parseInt(event.target.value, 10));
     }
 
     // 重置里图亮度
     function resetInnerLuminance() {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         document.getElementById('innerLuminanceRange').value = 50;
         CloakProcessor.CloakEncoder.adjustInnerLuminance(50);
     }
 
     // 设置表图亮度
     function encodeSetCoverLuminance(event) {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.adjustCoverLuminance(parseInt(event.target.value, 10));
     }
 
     // 重置表图亮度
     function resetCoverLuminance() {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         document.getElementById('coverLuminanceRange').value = 50;
         CloakProcessor.CloakEncoder.adjustCoverLuminance(50);
     }
 
     // 设置指定输出图像大小
     function encodeSetMirageSize() {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         const size = parseInt(document.getElementById('mirageSizeInput').value, 10);
         if (size < 0 || size > 10000) {
             alert('请输入合理的整数');
@@ -111,7 +126,14 @@
 
     // 设置是否添加水印
     function encodeSetIsAddMark(event) {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.setIsAddMark(event.target.checked);
+    }
+
+    // 设置是否压缩隐写图像
+    function encodeSetIsCompress(event) {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
+        CloakProcessor.CloakEncoder.setIsCompress(event.target.checked);
     }
 
     // 设置噪声强度
@@ -120,6 +142,7 @@
         clearTimeout(diffInputTimeout);
 
         diffInputTimeout = setTimeout(function () {
+            CloakProcessor.CloakEncoder.clearOutputCanvas();
             let diff = parseInt(event.target.value, 10)
             if (isNaN(diff)) {
                 return;
@@ -137,6 +160,7 @@
 
     // 设置编码方法
     function encodeSetMethod(event) {
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
         switch (event.target.value) {
             case '1':
                 document.getElementById('encodeDiffInput').value = applicationState.defaultArguments.version_1.difference / 6;
@@ -152,11 +176,12 @@
 
     // 处理图像
     function encodeProcessImage() {
-        try {
-            CloakProcessor.CloakEncoder.process();
-        } catch (error) {
-            alert(error);
-        }
+        CloakProcessor.CloakEncoder.clearOutputCanvas();
+        // try {
+        CloakProcessor.CloakEncoder.process();
+        // } catch (error) {
+        //     alert(error);
+        // }
     }
 
     // 保存图像
@@ -189,6 +214,7 @@
         document.getElementById('coverResetLuminanceButton').addEventListener('click', resetCoverLuminance);
         document.getElementById('mirageSizeConfirmButton').addEventListener('click', encodeSetMirageSize);
         document.getElementById('isAddMarkCheckbox').addEventListener('change', encodeSetIsAddMark);
+        document.getElementById('isEncodeCompressCheckbox').addEventListener('change', encodeSetIsCompress);
         document.getElementById('encodeDiffInput').addEventListener('change', encodeSetDiff);
         document.getElementById('encodeMethodSelect').addEventListener('change', encodeSetMethod);
         document.getElementById('encodeProcessButton').addEventListener('click', encodeProcessImage);
@@ -215,6 +241,7 @@
         document.getElementById('coverResetLuminanceButton').removeEventListener('click', resetCoverLuminance);
         document.getElementById('mirageSizeConfirmButton').removeEventListener('click', encodeSetMirageSize);
         document.getElementById('isAddMarkCheckbox').removeEventListener('change', encodeSetIsAddMark);
+        document.getElementById('isEncodeCompressCheckbox').removeEventListener('change', encodeSetIsCompress);
         document.getElementById('encodeDiffInput').removeEventListener('change', encodeSetDiff);
         document.getElementById('encodeMethodSelect').removeEventListener('change', encodeSetMethod);
         document.getElementById('encodeProcessButton').removeEventListener('click', encodeProcessImage);

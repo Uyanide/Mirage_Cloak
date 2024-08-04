@@ -29,6 +29,8 @@
             this.luminance_cover = defaultArguments.luminance_cover;
             this.mirage_size = defaultArguments.mirage_size;
             this.add_mark = defaultArguments.add_mark;
+            this.encode_compress = defaultArguments.encode_compress;
+            this.encode_compress_quality = defaultArguments.encode_compress_quality;
             this.mark_path = defaultArguments.mark_path;
             this.mark_ratio = defaultArguments.mark_ratio;
         }
@@ -39,6 +41,7 @@
             document.getElementById('innerLuminanceRange').value = this.luminance_inner;
             document.getElementById('coverLuminanceRange').value = this.luminance_cover;
             document.getElementById('isAddMarkCheckbox').checked = this.add_mark;
+            document.getElementById('isEncodeCompressCheckbox').checked = this.encode_compress;
             document.getElementById('mirageSizeInput').value = this.mirage_size;
             switch (this.version) {
                 case 1:

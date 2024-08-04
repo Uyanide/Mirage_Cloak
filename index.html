@@ -13,7 +13,7 @@
         var CloakProcessor = CloakProcessor || {};
     </script>
     <script>
-        applicationState.version = '1.0.3';
+        applicationState.version = '1.0.4';
         // version check
         (() => {
             console.log('target version:', applicationState.version);
@@ -77,22 +77,30 @@
         // test if all scripts are loaded
         document.addEventListener('DOMContentLoaded', function () {
             const requiredScripts = [
+                'pngLib',
+                'jpegEncoder',
                 'DefaultArguments',
                 'CloakUniversal',
                 'CloakDecoder',
                 'CloakEncoder',
+                'ImageLoader',
                 'UniversalListeners',
                 'DecodeListeners',
                 'EncodeListeners',
                 'init'
             ];
+            let allLoaded = true;
             for (let i = 0; i < requiredScripts.length; i++) {
                 if (!errorHandling.scriptsLoaded[requiredScripts[i]]) {
                     console.error('Script not loaded:', requiredScripts[i]);
-                    alert('脚本' + requiredScripts[i] + '未能正确加载，请清空页面缓存后刷新重试。');
+                    allLoaded = false;
                 }
             }
-            console.log('All scripts loaded successfully.');
+            if (allLoaded) {
+                console.log('All scripts loaded successfully.');
+            } else {
+                alert('部分脚本未能成功加载，请刷新页面重试。可尝试清理浏览器缓存。');
+            }
         });
     </script>
 
@@ -105,6 +113,7 @@
     <link rel="stylesheet" type="text/css" href="/css/switch.css">
     <script id="jsonPath" data-json-path="/DefaultArguments.json" defer></script>
     <script src="/scripts/libs/pngLib.js" defer data-version></script>
+    <script src="/scripts/libs/jpegEncoder.js" defer data-version></script>
     <script src="/scripts/DefaultArguments.js" defer data-version></script>
     <script src="/scripts/processors/CloakUniversal.js" defer data-version></script>
     <script src="/scripts/processors/CloakDecoder.js" defer data-version></script>
@@ -148,11 +157,6 @@
                         class="fileInputLabel marginLeftLow inputReact transformSize">选择图片文件</label>
                     <input type="file" id="decodeImageFileInput" accept="image/*">
                 </div>
-                <div id="decodeUrlInput" class="displayFlex alignCenter marginTopMedium">
-                    <label for="decodeImageUrlInput" class="marginRightLow">或:</label>
-                    <input type="text" id="decodeImageUrlInput" class="inputReact marginRightLow" placeholder="输入图片URL">
-                    <button id="decodeLoadImageButton" class="inputReact transformSize">加载图片</button>
-                </div>
                 <div id="decodePasteInput" class="marginTopMedium">
                     或从剪贴板粘贴图片 (ctrl+v),
                 </div>
@@ -166,14 +170,12 @@
             </div>
 
             <div class="marginTopHigh">↓ 解码结果 ↓</div>
+            <button id="decodeSaveButton" class="inputReact marginTopMedium transformSize">保存结果</button>
             <canvas id="decodeOutputCanvas" class="marginTopMedium"></canvas>
 
             <div class="marginTopHigh">↓ 原图 ↓</div>
             <div class="marginTopLow fontSmall">(右下角开关灯可切换显示表里图)</div>
-            <canvas id="decodeInputCanvas" class="marginTopMedium"></canvas>
-
-            <button id="decodeSaveButton"
-                class="inputReact marginTopHigh marginBottomExtreme transformSize">保存结果</button>
+            <canvas id="decodeInputCanvas" class="marginTopMedium marginBottomExtreme"></canvas>
 
         </div>
 
@@ -215,7 +217,7 @@
                 </div>
             </div>
 
-            <div class="marginTopMedium">5. 预期输出尺寸:</div>
+            <label for="mirageSizeInput" class="marginTopMedium">5. 预期输出尺寸:</label>
             <div class="displyFlex flexRow justifyCenter alignCenter marginTopLow">
                 <input id="mirageSizeInput" type="number" class="inputReact"></input>
                 <button id="mirageSizeConfirmButton" class="inputReact transformSize marginLeftLow">确认应用</button>
@@ -244,6 +246,13 @@
             </div>
             <div class="fontSmall marginTopLow">(越靠下的选项隐写效率越高，但抗干扰能力越差)</div>
 
+            <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium">
+                <label for="isEncodeCompressCheckbox">9. </label>
+                <input type="checkbox" id="isEncodeCompressCheckbox"
+                    class="inputReact marginLeftLow marginRightLow"></input>
+                <label for="isEncodeCompressCheckbox">是否尝试压缩隐写图像以限制输出图像大小</label>
+            </div>
+
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopHigh">
                 <label for="hiddenSourceFileInput" class="fileInputLabel inputReact transformSize marginLeftLow">
                     选择隐写文件</label>
@@ -253,7 +262,8 @@
             <div class="encodeDrag marginTopMedium fontSmall">或直接拖动至下方画布</div>
             <canvas id="hiddenCanvas" class="marginTopMedium"></canvas>
             <div id="encodeOutputSize" class="marginTopMedium"></div>
-            <div class="marginTopLow fontSmall">(若尺寸过大可适当降低隐写文件的大小)</div>
+            <div class="marginTopLow fontSmall">(若尺寸过大可适当降低"5.预期输出尺寸")</div>
+            <div id="encodeHiddenSize" class="marginTopMedium"></div>
 
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium">
                 <button id="encodeProcessButton" class="inputReact marginRightLow transformSize">开始编码</button>
@@ -320,7 +330,7 @@
                             <td>增加亮度调整功能；<br>
                                 允许指定输出图像尺寸；<br>
                                 增加水印功能，并可选择是否添加；<br>
-                                使用UMD重构代码。
+                                使用UMD模块化所有脚本。
                             </td>
                         </tr>
                         <tr>
@@ -330,6 +340,11 @@
                         <tr>
                             <td>1.0.3</td>
                             <td>增加了一种新的编码方式。</td>
+                        </tr>
+                        <tr>
+                            <td>1.0.4</td>
+                            <td>使用fast-png库编/解码png以保证数据质量；<br>
+                                增加了是否压缩隐写图像的选项。</td>
                         </tr>
                     </tbody>
                 </table>

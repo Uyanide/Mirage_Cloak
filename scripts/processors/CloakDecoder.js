@@ -1,16 +1,22 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['/scripts/processors/CloakUniversal.js'], factory);
+        define([
+            '/scripts/processors/CloakUniversal.js',
+            '/scripts/libs/pngLib.js'
+        ], factory);
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('/scripts/processors/CloakUniversal.js'));
+        module.exports = factory(require(
+            '/scripts/processors/CloakUniversal.js',
+            '/scripts/libs/pngLib.js'
+        ));
     } else {
-        root.CloakDecoder = factory(root.CloakUniversal);
+        root.CloakDecoder = factory(root.CloakUniversal, root.pngLib);
     }
-}(typeof self !== 'undefined' ? self : this, function (CloakUniversal) {
+}(typeof self !== 'undefined' ? self : this, function (CloakUniversal, pngLib) {
     class CloakDecoder extends CloakUniversal {
         constructor(defaultArguments, inputCanvasId, outputCanvasId) {
             super(defaultArguments);
-            this._srcImage = null;
+            this._srcImageFile = null;
             this._srcImageData = null;
             this._inputCanvas = document.getElementById(inputCanvasId);
             this._outputCanvas = document.getElementById(outputCanvasId);
@@ -23,17 +29,36 @@
             ];
         }
 
-        updateImage = (img) => {
-            if (this._dataUrl) {
-                URL.revokeObjectURL(this._dataUrl);
-            }
-            this._srcImage = img;
-            this._inputCanvas.width = img.width;
-            this._inputCanvas.height = img.height;
-            this._inputCanvas.getContext('2d').drawImage(img, 0, 0);
-            this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, img.width, img.height);
-
-            this.process();
+        updateImage = async (imageFile) => {
+            return new Promise((resolve, reject) => {
+                if (this._dataUrl) {
+                    URL.revokeObjectURL(this._dataUrl);
+                }
+                const image = new Image();
+                image.onload = async () => {
+                    this._inputCanvas.width = image.width;
+                    this._inputCanvas.height = image.height;
+                    this._inputCanvas.getContext('2d').drawImage(image, 0, 0);
+                    URL.revokeObjectURL(image.src);
+                    if (imageFile.type !== 'image/png') {
+                        alert('图像非PNG格式! 数据可能损坏!');
+                        this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, this._inputCanvas.width, this._inputCanvas.height);
+                    } else {
+                        this._srcImageFile = imageFile;
+                        this._srcImageData = await pngLib.getImageDataFromImageFile(imageFile);
+                    }
+                    try {
+                        this.process();
+                    } catch (error) {
+                        reject(error);
+                    }
+                    resolve();
+                };
+                image.onerror = (error) => {
+                    reject(error);
+                };
+                image.src = URL.createObjectURL(imageFile);
+            });
         }
 
         process = () => {
@@ -41,10 +66,16 @@
                 throw new Error('请先加载图像');
             }
 
+            console.log('Decoding...');
+
             this.clearCanvas(this._outputCanvas);
+            this._fileExtension = null;
+            this._byteArray = null;
+            this._fileType = null;
+            this._dataUrl = null;
 
             const version = this._decoders[0].getVersion(this._srcImageData) - 1;
-            console.log('Version: ' + (version + 1));
+            console.log('   Version: ' + (version + 1));
             if (version >= this._decoders.length) {
                 throw new Error('未知的编码方式');
             }
@@ -56,6 +87,8 @@
             const blob = new Blob([this._byteArray], { type: this._fileType });
             this._dataUrl = URL.createObjectURL(blob);
             this.showResult(this._outputCanvas, this._dataUrl, this._fileExtension);
+
+            console.log('Decoding finished');
         }
 
         saveResult = () => {
@@ -87,13 +120,13 @@
             const data = srcImageData.data;
 
             this._threshold = this._getByte(data);
-            console.log('Threshold: ' + this._threshold);
+            console.log('   Threshold: ' + this._threshold);
 
             let hiddenLength = 0;
             for (let i = 0; i < 32; i += 8) {
                 hiddenLength |= this._getByte(data) << i;
             }
-            console.log('Size to be decoded: ' + hiddenLength);
+            console.log('   Size to be decoded: ' + hiddenLength);
 
             let fileExtension = '';
             let meetZero = false;
@@ -107,7 +140,7 @@
                     }
                 }
             }
-            console.log('File extension: ' + fileExtension);
+            console.log('   File extension: ' + fileExtension);
 
             let byteArray = new Uint8Array(hiddenLength);
             for (let i = 0; i < hiddenLength; i++) {
@@ -132,7 +165,17 @@
                 if (bitCount === 8) {
                     const isOdd = isSet(data[this._pos + 2]);
                     if (!this._checkParity(buffer, isOdd)) {
-                        throw new Error('数据校验失败');
+                        console.log('Error Info:')
+                        console.log('   Data: ' + buffer.toString(16));
+                        console.log('   Parity: ' + isOdd);
+                        console.log('   Pixel Index: ' + this._pos / 4);
+                        console.log('   Previous RGB:');
+                        for (let i = 2; i >= 0; i--) {
+                            console.log(data[this._pos - 4 * i]);
+                            console.log(data[this._pos - 4 * i + 1]);
+                            console.log(data[this._pos - 4 * i + 2]);
+                        }
+                        throw new Error('数据校验失败，请查看控制台输出。');
                     } else {
                         this._pos += 4;
                         return buffer;
@@ -174,13 +217,13 @@
             const data = srcImageData.data;
 
             this._threshold = this._getBytePair(data);
-            console.log('Threshold: ' + this._threshold);
+            console.log('   Threshold: ' + this._threshold);
 
             let hiddenLength = 0;
             for (let i = 0; i < 32; i += 16) {
                 hiddenLength |= this._getBytePair(data) << i;
             }
-            console.log('Size to be decoded: ' + hiddenLength);
+            console.log('   Size to be decoded: ' + hiddenLength);
 
             let fileExtension = '';
             let meetZero = false;
@@ -195,7 +238,7 @@
                 }
             }
 
-            console.log('File extension: ' + fileExtension);
+            console.log('   File extension: ' + fileExtension);
 
             let byteArray = new Uint8Array(hiddenLength);
             for (let i = 0; i < hiddenLength - 2; i += 2) {
@@ -229,7 +272,17 @@
                 if (bitCount === 8) {
                     const isOddPair = getBitsPair(data[this._pos + 2]);
                     if (!this._checkParityPair(buffer, isOddPair)) {
-                        throw new Error('数据校验失败');
+                        console.log('Error Info:')
+                        console.log('   Data: ' + buffer.toString(16));
+                        console.log('   Parity: ' + isOddPair);
+                        console.log('   Pixel Index: ' + this._pos / 4);
+                        console.log('   Previous RGB:');
+                        for (let i = 2; i >= 0; i--) {
+                            console.log(data[this._pos - 4 * i]);
+                            console.log(data[this._pos - 4 * i + 1]);
+                            console.log(data[this._pos - 4 * i + 2]);
+                        }
+                        throw new Error('数据校验失败，请查看控制台输出。');
                     } else {
                         this._pos += 4;
                         return buffer;

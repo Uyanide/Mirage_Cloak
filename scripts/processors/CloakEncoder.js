@@ -2,19 +2,21 @@
     if (typeof define === 'function' && define.amd) {
         define([
             '/scripts/processors/CloakUniversal.js',
-            '/scripts/libs/pngLib.js'
+            '/scripts/libs/pngLib.js',
+            '/scripts/libs/jpegEncoder.js'
         ], factory);
     } else if (typeof module === 'object' && module.exports) {
         module.exports = factory(require(
             '/scripts/processors/CloakUniversal.js',
-            '/scripts/libs/pngLib.js'
+            '/scripts/libs/pngLib.js',
+            '/scripts/libs/jpegEncoder.js'
         ));
     } else {
-        root.CloakEncoder = factory(root.CloakUniversal, root.pngLib);
+        root.CloakEncoder = factory(root.CloakUniversal, root.pngLib, root.JPEGEncoder);
     }
-}(typeof self !== 'undefined' ? self : this, function (CloakUniversal, pngLib) {
+}(typeof self !== 'undefined' ? self : this, function (CloakUniversal, pngLib, JPEGEncoder) {
     class CloakEncoder extends CloakUniversal {
-        constructor(defaultArguments, innerCanvasId, coverCanvasId, hiddenCanvasId, outputCanvasId, sizeLabelId) {
+        constructor(defaultArguments, innerCanvasId, coverCanvasId, hiddenCanvasId, outputCanvasId, sizeLabelId, hiddenSizeLabelId) {
             super(defaultArguments);
             this._innerImage = null;
             this._coverImage = null;
@@ -26,6 +28,9 @@
             this._coverLuminance = defaultArguments.luminance_cover;
 
             this._mirageSize = defaultArguments.mirage_size;
+
+            this._isCompress = defaultArguments.encode_compress;
+            this._compressQuality = defaultArguments.encode_compress_quality;
 
             this._version = defaultArguments.version;
             switch (this._version) {
@@ -41,7 +46,9 @@
 
             this._hiddenFile = null;
             this._fileExtension = '';
+            this._fileExtensionCompressed = '';
             this._byteArray = null;
+            this._byteArrayCompressed = null;
             this._outputData = null;
 
             this._innerCanvas = document.getElementById(innerCanvasId);
@@ -49,6 +56,7 @@
             this._hiddenCanvas = document.getElementById(hiddenCanvasId);
             this._outputCanvas = document.getElementById(outputCanvasId);
             this._sizeLabel = document.getElementById(sizeLabelId);
+            this._hiddenSizeLabel = document.getElementById(hiddenSizeLabelId);
 
             this._isAddMark = defaultArguments.add_mark;
             this._markImage = null;
@@ -60,7 +68,7 @@
             ];
         }
 
-        updateInnerImage(img) {
+        updateInnerImage = async (img) => {
             this._innerImage = img;
 
             if (this._mirageSize !== 0) {
@@ -77,15 +85,10 @@
             }
 
             if (this._byteArray) {
-                const currLength = this._width * this._height;
-                const tarLength = this._encoders[this._version - 1].getRequiredLength(this._byteArray);
-
-                if (tarLength > currLength) {
-                    const ratio = Math.sqrt(tarLength / currLength);
-                    this._width = Math.ceil(this._width * ratio);
-                    this._height = Math.ceil(this._height * ratio);
-                }
+                const length = await this._adjustSize();
+                console.log('Size to be encoded: ' + length);
             }
+
             this._innerCanvas.width = this._width;
             this._innerCanvas.height = this._height;
             const ctx = this._innerCanvas.getContext('2d');
@@ -101,6 +104,66 @@
             if (this._coverImageData) {
                 this.updateCoverImage(this._coverImage);
             }
+        }
+
+        _adjustSize = async () => {
+            return new Promise(async (resolve, reject) => {
+                let currLength = this._width * this._height;
+                let tarLength = this._encoders[this._version - 1].getRequiredLength(this._byteArray);
+
+                if (tarLength > currLength) { // if the hidden file is too large
+                    let ratio = tarLength / currLength;
+                    if (this._hiddenFile.type.startsWith('image') && !this._hiddenFile.type.startsWith('image/gif')) { // if the hidden file is a static image
+                        await this._drawHiddenImageOnCanvas();
+                        if (this._isCompress) {
+                            let hiddenImageData = this._hiddenCanvas.getContext('2d').getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
+                            if (hiddenImageData) { // if get image data successfully, try to compress the hidden image by converting it to jpeg
+                                const jpegEncoder = new JPEGEncoder(this._compressQuality);
+                                let jpegData = jpegEncoder.encode(hiddenImageData);
+                                tarLength = this._encoders[this._version - 1].getRequiredLength(jpegData);
+                                ratio = tarLength / currLength;
+                                if (ratio > 1) { // if the hidden image is still too large after compression, resize it
+                                    ratio = Math.sqrt(ratio);
+                                    this._hiddenCanvas.width = Math.ceil(this._hiddenCanvas.width * ratio);
+                                    this._hiddenCanvas.height = Math.ceil(this._hiddenCanvas.height * ratio);
+
+                                    await this._drawHiddenImageOnCanvas(1 / ratio);
+                                    const ctx = this._hiddenCanvas.getContext('2d');
+                                    hiddenImageData = ctx.getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
+                                    jpegData = jpegEncoder.encode(hiddenImageData);
+
+                                    tarLength = this._encoders[this._version - 1].getRequiredLength(jpegData); // update target length
+                                    ratio = tarLength / currLength; // update ratio
+                                    if (ratio > 1) { // if the hidden image is still too large after resizing, scale the size of the inner image
+                                        this._scaleSize(ratio);
+                                    }
+                                }
+                                this._hiddenSizeLabel.innerHTML = `隐藏图像尺寸: ${this._hiddenCanvas.width}x${this._hiddenCanvas.height}`;
+                                this._byteArrayCompressed = jpegData;
+                                this._fileExtensionCompressed = 'jpg'; // change file extension to jpg
+                                resolve(this._byteArrayCompressed.length);
+                            }
+                        }
+                        this._hiddenSizeLabel.innerHTML = `隐藏图像尺寸: ${this._hiddenCanvas.width}x${this._hiddenCanvas.height}`;
+                    } else {
+                        this._hiddenSizeLabel.innerHTML = '';
+                        this._byteArrayCompressed = null;
+                        this._fileExtensionCompressed = '';
+                    }
+                    this._scaleSize(ratio);
+                    resolve(this._byteArray.length);
+                } else {
+                    this._byteArrayCompressed = null;
+                    this._fileExtensionCompressed = '';
+                    resolve(this._byteArray.length);
+                }
+            });
+        }
+
+        _scaleSize = (ratio) => {
+            ratio = Math.sqrt(ratio);
+            this._width = Math.ceil(this._width * ratio);
+            this._height = Math.ceil(this._height * ratio);
         }
 
         updateCoverImage(img) {
@@ -139,8 +202,9 @@
             }
         }
 
-        updateHiddenFile(file) {
+        updateHiddenFile = async (file) => {
             this._hiddenFile = file;
+            this._byteArrayCompressed = null;
 
             const fileName = file.name;
             const dotIndex = fileName.lastIndexOf('.');
@@ -155,32 +219,43 @@
             }
 
             if (file.type.startsWith('image/') && !file.type.startsWith('image/gif')) {
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-                img.onload = () => {
-                    this.clearCanvas(this._hiddenCanvas);
-                    this._hiddenCanvas.width = img.width;
-                    this._hiddenCanvas.height = img.height;
-                    const ctx = this._hiddenCanvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    URL.revokeObjectURL(img.src);
-                };
-            } else if (file.type) {
-                this.showTextOnCanvas(this._hiddenCanvas, '暂不支持预览此文件', '文件类型: ' + file.type);
+                await this._drawHiddenImageOnCanvas();
+                this._hiddenSizeLabel.innerHTML = `隐藏图像尺寸: ${this._hiddenCanvas.width}x${this._hiddenCanvas.height}`;
+                this._getHiddenByteArray();
             } else {
-                this.showTextOnCanvas(this._hiddenCanvas, '暂不支持预览此文件');
+                this._hiddenSizeLabel.innerHTML = '';
+                this.showTextOnCanvas(this._hiddenCanvas, '暂不支持预览此文件', file.type ? '文件类型: ' + file.type : '');
+                this._getHiddenByteArray();
             }
+        }
 
+        _getHiddenByteArray = () => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const arrayBuffer = event.target.result;
                 this._byteArray = new Uint8Array(arrayBuffer);
-                console.log('Size of hidden file:', this._byteArray.length);
                 if (this._innerImage) {
                     this.updateInnerImage(this._innerImage);
                 }
             }
-            reader.readAsArrayBuffer(file);
+            reader.readAsArrayBuffer(this._hiddenFile);
+        }
+
+        _drawHiddenImageOnCanvas = async (scaleRatio = 1) => {
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+                img.onload = () => {
+                    this.clearCanvas(this._hiddenCanvas);
+                    this._hiddenCanvas.width = img.width * scaleRatio;
+                    this._hiddenCanvas.height = img.height * scaleRatio;
+                    const ctx = this._hiddenCanvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
+                    URL.revokeObjectURL(img.src);
+                    resolve();
+                };
+                img.onerror = reject;
+                img.src = URL.createObjectURL(this._hiddenFile);
+            });
         }
 
         process = () => {
@@ -193,11 +268,18 @@
             const innerImageDataAdjust = this._innerCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
             const coverImageDataAdjust = this._coverCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
 
+            console.log('Encoding...');
+            console.log('    Version: ' + this._version);
+            console.log('    Output size: ' + this._width + 'x' + this._height);
+            console.log('    Size to be encoded: ' + ((this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed.length : this._byteArray.length));
+            console.log('    File extension: ' + ((this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension));
+            console.log('    Difference: ' + this._diff);
+
             this._outputData = this._encoders[this._version - 1].encode(
                 innerImageDataAdjust,
                 coverImageDataAdjust,
-                this._byteArray,
-                this._fileExtension,
+                (this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed : this._byteArray,
+                (this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension,
                 this._diff
             );
 
@@ -205,6 +287,9 @@
             this._outputCanvas.height = this._height;
             const imgData = new ImageData(this._outputData, this._width, this._height);
             this._outputCanvas.getContext('2d').putImageData(imgData, 0, 0);
+            this._isOutputCanvasCleared = false;
+
+            console.log('Encoding finished');
         }
 
         convertGray = (imgData) => {
@@ -323,7 +408,7 @@
         setMirageSize = (size) => {
             this._mirageSize = size;
             if (this._innerImage) {
-                this.updateInnerImage(this._innerImage);
+                this.updateInnerImage(this._innerImage); // update inner image to adjust size
             }
         }
 
@@ -335,6 +420,21 @@
             this._version = version;
             if (this._byteArray && this._innerImage) {
                 this.updateInnerImage(this._innerImage); // update inner image to adjust size
+            }
+        }
+
+        setIsCompress = async (isCompress) => {
+            this._isCompress = isCompress;
+            if (this._byteArray && this._innerImage) {
+                this.updateInnerImage(this._innerImage); // update inner image to adjust size
+            }
+        }
+
+        clearOutputCanvas = () => {
+            if (!this._isOutputCanvasCleared) {
+                this.clearCanvas(this._outputCanvas);
+                this._isOutputCanvasCleared = true;
+                this._outputData = null;
             }
         }
     }

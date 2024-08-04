@@ -58,6 +58,9 @@ mirage_size:
 add_mark:
     the default value of whether add the mark on piction or not, can be configured by the user.
 
+add_mark:
+    the default value of whether try to compress hidden image to minimize size of output image, can be configured by the user.
+
 mark_path:
     the path of the mark png.
 

@@ -66,7 +66,7 @@
 
             // 实例化解码器和编码器
             CloakProcessor.CloakDecoder = new CloakDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputCanvas');
-            CloakProcessor.CloakEncoder = new CloakEncoder(applicationState.defaultArguments, 'innerCanvas', 'coverCanvas', 'hiddenCanvas', 'encodeOutputCanvas', 'encodeOutputSize');
+            CloakProcessor.CloakEncoder = new CloakEncoder(applicationState.defaultArguments, 'innerCanvas', 'coverCanvas', 'hiddenCanvas', 'encodeOutputCanvas', 'encodeOutputSize', 'encodeHiddenSize');
 
             // // 加载默认图像
             // errorHandling.defaultImg = [];

@@ -40,19 +40,6 @@
         // }
     }
 
-    function convertBlobToBase64(blob) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                resolve(reader.result);
-            };
-            reader.onerror = (error) => {
-                reject(error);
-            };
-            reader.readAsDataURL(blob);
-        });
-    }
-
     // 从源加载图像并返回
     async function loadImage(input, timeout = 5000) {
         return new Promise((resolve, reject) => {
@@ -95,41 +82,43 @@
     }
 
     // 从文件加载图像，调用callback
-    async function updateImageFromFile(file, callback) {
-        loadImage(file).then((img) => {
-            callback(img);
-        }).catch((error) => {
-            handleImageLoadError(error, callback);
-        });
-    }
-
-    // 从URL加载图像，调用callback
-    async function updateImageFromURL(event, callback) {
-        const imageUrl = event.target.previousElementSibling.value;
-        loadImage(imageUrl).then((img) => {
-            callback(img);
-        }).catch((error) => {
-            handleImageLoadError(error, callback);
-        });
+    async function updateImageFromFile(file, callback, isRequireRawFile = false) {
+        if (!isRequireRawFile) {
+            loadImage(file).then((img) => {
+                callback(img);
+            }).catch((error) => {
+                handleImageLoadError(error, callback);
+            });
+        } else {
+            callback(file).then().catch((error) => {
+                handleImageLoadError(error, callback);
+            });
+        }
     }
 
     // 从剪贴板更新图像，调用callback
-    async function updateImageFromClipboard(event, callback) {
+    async function updateImageFromClipboard(event, callback, isRequireRawFile = false) {
         const items = (event.clipboardData || event.originalEvent.clipboardData).items;
         for (const item of items) {
             if (item.type.indexOf('image') !== -1) {
                 const blob = item.getAsFile();
-                loadImage(blob).then((img) => {
-                    callback(img);
-                }).catch((error) => {
-                    handleImageLoadError(error, callback);
-                });
+                if (!isRequireRawFile) {
+                    loadImage(blob).then((img) => {
+                        callback(img);
+                    }).catch((error) => {
+                        handleImageLoadError(error, callback);
+                    });
+                } else {
+                    callback(file).then().catch((error) => {
+                        handleImageLoadError(error, callback);
+                    });
+                }
             }
         }
     }
 
     // 直接从剪贴板更新图像，调用callback
-    async function updateImageFromClipboardDirect(callback) {
+    async function updateImageFromClipboardDirect(callback, isRequireRawFile = false) {
         try {
             const permission = await navigator.permissions.query({ name: 'clipboard-read' });
             if (permission.state === 'granted' || permission.state === 'prompt') {
@@ -137,18 +126,24 @@
                 for (const item of clipboardItems) {
                     if (item.types.some(type => type.startsWith('image/'))) {
                         const blob = await item.getType(item.types.find(type => type.startsWith('image/')));
-                        const url = await convertBlobToBase64(blob);
-                        loadImage(url).then((img) => {
-                            callback(img);
-                        }).catch((error) => {
-                            throw error;
-                        });
+                        const file = new File([blob], 'clipboard.png', { type: blob.type });
+                        if (!isRequireRawFile) {
+                            loadImage(file).then((img) => {
+                                callback(img);
+                            }).catch((error) => {
+                                throw error;
+                            });
+                        } else {
+                            callback(file).then().catch((error) => {
+                                handleImageLoadError(error, callback);
+                            });
+                        }
                     } else {
-                        alert('剪贴板中没有图片');
+                        throw new Error('剪贴板中没有图像');
                     }
                 }
             } else {
-                alert('没有剪贴板读取权限');
+                throw new Error('未获得剪贴板访问权限');
             }
         } catch (error) {
             handleImageLoadError(error, callback);
@@ -156,17 +151,23 @@
     }
 
     // 拖动文件加载图像
-    async function dragDropLoadImage(event, callback) {
+    async function dragDropLoadImage(event, callback, isRequireRawFile = false) {
         event.preventDefault();
         if (event.dataTransfer.items) {
             for (const item of event.dataTransfer.items) {
                 if (item.kind === 'file') {
                     const file = item.getAsFile();
-                    loadImage(file).then((img) => {
-                        callback(img);
-                    }).catch((error) => {
-                        handleImageLoadError(error, callback);
-                    });
+                    if (!isRequireRawFile) {
+                        loadImage(file).then((img) => {
+                            callback(img);
+                        }).catch((error) => {
+                            handleImageLoadError(error, callback);
+                        });
+                    } else {
+                        callback(file).then().catch((error) => {
+                            handleImageLoadError(error, callback);
+                        });
+                    }
                 }
             }
         }
@@ -175,7 +176,6 @@
     const ImageLoader = {
         copyImage: copyImage,
         updateImageFromFile: updateImageFromFile,
-        updateImageFromURL: updateImageFromURL,
         updateImageFromClipboard: updateImageFromClipboard,
         updateImageFromClipboardDirect: updateImageFromClipboardDirect,
         dragDropLoadImage: dragDropLoadImage,
@@ -183,3 +183,5 @@
 
     return ImageLoader;
 }));
+
+errorHandling.scriptsLoaded.ImageLoader = true;
