@@ -134,6 +134,10 @@
     font-size: var(--small-font-size);
 }
 
+.textDecorationNone {
+    text-decoration: none;
+}
+
 .borferNone {
     border: none;
 }

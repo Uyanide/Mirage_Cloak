@@ -142,20 +142,23 @@
                                 this._byteArrayCompressed = jpegData;
                                 this._fileExtensionCompressed = 'jpg'; // change file extension to jpg
                                 resolve(this._byteArrayCompressed.length);
+                                return;
                             }
                         }
                         this._hiddenSizeLabel.innerHTML = `隐藏图像尺寸: ${this._hiddenCanvas.width}x${this._hiddenCanvas.height}`;
-                    } else {
+                    } else { // if the hidden file is not an image, not compressible
                         this._hiddenSizeLabel.innerHTML = '';
                         this._byteArrayCompressed = null;
                         this._fileExtensionCompressed = '';
                     }
                     this._scaleSize(ratio);
                     resolve(this._byteArray.length);
+                    return;
                 } else {
                     this._byteArrayCompressed = null;
                     this._fileExtensionCompressed = '';
                     resolve(this._byteArray.length);
+                    return;
                 }
             });
         }
