@@ -109,7 +109,7 @@
                         handleImageLoadError(error, callback);
                     });
                 } else {
-                    callback(file).then().catch((error) => {
+                    callback(blob).then().catch((error) => {
                         handleImageLoadError(error, callback);
                     });
                 }
@@ -126,15 +126,14 @@
                 for (const item of clipboardItems) {
                     if (item.types.some(type => type.startsWith('image/'))) {
                         const blob = await item.getType(item.types.find(type => type.startsWith('image/')));
-                        const file = new File([blob], 'clipboard.png', { type: blob.type });
                         if (!isRequireRawFile) {
-                            loadImage(file).then((img) => {
+                            loadImage(blob).then((img) => {
                                 callback(img);
                             }).catch((error) => {
                                 throw error;
                             });
                         } else {
-                            callback(file).then().catch((error) => {
+                            callback(blob).then().catch((error) => {
                                 handleImageLoadError(error, callback);
                             });
                         }

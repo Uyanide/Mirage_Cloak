@@ -1,5 +1,5 @@
 {
-    "defaultPageId": "encodePage",
+    "defaultPageId": "decodePage",
     "version": 1,
     "default_threshold": 16,
     "default_difference": 32,

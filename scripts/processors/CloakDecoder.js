@@ -36,23 +36,27 @@
                 }
                 const image = new Image();
                 image.onload = async () => {
-                    this._inputCanvas.width = image.width;
-                    this._inputCanvas.height = image.height;
-                    this._inputCanvas.getContext('2d').drawImage(image, 0, 0);
-                    URL.revokeObjectURL(image.src);
-                    if (imageFile.type !== 'image/png') {
-                        alert('图像非PNG格式! 数据可能损坏!');
-                        this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, this._inputCanvas.width, this._inputCanvas.height);
-                    } else {
+                    try {
+                        this._inputCanvas.width = image.width;
+                        this._inputCanvas.height = image.height;
+                        this._inputCanvas.getContext('2d').drawImage(image, 0, 0);
+                        URL.revokeObjectURL(image.src);
+
                         this._srcImageFile = imageFile;
                         this._srcImageData = await pngLib.getImageDataFromImageFile(imageFile);
-                    }
-                    try {
+
                         this.process();
+                        resolve();
                     } catch (error) {
-                        reject(error);
+                        alert('图像非PNG格式！数据可能损坏。' + error);
+                        try {
+                            this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, this._inputCanvas.width, this._inputCanvas.height);
+                            this.process();
+                            resolve();
+                        } catch (innerError) {
+                            reject(innerError);
+                        }
                     }
-                    resolve();
                 };
                 image.onerror = (error) => {
                     reject(error);
