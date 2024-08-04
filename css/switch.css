@@ -2,12 +2,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    position: fixed;
     bottom: 20px;
     right: 20px;
     padding: 5px 20px;
-    background-color: var(--element-backgound-color);
-    border-radius: 40px;
     cursor: pointer;
 }
 

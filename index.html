@@ -13,7 +13,7 @@
         var CloakProcessor = CloakProcessor || {};
     </script>
     <script>
-        applicationState.version = '1.0.4.1';
+        applicationState.version = '1.0.4.2';
         // version check
         (() => {
             console.log('target version:', applicationState.version);
@@ -133,14 +133,6 @@
     <a class="fontMedium frontLinkColor marginTopMedium transformSize textDecorationNone" target="_blank"
         href="https://github.com/Uyanide/Mirage_Cloak">⌈ 一种基于棋盘格幻影坦克的无影(类lsb)隐写术 ⌋</a>
 
-    <div class="switchContainer">
-        <p id="isDarkModeLabel">切换明/暗主题</p>
-        <label class="switch" id="isDarkmodeSwitch">
-            <input type="checkbox" id="isDarkmodeCheckbox" title="switch from themes">
-            <span class="switchSlider"></span>
-        </label>
-    </div>
-
     <div class="PageContainer displayFlex justifyCenter alignCenter flexColumn refWidthHigh paddingHigh fontMedium">
 
         <div class="TitleContainer displayFlex justifySpaceBetween alignCenter flexRow gapLow refWidthFull">
@@ -173,12 +165,13 @@
             </div>
 
             <div class="marginTopHigh">↓ 解码结果 ↓</div>
-            <button id="decodeSaveButton" class="inputReact marginTopMedium transformSize">保存结果</button>
             <canvas id="decodeOutputCanvas" class="marginTopMedium"></canvas>
+            <button id="decodeSaveButton" class="inputReact marginTopMedium transformSize">保存结果</button>
 
             <div class="marginTopHigh">↓ 原图 ↓</div>
-            <div class="marginTopLow fontSmall">(右下角开关灯可切换显示表里图)</div>
-            <canvas id="decodeInputCanvas" class="marginTopMedium marginBottomExtreme"></canvas>
+            <canvas id="decodeInputCanvas" class="marginTopMedium"></canvas>
+            <div class="marginTopMedium fontSmall">(下方开关灯可切换显示表里图)</div>
+            <div class="marginTopLow fontSmall marginBottomExtreme">(若出现摩尔纹可适当缩放网页界面)</div>
 
         </div>
 
@@ -277,8 +270,16 @@
 
         </div>
 
+        <div class="switchContainer">
+            <p id="isDarkModeLabel">切换明/暗主题</p>
+            <label class="switch" id="isDarkmodeSwitch">
+                <input type="checkbox" id="isDarkmodeCheckbox" title="switch from themes">
+                <span class="switchSlider"></span>
+            </label>
+        </div>
+
         <div id="pageBelow" class="displayFlex frontColor justifyCenter alignCenter flexColumn">
-            <div id="versionInfo" class="marginTopHigh fontLarge">version: <b>UNKNOWN</b></div>
+            <div id="versionInfo" class="fontLarge">version: <b>UNKNOWN</b></div>
 
             <div class="marginTopLow fontSmall">
                 如发现有功能不正常可手动清理浏览器缓存后刷新
