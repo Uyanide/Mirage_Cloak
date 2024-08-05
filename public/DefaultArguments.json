@@ -44,6 +44,6 @@
     "add_mark": true,
     "encode_compress": true,
     "encode_compress_quality": 80,
-    "mark_path": "/public/res/mark.png",
+    "mark_path": "./res/mark.png",
     "mark_ratio": 0.08
 }
