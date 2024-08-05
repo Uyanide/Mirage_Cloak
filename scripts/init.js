@@ -79,7 +79,7 @@
             };
             applicationState.markImage.onerror = (event) => {
                 console.error('无法加载水印图案: ' + applicationState.defaultArguments.mark_path, event);
-                alert('无法加载水印图案: ' + applicationState.defaultArguments.mark_path + '\n错误详情: ' + event.message);
+                alert('无法加载水印图案: ' + applicationState.defaultArguments.mark_path + '\n' + event.message);
                 CloakProcessor.CloakEncoder.updateMarkImage(null);
             };
             applicationState.markImage.src = applicationState.defaultArguments.mark_path;
@@ -118,7 +118,7 @@
             }
         } catch (error) {
             console.error('Failed to initialize: ' + error);
-            alert('初始化失败: ' + error);
+            alert('初始化失败！' + error);
         }
     });
 }));

@@ -35,6 +35,8 @@ JPEG encoder ported to JavaScript and optimized by Andreas Ritter, www.bytestrom
 Basic GUI blocking jpeg encoder
 */
 
+const Buffer = require('buffer').Buffer;
+
 var btoa = btoa || function (buf) {
     return Buffer.from(buf).toString('base64');
 };

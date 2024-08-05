@@ -1,0 +1,23 @@
+{
+    "name": "mirage_cloak",
+    "version": "1.0.0",
+    "description": "",
+    "main": "init.js",
+    "scripts": {
+        "build": "webpack",
+        "start": "webpack-dev-server --open"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@babel/core": "^7.25.2",
+        "@babel/preset-env": "^7.25.3",
+        "babel-loader": "^9.1.3",
+        "webpack-cli": "^5.1.4",
+        "webpack-dev-server": "^5.0.4"
+    },
+    "dependencies": {
+        "buffer": "^6.0.3"
+    }
+}

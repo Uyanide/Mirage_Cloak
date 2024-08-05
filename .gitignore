@@ -1,2 +1,3 @@
-/toDoList
-/.vscode
+toDoList
+.vscode/
+node_modules/

@@ -11,7 +11,7 @@
         async loadDefaultArguments(jsonPath) {
             const response = await fetch(jsonPath);
             if (!response.ok) {
-                throw new Error('网络请求失败');
+                throw new Error('网络请求失败！');
             }
             const defaultArguments = await response.json();
             this.defaultPageId = defaultArguments.defaultPageId;

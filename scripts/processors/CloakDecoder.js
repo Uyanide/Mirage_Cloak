@@ -50,7 +50,7 @@
                         resolve();
                     } catch (error) {
                         try {
-                            alert('第一次尝试失败，正在尝试第二次加载。' + error);
+                            alert('第一次处理失败，正在尝试第二次加载...' + error);
                             this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, this._inputCanvas.width, this._inputCanvas.height);
                             this.process();
                             resolve();
@@ -68,7 +68,7 @@
 
         process = () => {
             if (!this._srcImageData) {
-                throw new Error('请先加载图像');
+                throw new Error('请先加载图像！');
             }
 
             console.log('Decoding...');
@@ -82,7 +82,7 @@
             const version = this._decoders[1].getVersion(this._srcImageData);
             console.log('   Version: ' + version);
             if (version >= this._decoders.length) {
-                throw new Error('未知的编码方式');
+                throw new Error('未知的编码方式！');
             }
             const { fileExtension, byteArray } = this._decoders[version].decode(this._srcImageData);
             this._fileExtension = fileExtension;
@@ -98,7 +98,7 @@
 
         saveResult = () => {
             if (!this._dataUrl) {
-                throw new Error('没有文件可供保存');
+                throw new Error('没有文件可供保存！');
             }
             this.saveResultFromUrl(this._dataUrl, this._fileExtension);
         }
@@ -184,7 +184,7 @@
                             console.log(data[this._pos - 4 * i + 1]);
                             console.log(data[this._pos - 4 * i + 2]);
                         }
-                        throw new Error('数据校验失败，请查看控制台输出。');
+                        throw new Error('数据校验失败！详细信息可查看控制台输出。');
                     } else {
                         this._pos += 4;
                         return buffer;
@@ -193,7 +193,7 @@
                     buffer |= isSet(data[this._pos + 2]) << (bitCount++);
                 }
             }
-            throw new Error('不期望的文件结尾');
+            throw new Error('不期望的文件结尾！');
         }
 
         _isSetH = (value) => {
@@ -291,7 +291,7 @@
                             console.log(data[this._pos - 4 * i + 1]);
                             console.log(data[this._pos - 4 * i + 2]);
                         }
-                        throw new Error('数据校验失败，请查看控制台输出。');
+                        throw new Error('数据校验失败！详情可查看控制台输出。');
                     } else {
                         this._pos += 4;
                         return buffer;
@@ -300,7 +300,7 @@
                     buffer |= getBitsPair(data[this._pos + 2]) << ((bitCount++) << 1);
                 }
             }
-            throw new Error('不期望的文件结尾');
+            throw new Error('不期望的文件结尾！');
         }
 
         _getBitsPairH = (value) => {
@@ -330,7 +330,7 @@
             this._data = srcImageData.data;
             this._compress = this._data[2] & 7;
             if (!this._compress) {
-                throw new Error('未知的压缩方式');
+                throw new Error('错误的标识符！');
             }
             console.log('   Compression: ' + this._compress);
 
@@ -370,7 +370,7 @@
                 this._bufferSize += this._compress;
                 this._dataPos++;
                 if (this._dataPos >= this._data.length) {
-                    throw new Error('不期望的文件结尾');
+                    throw new Error('不期望的文件结尾！');
                 } else if ((this._dataPos & 3) === 3) { // Skip alpha channel
                     this._dataPos++;
                 }

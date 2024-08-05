@@ -254,7 +254,7 @@
 
         process = () => {
             if (!this._innerImageData || !this._coverImageData || !this._byteArray) {
-                throw new Error('清先选择图像和文件');
+                throw new Error('请先选择图像和文件！');
             }
 
             this.showTextOnCanvas(this._outputCanvas, '正在处理，请稍候...');
@@ -338,7 +338,7 @@
 
         saveOutputImage = () => {
             if (!this._outputData) {
-                throw new Error('Please process image first');
+                throw new Error('请先处理图像！');
             }
             const timestamp = new Date().getTime();
             const link = document.createElement('a');
@@ -706,7 +706,7 @@
             this._byteArray.push(0);
             this._fileArray = hiddenFile;
             if (this._byteArray.length > this._padding) {
-                throw new Error('头部信息过长');
+                throw new Error('头部信息过长！');
             }
 
             this._bytePos = 0, this._buffer = 0, this._bufferSize = 0;
