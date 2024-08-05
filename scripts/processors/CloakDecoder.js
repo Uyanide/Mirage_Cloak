@@ -24,6 +24,7 @@
             this._version = defaultArguments.version;
 
             this._decoders = [
+                new Decoder_v0(defaultArguments),
                 new Decoder_v1(defaultArguments),
                 new Decoder_v2(defaultArguments)
             ];
@@ -48,8 +49,8 @@
                         this.process();
                         resolve();
                     } catch (error) {
-                        alert('图像非PNG格式！数据可能损坏。' + error);
                         try {
+                            alert('第一次尝试失败，正在尝试第二次加载。' + error);
                             this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, this._inputCanvas.width, this._inputCanvas.height);
                             this.process();
                             resolve();
@@ -78,8 +79,8 @@
             this._fileType = null;
             this._dataUrl = null;
 
-            const version = this._decoders[0].getVersion(this._srcImageData) - 1;
-            console.log('   Version: ' + (version + 1));
+            const version = this._decoders[1].getVersion(this._srcImageData);
+            console.log('   Version: ' + version);
             if (version >= this._decoders.length) {
                 throw new Error('未知的编码方式');
             }
@@ -87,7 +88,7 @@
             this._fileExtension = fileExtension;
             this._byteArray = byteArray;
 
-            this._fileType = this.classifyFileType(this._fileExtension);
+            this._fileType = CloakUniversal.classifyFileType(this._fileExtension);
             const blob = new Blob([this._byteArray], { type: this._fileType });
             this._dataUrl = URL.createObjectURL(blob);
             this.showResult(this._outputCanvas, this._dataUrl, this._fileExtension);
@@ -111,6 +112,10 @@
         }
 
         getVersion = (srcImageData) => {
+            const data = srcImageData.data;
+            if ((data[0] & 7) === 0 && (data[1] & 7) === 3 && (data[2] & 7) >= 1 && (data[2] & 7) <= 6) {
+                return 0;
+            }
             this._pos = 0;
             this._threshold = this._globalDefaultThreshold;
             this._dataRange = srcImageData.data.length;
@@ -315,6 +320,65 @@
                 parity ^= ((bytePair >> i) & 1) << 1;
             }
             return parity == isOddPair;
+        }
+    }
+
+    class Decoder_v0 { // LSB
+        constructor(defaultArguments) { }
+
+        decode = (srcImageData) => {
+            this._data = srcImageData.data;
+            this._compress = this._data[2] & 7;
+            if (!this._compress) {
+                throw new Error('未知的压缩方式');
+            }
+            console.log('   Compression: ' + this._compress);
+
+            this._dataPos = 4, this._buffer = 0, this._bufferSize = 0;
+            let byte;
+            let dataLength = 0;
+            while ((byte = this._getByte()) !== 1) {
+                dataLength = dataLength * 10 + byte - 48;
+            }
+            console.log('   Size to be decoded: ' + dataLength);
+
+            let fileExtension = '';
+            while ((byte = this._getByte()) !== 1) {
+                fileExtension += String.fromCharCode(byte);
+            }
+            if (fileExtension.indexOf('.') !== -1) {
+                fileExtension = fileExtension.substring(fileExtension.indexOf('.') + 1);
+            }
+            console.log('   File extension: ' + fileExtension);
+
+            while ((byte = this._getByte()) !== 0) { } // We dont need the file type here
+
+            let byteArray = new Uint8Array(dataLength);
+            for (let i = 0; i < dataLength; i++) {
+                byteArray[i] = this._getByte();
+            }
+
+            return {
+                fileExtension: fileExtension,
+                byteArray: byteArray
+            };
+        }
+
+        _getByte = () => {
+            while (this._bufferSize < 8) {
+                this._buffer = (this._buffer << this._compress) | (this._data[this._dataPos] & ((1 << this._compress) - 1));
+                this._bufferSize += this._compress;
+                this._dataPos++;
+                if (this._dataPos >= this._data.length) {
+                    throw new Error('不期望的文件结尾');
+                } else if ((this._dataPos & 3) === 3) { // Skip alpha channel
+                    this._dataPos++;
+                }
+            }
+            this._bufferSize -= 8;
+            const buffer = this._buffer & (0xff << this._bufferSize);
+            this._buffer &= (1 << this._bufferSize) - 1;
+            return buffer >> (this._bufferSize);
         }
     }
 

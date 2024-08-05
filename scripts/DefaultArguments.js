@@ -23,6 +23,7 @@
             this.min_difference = defaultArguments.min_difference;
             this.version_1 = defaultArguments.version_1;
             this.version_2 = defaultArguments.version_2;
+            this.version_0 = defaultArguments.version_0;
             this.contrast_inner = defaultArguments.contrast_inner;
             this.contrast_cover = defaultArguments.contrast_cover;
             this.luminance_inner = defaultArguments.luminance_inner;
@@ -43,14 +44,6 @@
             document.getElementById('isAddMarkCheckbox').checked = this.add_mark;
             document.getElementById('isEncodeCompressCheckbox').checked = this.encode_compress;
             document.getElementById('mirageSizeInput').value = this.mirage_size;
-            switch (this.version) {
-                case 1:
-                    document.getElementById('encodeDiffInput').value = this.version_1.difference / 6;
-                    break;
-                case 2:
-                    document.getElementById('encodeDiffInput').value = this.version_2.difference / 6;
-                    break;
-            }
             document.getElementById('encodeMethodSelect').value = this.version.toString();
         }
     }

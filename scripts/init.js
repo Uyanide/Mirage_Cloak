@@ -68,38 +68,8 @@
             CloakProcessor.CloakDecoder = new CloakDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputCanvas');
             CloakProcessor.CloakEncoder = new CloakEncoder(applicationState.defaultArguments, 'innerCanvas', 'coverCanvas', 'hiddenCanvas', 'encodeOutputCanvas', 'encodeOutputSize', 'encodeHiddenSize');
 
-            // // 加载默认图像
-            // errorHandling.defaultImg = [];
-            // for (let i = 0; i < applicationState.defaultArguments.defaultSrc.length; i++) {
-            //     errorHandling.defaultImg[i] = new Image();
-            //     errorHandling.defaultImg[i].crossOrigin = 'anonymous';
-            //     const timer = setTimeout(() => {
-            //         errorHandling.defaultImg[i].src = '';
-            //         errorHandling.defaultImg[i].onerror = null;
-            //         console.error('加载默认图像超时: ' + applicationState.defaultArguments.defaultSrc[i]);
-            //     }, 5000);
-            //     errorHandling.defaultImg[i].onload = () => {
-            //         clearTimeout(timer);
-            //         switch (i) {
-            //             case 0:
-            //                 PrismProcessor.PrismDecoder.updateImage(errorHandling.defaultImg[i]);
-            //                 break;
-            //             case 1:
-            //                 PrismProcessor.PrismEncoder.updateInnerImage(errorHandling.defaultImg[i]);
-            //                 break;
-            //             case 2:
-            //                 PrismProcessor.PrismEncoder.updateCoverImage(errorHandling.defaultImg[i]);
-            //                 break;
-            //         }
-            //     };
-            //     errorHandling.defaultImg[i].onerror = () => {
-            //         clearTimeout(timer);
-            //         console.error('无法加载默认图像: ' + applicationState.defaultArguments.defaultSrc[i]);
-            //         errorHandling.defaultImg[i].src = '';
-            //         errorHandling.defaultImg[i].onerror = null;
-            //     };
-            //     errorHandling.defaultImg[i].src = applicationState.defaultArguments.defaultSrc[i];
-            // }
+            // 根据版本显示不同的默认diff和提示
+            EncodeListeners.setDiffHelper(applicationState.defaultArguments.version.toString());
 
             // 加载水印
             applicationState.markImage = new Image();

@@ -24,11 +24,11 @@ version_x:
 
 (for version_1 & version_2):
     default_threshold:
-        the default threshold, which will be used to decode the actual threshold value.
+        the default threshold used to decode the actual threshold value.
         should NOT be changed after actual production.
 
     default_difference:
-        the default difference, which will be used to encode the actual threshold value.
+        the default difference used to encode the actual threshold value.
         should NOT be changed after actual production.
 
     remained:
@@ -45,6 +45,20 @@ version_x:
 
     offset_inner/cover:
         the offset while scaling the gray attitude while encoding, 0 to 255.
+
+(for version_0):
+    typical LSB Steganography.
+    defaiult_difference:
+        the default difference used to encode RGB of the first pixel, has to be 20.
+
+    difference:
+        the default value of difference to encode the rest of bits, 10 to 60.
+
+    padding:
+        maximal byte count remained for headers, helpful while calculating required length.
+
+    scale/offset_inner/cover:
+        save as above.
 
 contrast_inner/cover:
     the default value of user-configurable contrast.

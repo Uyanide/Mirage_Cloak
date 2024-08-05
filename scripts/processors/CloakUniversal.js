@@ -7,22 +7,35 @@
         root.CloakUniversal = factory();
     }
 }(typeof self !== 'undefined' ? self : this, function () {
+
+    const mimeTypes = {
+        'html': 'text/html',
+        'css': 'text/css',
+        'png': 'image/png',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'bmp': 'image/bmp',
+        'webp': 'image/webp',
+        'mp3': 'audio/mpeg',
+        'wav': 'audio/wav',
+        'ogg': 'audio/ogg',
+        'mp4': 'video/mp4',
+        'webm': 'video/webm',
+        'flv': 'video/x-flv',
+        'gif': 'image/gif',
+        'svg': 'image/svg+xml',
+        'pdf': 'application/pdf',
+        'txt': 'text/plain'
+    };
+
     class CloakUniversal {
         constructor(defaultArguments) { }
 
-        classifyFileType = (extension) => {
-            switch (extension) {
-                case 'png':
-                    return 'image/png';
-                case 'jpg':
-                case 'jpeg':
-                    return 'image/jpeg';
-                case 'gif':
-                    return 'image/gif';
-                case 'bmp':
-                    return 'image/bmp';
-                default:
-                    return 'application/octet-stream';
+        static classifyFileType = (extension) => {
+            if (mimeTypes.hasOwnProperty(extension)) {
+                return mimeTypes[extension];
+            } else {
+                return 'application/octet-stream';
             }
         }
 
@@ -32,6 +45,7 @@
                 case 'jpg':
                 case 'jpeg':
                 case 'bmp':
+                case 'webp':
                     const img = new Image();
                     img.onload = () => {
                         this.clearCanvas(canvas);

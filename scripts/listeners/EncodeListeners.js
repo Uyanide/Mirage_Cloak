@@ -161,27 +161,39 @@
     // 设置编码方法
     function encodeSetMethod(event) {
         CloakProcessor.CloakEncoder.clearOutputCanvas();
-        switch (event.target.value) {
+        setDiffHelper(event.target.value);
+        CloakProcessor.CloakEncoder.setVersion(parseInt(event.target.value, 10));
+    }
+    function setDiffHelper(version) {
+        const encodeDiffInputHint = document.getElementById('encodeDiffinputHint');
+        const encodeDiffInput = document.getElementById('encodeDiffInput');
+        switch (version) {
             case '1':
-                document.getElementById('encodeDiffInput').value = applicationState.defaultArguments.version_1.difference / 6;
+                encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大抗干扰能力越强, 但幻影坦克效果越差)`;
+                encodeDiffInput.value = Math.floor(applicationState.defaultArguments.version_1.difference / 6);
                 CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_1.difference);
                 break;
             case '2':
-                document.getElementById('encodeDiffInput').value = applicationState.defaultArguments.version_2.difference / 6;
+                encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大抗干扰能力越强, 但幻影坦克效果越差)`;
+                encodeDiffInput.value = Math.floor(applicationState.defaultArguments.version_2.difference / 6);
                 CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_2.difference);
                 break;
+            case '0':
+                encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但幻影坦克效果越差)`;
+                encodeDiffInput.value = Math.ceil(applicationState.defaultArguments.version_0.difference / 6);
+                CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_0.difference);
+                break;
         }
-        CloakProcessor.CloakEncoder.setVersion(parseInt(event.target.value, 10));
     }
 
     // 处理图像
     function encodeProcessImage() {
         CloakProcessor.CloakEncoder.clearOutputCanvas();
-        // try {
-        CloakProcessor.CloakEncoder.process();
-        // } catch (error) {
-        //     alert(error);
-        // }
+        try {
+            CloakProcessor.CloakEncoder.process();
+        } catch (error) {
+            alert(error);
+        }
     }
 
     // 保存图像
@@ -249,6 +261,7 @@
     }
 
     const EncodeListeners = {
+        setDiffHelper,
         encodeSetUpEventListeners,
         encodeRemoveEventListeners
     };

@@ -33,16 +33,6 @@
             this._compressQuality = defaultArguments.encode_compress_quality;
 
             this._version = defaultArguments.version;
-            switch (this._version) {
-                case 1:
-                    this._diff = defaultArguments.version_1.difference;
-                    break;
-                case 2:
-                    this._diff = defaultArguments.version_2.difference;
-                    break;
-                default:
-                    throw new Error('默认参数错误: 未知的编码方式');
-            }
 
             this._hiddenFile = null;
             this._fileExtension = '';
@@ -63,6 +53,7 @@
             this._markRatio = defaultArguments.mark_ratio;
 
             this._encoders = [
+                new Encoder_v0(defaultArguments), // LSB Steganography
                 new Encoder_v1(defaultArguments),
                 new Encoder_v2(defaultArguments)
             ];
@@ -109,7 +100,7 @@
         _adjustSize = async () => {
             return new Promise(async (resolve, reject) => {
                 let currLength = this._width * this._height;
-                let tarLength = this._encoders[this._version - 1].getRequiredLength(this._byteArray);
+                let tarLength = this._encoders[this._version].getRequiredLength(this._byteArray, this._diff);
 
                 if (tarLength > currLength) { // if the hidden file is too large
                     let ratio = tarLength / currLength;
@@ -120,7 +111,7 @@
                             if (hiddenImageData) { // if get image data successfully, try to compress the hidden image by converting it to jpeg
                                 const jpegEncoder = new JPEGEncoder(this._compressQuality);
                                 let jpegData = jpegEncoder.encode(hiddenImageData);
-                                tarLength = this._encoders[this._version - 1].getRequiredLength(jpegData);
+                                tarLength = this._encoders[this._version].getRequiredLength(jpegData, this._diff); // get target length after compression
                                 ratio = tarLength / currLength;
                                 if (ratio > 1) { // if the hidden image is still too large after compression, resize it
                                     ratio = Math.sqrt(ratio);
@@ -132,7 +123,7 @@
                                     hiddenImageData = ctx.getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
                                     jpegData = jpegEncoder.encode(hiddenImageData);
 
-                                    tarLength = this._encoders[this._version - 1].getRequiredLength(jpegData); // update target length
+                                    tarLength = this._encoders[this._version].getRequiredLength(jpegData, this._diff); // update target length
                                     ratio = tarLength / currLength; // update ratio
                                     if (ratio > 1) { // if the hidden image is still too large after resizing, scale the size of the inner image
                                         this._scaleSize(ratio);
@@ -278,7 +269,7 @@
             console.log('    File extension: ' + ((this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension));
             console.log('    Difference: ' + this._diff);
 
-            this._outputData = this._encoders[this._version - 1].encode(
+            this._outputData = this._encoders[this._version].encode(
                 innerImageDataAdjust,
                 coverImageDataAdjust,
                 (this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed : this._byteArray,
@@ -417,6 +408,9 @@
 
         setDiff = (diff) => {
             this._diff = diff;
+            if (this._version === 0 && this._byteArray && this._innerImage) {
+                this.updateInnerImage(this._innerImage); // only when using LSB diff can affect the required size
+            }
         }
 
         setVersion = (version) => {
@@ -675,6 +669,95 @@
                 g: Math.floor(Math.random() * 4),
                 b: Math.floor(Math.random() * 4)
             };
+        }
+    }
+
+    class Encoder_v0 { // typical LSB Steganography, also works with mirage images :)
+        constructor(defaultArguments) {
+            this._defaultDiff = defaultArguments.version_0.default_difference;
+            this._padding = defaultArguments.version_0.padding;
+
+            this._scale_i = defaultArguments.version_0.scale_inner;
+            this._offset_i = defaultArguments.version_0.offset_inner;
+            this._scale_c = defaultArguments.version_0.scale_cover;
+            this._offset_c = defaultArguments.version_0.offset_cover;
+        }
+
+        encode = (innerImageData, coverImageData, hiddenFile, fileExtensionName, customDiff) => {
+            const innerData = innerImageData.data;
+            const coverData = coverImageData.data;
+            const width = innerImageData.width;
+            const pixelRange = innerData.length >> 2;
+            this._targetSize = hiddenFile.length;
+            this._compress = this._calCompress(customDiff || this._defaultDiff);
+            let outputData = new Uint8ClampedArray(innerData.length);
+
+            outputData[0] = 0xf8;
+            outputData[1] = 0xfb;
+            outputData[2] = 0xf8 | this._compress;
+            outputData[3] = this._scaleInner(innerData[0]);
+
+            this._byteArray = [];
+            this._byteArray.push(...this._targetSize.toString().split('').map(c => c.charCodeAt(0)));
+            this._byteArray.push(1);
+            this._byteArray.push(...('mtc.' + fileExtensionName).split('').map(c => c.charCodeAt(0)));
+            this._byteArray.push(1);
+            this._byteArray.push(...CloakUniversal.classifyFileType(fileExtensionName).split('').map(c => c.charCodeAt(0)));
+            this._byteArray.push(0);
+            this._fileArray = hiddenFile;
+            if (this._byteArray.length > this._padding) {
+                throw new Error('头部信息过长');
+            }
+
+            this._bytePos = 0, this._buffer = 0, this._bufferSize = 0;
+            const baseInner = 255 & ~((1 << this._compress) - 1);
+            for (let pixelIndex = 1; pixelIndex < pixelRange; pixelIndex++) {
+                const isInner = (pixelIndex % width + Math.floor(pixelIndex / width)) % 2 === 0;
+                outputData[4 * pixelIndex] = isInner ? baseInner | this._popBits() : this._popBits();
+                outputData[4 * pixelIndex + 1] = isInner ? baseInner | this._popBits() : this._popBits();
+                outputData[4 * pixelIndex + 2] = isInner ? baseInner | this._popBits() : this._popBits();
+                outputData[4 * pixelIndex + 3] = isInner ? this._scaleInner(innerData[4 * pixelIndex]) : 255 - this._scaleCover(coverData[4 * pixelIndex]);
+            }
+
+            return outputData;
+        }
+
+        getRequiredLength = (hiddenFile, diff) => {
+            const compress = this._calCompress(diff);
+            return Math.ceil(((this._padding + hiddenFile.length) << 3) / compress) + 1;
+        }
+
+        _calCompress = (diff) => {
+            return Math.min(Math.max(Math.floor(diff / 10), 1), 7);
+        }
+
+        _pushByte = () => {
+            const byte = this._bytePos < this._byteArray.length ?
+                this._byteArray[this._bytePos] :
+                (this._bytePos < this._byteArray.length + this._targetSize ?
+                    this._fileArray[this._bytePos - this._byteArray.length] :
+                    Math.floor(Math.random() * 256));
+            this._bytePos++;
+            this._buffer = (this._buffer << 8) | byte;
+            this._bufferSize += 8;
+        }
+
+        _popBits = () => {
+            if (this._bufferSize < this._compress) {
+                this._pushByte();
+            }
+            const bits = (this._buffer & (((1 << this._compress) - 1) << (this._bufferSize - this._compress))) >> (this._bufferSize - this._compress);
+            this._bufferSize -= this._compress;
+            this._buffer &= (1 << this._bufferSize) - 1;
+            return bits;
+        }
+
+        _scaleInner = (value) => {
+            return Math.floor(value * this._scale_i + this._offset_i);
+        }
+
+        _scaleCover = (value) => {
+            return Math.floor(value * this._scale_c + this._offset_c);
         }
     }
 

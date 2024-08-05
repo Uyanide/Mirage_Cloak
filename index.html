@@ -13,7 +13,7 @@
         var CloakProcessor = CloakProcessor || {};
     </script>
     <script>
-        applicationState.version = '1.0.4.2';
+        applicationState.version = '1.0.5';
         // version check
         (() => {
             console.log('target version:', applicationState.version);
@@ -128,7 +128,10 @@
 
 <body class="flexColumn marginTopHigh displayFlex justifyCenter alignCenter marginTopHigh backgroundPrimary frontColor">
 
-    <h1 class="title">幻影坦克Ultra</h1>
+    <div class="displayFlex flexRow justifyCenter alignCenter">
+        <h1 class="title">幻光火箭炮工厂</h1>
+        <h2 class="subTitle">(暂定)</h2>
+    </div>
 
     <a class="fontMedium frontLinkColor marginTopMedium transformSize textDecorationNone" target="_blank"
         href="https://github.com/Uyanide/Mirage_Cloak">⌈ 一种基于棋盘格幻影坦克的无影(类lsb)隐写术 ⌋</a>
@@ -231,18 +234,19 @@
                 <label for="encodeDiffInput">7. 噪声强度:</label>
                 <input type="number" id="encodeDiffInput" class="inputReact marginLeftLow"></input>
             </div>
-            <div class="fontSmall marginTopLow">(1-10, 越大抗干扰能力越强，但幻影图质量越低)</div>
+            <div id="encodeDiffinputHint" class="fontSmall marginTopLow"></div>
 
             <div class="diplayFlex flexRow justifyCenter alignCenter marginTopMedium">
                 <label for="encodeMethodSelect">8. 选择编码方式:</label>
                 <select id="encodeMethodSelect" class="inputReact marginLeftLow">
-                    <option value="1">双极 (3像素/字节)</option>
-                    <option value="2">四极 (1.5像素/字节)</option>
+                    <option value="1">双极 (0.33字节/像素)</option>
+                    <option value="2">四极 (0.67字节/像素)</option>
+                    <option value="0">传统无影 (LSB隐写)</option>
                 </select>
             </div>
             <div class="fontSmall marginTopLow">(越靠下的选项隐写效率越高，但抗干扰能力越差)</div>
 
-            <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium">
+            <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium refWidthHigh">
                 <label for="isEncodeCompressCheckbox">9. </label>
                 <input type="checkbox" id="isEncodeCompressCheckbox"
                     class="inputReact marginLeftLow marginRightLow"></input>
@@ -347,6 +351,10 @@
                             <td>1.0.4</td>
                             <td>使用fast-png库编/解码png以保证数据质量；<br>
                                 增加了是否压缩隐写图像的选项。</td>
+                        </tr>
+                        <tr>
+                            <td>1.0.5</td>
+                            <td>增加了传统LSB无影坦克隐写作为新模式；</td>
                         </tr>
                     </tbody>
                 </table>

@@ -31,6 +31,12 @@ Canvas {
     margin-bottom: 10px;
 }
 
+.subTitle {
+    font-size: clamp(20px, 3vw, 30px);
+    margin-top: auto;
+    margin-bottom: 12px;
+}
+
 .PageContainer {
     max-width: 1000px;
     min-width: 300px;
