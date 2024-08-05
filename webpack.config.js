@@ -5,7 +5,7 @@ module.exports = {
     entry: './scripts/init.js',
     output: {
         filename: 'packed.js',
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, './public/src'),
     },
     module: {
         rules: [
