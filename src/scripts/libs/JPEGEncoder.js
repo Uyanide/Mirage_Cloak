@@ -766,48 +766,6 @@ function JPEGEncoder(quality) {
 
 };
 
-// if (typeof module !== 'undefined') {
-//     module.exports = encode;
-// } else if (typeof window !== 'undefined') {
-//     window['jpeg-js'] = window['jpeg-js'] || {};
-//     window['jpeg-js'].encode = encode;
-// }
+export { JPEGEncoder };
 
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        define([], factory);
-    }
-    else if (typeof module === 'object' && module.exports) {
-        module.exports = factory();
-    }
-    else {
-        root.JPEGEncoder = factory();
-    }
-}(typeof self !== 'undefined' ? self : this, function () {
-    return JPEGEncoder;
-}));
-
-function encode(imgData, qu) {
-    if (typeof qu === 'undefined') qu = 50;
-    var encoder = new JPEGEncoder(qu);
-    var data = encoder.encode(imgData, qu);
-    return {
-        data: data,
-        width: imgData.width,
-        height: imgData.height,
-    };
-}
-
-// helper function to get the imageData of an existing image on the current page.
-function getImageDataFromImage(idOrElement) {
-    var theImg = (typeof (idOrElement) == 'string') ? document.getElementById(idOrElement) : idOrElement;
-    var cvs = document.createElement('canvas');
-    cvs.width = theImg.width;
-    cvs.height = theImg.height;
-    var ctx = cvs.getContext("2d");
-    ctx.drawImage(theImg, 0, 0);
-
-    return (ctx.getImageData(0, 0, cvs.width, cvs.height));
-}
-
-errorHandling.scriptsLoaded.jpegEncoder = true;
+errorHandling.scriptsLoaded.JPEGEncoder = true;
