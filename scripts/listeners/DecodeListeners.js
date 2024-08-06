@@ -1,8 +1,8 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['/scripts/listeners/ImageLoader.js'], factory);
+        define(['./ImageLoader.js'], factory);
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('/scripts/listeners/ImageLoader.js'));
+        module.exports = factory(require('./ImageLoader.js'));
     } else {
         root.DecodeListeners = factory(root.ImageLoader);
     }

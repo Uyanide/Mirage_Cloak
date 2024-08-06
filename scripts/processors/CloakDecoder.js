@@ -1,13 +1,13 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([
-            '/scripts/processors/CloakUniversal.js',
-            '/scripts/libs/pngLib.js'
+            './CloakUniversal.js',
+            '../libs/pngLib.js'
         ], factory);
     } else if (typeof module === 'object' && module.exports) {
         module.exports = factory(require(
-            '/scripts/processors/CloakUniversal.js',
-            '/scripts/libs/pngLib.js'
+            './CloakUniversal.js',
+            '../libs/pngLib.js'
         ));
     } else {
         root.CloakDecoder = factory(root.CloakUniversal, root.pngLib);
@@ -44,7 +44,7 @@
                         URL.revokeObjectURL(image.src);
 
                         this._srcImageFile = imageFile;
-                        this._srcImageData = await pngLib.getImageDataFromImageFile(imageFile);
+                        this._srcImageData = await pngLib.getImageDataFromImageFile(imageFile).catch((error) => { throw error; });
 
                         this.process();
                         resolve();

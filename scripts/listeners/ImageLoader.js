@@ -1,13 +1,3 @@
-/*
-        copyImage: copyImage,
-        updateImageFromFile: updateImageFromFile,
-        updateImageFromURL: updateImageFromURL,
-        updateImageFromClipboard: updateImageFromClipboard,
-        updateImageFromClipboardDirect: updateImageFromClipboardDirect,
-        dragDropLoadImage: dragDropLoadImage,
-        switchPage: switchPage,
-*/
-
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([], factory);

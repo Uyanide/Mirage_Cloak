@@ -1,13 +1,13 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([
-            '/scripts/listeners/DecodeListeners.js',
-            '/scripts/listeners/EncodeListeners.js',
+            './DecodeListeners.js',
+            './EncodeListeners.js',
         ], factory);
     } else if (typeof module === 'object' && module.exports) {
         module.exports = factory(
-            require('/scripts/listeners/DecodeListeners.js'),
-            require('/scripts/listeners/EncodeListeners.js')
+            require('./DecodeListeners.js'),
+            require('./EncodeListeners.js')
         );
     } else {
         root.UniversalListeners = factory(

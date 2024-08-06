@@ -1,15 +1,15 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([
-            '/scripts/processors/CloakUniversal.js',
-            '/scripts/libs/pngLib.js',
-            '/scripts/libs/jpegEncoder.js'
+            './CloakUniversal.js',
+            '../libs/pngLib.js',
+            '../libs/jpegEncoder.js'
         ], factory);
     } else if (typeof module === 'object' && module.exports) {
         module.exports = factory(require(
-            '/scripts/processors/CloakUniversal.js',
-            '/scripts/libs/pngLib.js',
-            '/scripts/libs/jpegEncoder.js'
+            './CloakUniversal.js',
+            '../libs/pngLib.js',
+            '../libs/jpegEncoder.js'
         ));
     } else {
         root.CloakEncoder = factory(root.CloakUniversal, root.pngLib, root.JPEGEncoder);
@@ -457,6 +457,11 @@
             this._width = innerImageData.width;
             this._height = innerImageData.height;
             this._pixelRange = writeVersion === 1 ? this._innerData.length >> 2 : 3;
+
+            if (writeVersion === 1 && this._pixelRange < this.getRequiredLength(hiddenFile)) {
+                throw new Error('可用像素过少，编码空间不足！');
+            }
+
             this._version = writeVersion;
             let outputData = new Uint8ClampedArray(this._innerData.length);
             this._byteArray = hiddenFile;
@@ -582,6 +587,11 @@
             let outputData = super.encode(innerImageData, coverImageData, hiddenFile, fileExtensionName, undefined, this._version); // use version 1 to encode version infomation
             this._diff = customDiff;
             this._pixelRange = innerImageData.data.length >> 2;
+
+            if (this._pixelRange < this.getRequiredLength(hiddenFile)) {
+                throw new Error('可用像素过少，编码空间不足！');
+            }
+
             if (this._targetSize & 1) {
                 let newByteArray = new Uint8Array(this._targetSize + 1);
                 newByteArray.set(this._byteArray);
@@ -706,7 +716,7 @@
             this._byteArray.push(0);
             this._fileArray = hiddenFile;
             if (this._byteArray.length > this._padding) {
-                throw new Error('头部信息过长！');
+                throw new Error('头部信息过长！可尝试更改文件拓展名。');
             }
 
             this._bytePos = 0, this._buffer = 0, this._bufferSize = 0;
@@ -719,12 +729,16 @@
                 outputData[4 * pixelIndex + 3] = isInner ? this._scaleInner(innerData[4 * pixelIndex]) : 255 - this._scaleCover(coverData[4 * pixelIndex]);
             }
 
+            if (this._bytePos < this._byteArray.length + this._targetSize) {
+                throw new Error('可用像素过少，编码空间不足！');
+            }
+
             return outputData;
         }
 
         getRequiredLength = (hiddenFile, diff) => {
             const compress = this._calCompress(diff);
-            return Math.ceil(((this._padding + hiddenFile.length) << 3) / compress) + 1;
+            return Math.ceil(((this._padding + hiddenFile.length) << 3) / compress / 3) + 1;
         }
 
         _calCompress = (diff) => {

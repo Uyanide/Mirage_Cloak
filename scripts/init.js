@@ -1,21 +1,21 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([
-            '/scripts/processors/CloakDecoder.js',
-            '/scripts/processors/CloakEncoder.js',
-            '/scripts/listeners/UniversalListeners.js',
-            '/scripts/listeners/DecodeListeners.js',
-            '/scripts/listeners/EncodeListeners.js',
-            '/scripts/DefaultArguments.js'
+            './processors/CloakDecoder.js',
+            './processors/CloakEncoder.js',
+            './listeners/UniversalListeners.js',
+            './listeners/DecodeListeners.js',
+            './listeners/EncodeListeners.js',
+            './DefaultArguments.js'
         ], factory);
     } else if (typeof module === 'object' && module.exports) {
         module.exports = factory(
-            require('/scripts/processors/CloakDecoder.js'),
-            require('/scripts/processors/CloakEncoder.js'),
-            require('/scripts/listeners/UniversalListeners.js'),
-            require('/scripts/listeners/DecodeListeners.js'),
-            require('/scripts/listeners/EncodeListeners.js'),
-            require('/scripts/DefaultArguments.js')
+            require('./processors/CloakDecoder.js'),
+            require('./processors/CloakEncoder.js'),
+            require('./listeners/UniversalListeners.js'),
+            require('./listeners/DecodeListeners.js'),
+            require('./listeners/EncodeListeners.js'),
+            require('./DefaultArguments.js')
         );
     } else {
         root.init = factory(

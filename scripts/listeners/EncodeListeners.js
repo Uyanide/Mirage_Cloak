@@ -1,8 +1,8 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['/scripts/listeners/ImageLoader.js'], factory);
+        define(['./ImageLoader.js'], factory);
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('/scripts/listeners/ImageLoader.js'));
+        module.exports = factory(require('./ImageLoader.js'));
     } else {
         root.EncodeListeners = factory(root.ImageLoader);
     }
@@ -162,7 +162,6 @@
     function encodeSetMethod(event) {
         CloakProcessor.CloakEncoder.clearOutputCanvas();
         setDiffHelper(event.target.value);
-        CloakProcessor.CloakEncoder.setVersion(parseInt(event.target.value, 10));
     }
     function setDiffHelper(version) {
         const encodeDiffInputHint = document.getElementById('encodeDiffinputHint');
@@ -171,17 +170,20 @@
             case '1':
                 encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大抗干扰能力越强, 但幻影坦克效果越差)`;
                 encodeDiffInput.value = Math.floor(applicationState.defaultArguments.version_1.difference / 6);
+                CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
                 CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_1.difference);
                 break;
             case '2':
                 encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大抗干扰能力越强, 但幻影坦克效果越差)`;
                 encodeDiffInput.value = Math.floor(applicationState.defaultArguments.version_2.difference / 6);
+                CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
                 CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_2.difference);
                 break;
             case '0':
                 encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但幻影坦克效果越差)`;
                 encodeDiffInput.value = Math.ceil(applicationState.defaultArguments.version_0.difference / 6);
-                CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_0.difference);
+                CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_0.difference); // lsb的diff参数会影响隐写信息密度，但此处调用setDiff时CloakEncoder的_version属性不为0，所以不会重新计算尺寸。
+                CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10)); // version改变时是一定会重新计算尺寸的，结合上一行，将version设为0时，只会重新计算一次尺寸。
                 break;
         }
     }
