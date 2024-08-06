@@ -2,9 +2,15 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-    entry: './scripts/init.js',
+    entry: {
+        main: './scripts/init.js',
+        vendor: [
+            './scripts/libs/jpegEncoder.js',
+            './scripts/libs/pngLib.js',
+        ]
+    },
     output: {
-        filename: 'packed.js',
+        filename: '[name].packed.js',
         path: path.resolve(__dirname, './public/src'),
     },
     module: {

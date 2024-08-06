@@ -35,6 +35,7 @@
                 if (this._dataUrl) {
                     URL.revokeObjectURL(this._dataUrl);
                 }
+                this.showTextOnCanvas(this._outputCanvas, '正在处理...');
                 const image = new Image();
                 image.onload = async () => {
                     try {
@@ -44,18 +45,21 @@
                         URL.revokeObjectURL(image.src);
 
                         this._srcImageFile = imageFile;
-                        this._srcImageData = await pngLib.getImageDataFromImageFile(imageFile).catch((error) => { throw error; });
+                        this._srcImageData = await pngLib.getImageDataFromImageFile(imageFile).catch((error) => {
+                            throw new Error('PNG解析失败，请确保选择的图片为原图！' + error);
+                        });
 
                         this.process();
                         resolve();
                     } catch (error) {
                         try {
-                            alert('第一次处理失败，正在尝试第二次加载...' + error);
+                            alert('第一次处理失败！' + error);
                             this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, this._inputCanvas.width, this._inputCanvas.height);
                             this.process();
                             resolve();
                         } catch (innerError) {
-                            reject(innerError);
+                            this.clearCanvas(this._outputCanvas);
+                            reject(new Error('第二次处理失败，请重新选择图片！' + innerError));
                         }
                     }
                 };
@@ -73,7 +77,6 @@
 
             console.log('Decoding...');
 
-            this.clearCanvas(this._outputCanvas);
             this._fileExtension = null;
             this._byteArray = null;
             this._fileType = null;

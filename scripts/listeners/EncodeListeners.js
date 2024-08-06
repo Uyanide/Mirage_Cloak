@@ -194,6 +194,7 @@
         try {
             CloakProcessor.CloakEncoder.process();
         } catch (error) {
+            CloakProcessor.CloakEncoder.clearOutputCanvas();
             alert(error);
         }
     }

@@ -54,6 +54,7 @@
                         canvas.getContext('2d').drawImage(img, 0, 0);
                     };
                     img.src = dataUrl;
+                    break;
                 default:
                     if (fileExtention) {
                         this.showTextOnCanvas(canvas, '暂不支持预览此文件', '文件拓展名: ' + fileExtention);
