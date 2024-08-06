@@ -20,7 +20,17 @@ export class CloakEncoder extends CloakUniversal {
         this._compressQuality = defaultArguments.encode_compress_quality;
 
         this._version = defaultArguments.version;
-        this._diff = defaultArguments.diff;
+        switch (this._version) {
+            case 0:
+                this._diff = defaultArguments.version_0.difference;
+                break;
+            case 1:
+                this._diff = defaultArguments.version_1.difference;
+                break;
+            case 2:
+                this._diff = defaultArguments.version_2.difference;
+                break;
+        }
 
         this._hiddenFile = null;
         this._fileExtension = '';
