@@ -4,8 +4,7 @@
     "description": "",
     "main": "init.js",
     "scripts": {
-        "build": "webpack",
-        "start": "webpack-dev-server --open"
+        "build": "webpack"
     },
     "keywords": [],
     "author": "",
