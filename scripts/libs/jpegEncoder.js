@@ -774,7 +774,15 @@ function JPEGEncoder(quality) {
 // }
 
 (function (root, factory) {
-    root.JPEGEncoder = factory();
+    if (typeof define === 'function' && define.amd) {
+        define([], factory);
+    }
+    else if (typeof module === 'object' && module.exports) {
+        module.exports = factory();
+    }
+    else {
+        root.JPEGEncoder = factory();
+    }
 }(typeof self !== 'undefined' ? self : this, function () {
     return JPEGEncoder;
 }));
