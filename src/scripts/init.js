@@ -1,6 +1,7 @@
 import '../css/style.css';
 import '../css/classes.css';
 import '../css/switch.css';
+import '../css/sidebar.css';
 
 import { DefaultArguments } from './DefaultArguments.js';
 import { UniversalListeners } from './listeners/UniversalListeners.js';
