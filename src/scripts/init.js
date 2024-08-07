@@ -103,8 +103,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (error) {
         console.error('Failed to initialize: ' + error);
-        alert('初始化失败！' + error);
+        alert('初始化失败！' + error.message);
     }
 });
-
-errorHandling.scriptsLoaded.init = true;

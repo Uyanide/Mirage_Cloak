@@ -30,11 +30,12 @@ function switchPage() {
         EncodeListeners.encodeSetUpEventListeners();
         applicationState.currPageId = 'encodePage';
     } else {
-        if (CloakProcessor.CloakDecoder === undefined) {
-            import('../processors/CloakDecoder.js').then(module => {
-                CloakProcessor.CloakDecoder = new module.CloakDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputCanvas');
+        if (CloakProcessor.MultiDecoder === undefined) {
+            import('../processors/MultiDecoder.js').then(module => {
+                CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputCanvas', 'sidebarContent', 'sidebarAmountLabel');
+                document.getElementById('sidebarClearButton').addEventListener('click', CloakProcessor.MultiDecoder.clearQueue);
             }).catch(error => {
-                console.error('Failed to load CloakDecoder:', error);
+                console.error('Failed to load MultiDecoder:', error);
                 alert('加载解码器失败，请刷新页面重试。');
             });
         }
@@ -64,85 +65,6 @@ const applyTheme = (tarTheme) => {
     document.getElementById('isDarkmodeCheckbox').checked = tarTheme === 'dark';
     document.getElementById('isDarkModeLabel').innerText = tarTheme === 'dark' ? '开灯' : '关灯';
 };
-
-// 调整侧边栏宽度
-function disableHorizontalScroll() {
-    document.documentElement.style.overflowX = 'hidden';
-}
-function enableHorizontalScroll() {
-    document.documentElement.style.overflowX = 'auto';
-}
-const showSidebar = () => {
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggleButton = document.getElementById('sidebarToggleButton');
-    sidebar.classList.remove('sidebarHide');
-    sidebar.classList.add('sidebarShow');
-    if (!applicationState.isOnPhone) {
-        sidebarToggleButton.addEventListener('mousedown', adjustSidebarWidth);
-    } else {
-        sidebarToggleButton.addEventListener('touchstart', adjustSidebarWidth);
-    }
-    sidebarToggleButton.removeEventListener('click', showSidebar);
-    sidebarToggleButton.addEventListener('click', hideSidebar);
-}
-const hideSidebar = () => {
-    if (applicationState.dontCareSidebarClick) {
-        applicationState.dontCareSidebarClick = false;
-        return;
-    }
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggleButton = document.getElementById('sidebarToggleButton');
-    sidebar.classList.remove('sidebarShow');
-    sidebar.classList.add('sidebarHide');
-    if (!applicationState.isOnPhone) {
-        sidebarToggleButton.removeEventListener('mousedown', adjustSidebarWidth);
-    } else {
-        sidebarToggleButton.removeEventListener('touchstart', adjustSidebarWidth);
-    }
-    sidebarToggleButton.removeEventListener('click', hideSidebar);
-    sidebarToggleButton.addEventListener('click', showSidebar);
-}
-function adjustSidebarWidth(event) {
-    disableHorizontalScroll();
-    applicationState.dontCareSidebarClick = false;
-    const initWidth = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width');
-    const initX = event.clientX || event.touches[0].clientX;
-    const parentWidth = document.documentElement.getBoundingClientRect().width;
-    const minWidth = parentWidth * 0.1;
-    const maxWidth = parentWidth * 0.7;
-    let offset = 0;
-
-    const adjustMouse = (event) => {
-        applicationState.dontCareSidebarClick = true;
-        offset = event.clientX - initX;
-        const newWidth = Math.min((Math.max((parseInt(initWidth) - offset), minWidth)), maxWidth);
-        document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
-    };
-
-    const adjustTouch = (event) => {
-        applicationState.dontCareSidebarClick = true;
-        offset = event.touches[0].clientX - initX;
-        const newWidth = Math.min((Math.max((parseInt(initWidth) - offset), minWidth)), maxWidth);
-        document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
-    };
-
-    const adjustEnd = () => {
-        document.removeEventListener('mousemove', adjustMouse);
-        document.removeEventListener('mouseup', adjustEnd);
-        document.removeEventListener('touchmove', adjustTouch);
-        document.removeEventListener('touchend', adjustEnd);
-        enableHorizontalScroll();
-    }
-
-    applicationState.dontCareSidebarClick = false;
-    if (!applicationState.isOnPhone) {
-        document.addEventListener('mousemove', adjustMouse);
-        document.addEventListener('mouseup', adjustEnd);
-    } else {
-        document.addEventListener('touchmove', adjustTouch);
-        document.addEventListener('touchend', adjustEnd);
-    }
-}
 
 function universalSetupEventListeners() {
     // 隐私政策按钮事件监听
@@ -188,7 +110,8 @@ function universalSetupEventListeners() {
         applyTheme(theme);
     });
 
-    document.getElementById('sidebarToggleButton').addEventListener('click', showSidebar);
+    document.getElementById('sidebarToggleButton').addEventListener(applicationState.isOnPhone ? 'touchstart' : 'mousedown', DecodeListeners.adjustSidebarWidth);
+    document.getElementById('sidebar').addEventListener('click', DecodeListeners.showSidebar);
 }
 
 const UniversalListeners = {
@@ -198,5 +121,3 @@ const UniversalListeners = {
 };
 
 export { UniversalListeners };
-
-errorHandling.scriptsLoaded.UniversalListeners = true;

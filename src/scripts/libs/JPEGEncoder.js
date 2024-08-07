@@ -767,5 +767,3 @@ function JPEGEncoder(quality) {
 };
 
 export { JPEGEncoder };
-
-errorHandling.scriptsLoaded.JPEGEncoder = true;

@@ -129,5 +129,3 @@ export class CloakUniversal {
         return ctx.getImageData(0, 0, image.width, image.height);
     }
 }
-
-errorHandling.scriptsLoaded.CloakUniversal = true;

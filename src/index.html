@@ -27,18 +27,22 @@
         href="https://github.com/Uyanide/Mirage_Cloak">⌈ 一种基于棋盘格幻影坦克的无影(类lsb)隐写术 ⌋</a>
 
     <div class="sidebarContainer sidebarHide" id="sidebar">
-        <button class="sidebarToggle" id="sidebarToggleButton">☰</button>
-        <div class="sidebarContent">
-            <canvas></canvas>
-            <canvas></canvas>
-            <canvas></canvas>
-            <canvas></canvas>
-            <canvas></canvas>
-            <canvas></canvas>
-            <canvas></canvas>
-            <canvas></canvas>
-            <canvas></canvas>
+        <button class="sidebarToggle fontLarge" id="sidebarToggleButton">&nbsp;≡</button>
+        <div class="sidebarContent marginBottomExtreme" id="sidebarContent">
+            <h2 class="fontLarge">解码图片列表</h2>
+            <div class="fontMedium" id="sidebarAmountLabel">数量: 0</div>
+            <button class="inputReact marginTopMedium transformSize" id="sidebarClearButton">清空列表</button>
+            <button class="inputReact marginTopMedium transformSize" id="sidebarSaveAllButton">保存全部结果</button>
+            <div class="fontSmall marginTopLow">(为尽量避免被视作恶意行为，两次下载之间会有一定延迟)</div>
         </div>
+    </div>
+
+    <div class="switchContainer" id="isDarkmodeContainer">
+        <p id="isDarkModeLabel">切换明/暗主题</p>
+        <label class="switch" id="isDarkmodeSwitch">
+            <input type="checkbox" id="isDarkmodeCheckbox" title="switch from themes">
+            <span class="switchSlider"></span>
+        </label>
     </div>
 
     <div class="PageContainer displayFlex justifyCenter alignCenter flexColumn refWidthHigh paddingHigh fontMedium">
@@ -55,10 +59,11 @@
         <div class="DisplayArea frontColor borderRadiusOnlyBottom justifyCenter alignCenter flexColumn refWidthFull backgroundSecondary"
             id="decodePage">
             <div id="decodeImageSelect" class="displayFlex flexColumn alignCenter marginTopHigh ">
-                <div id="decodeFileInput" class="displayFlex alignCenter">
+                <div class="fontSmall">(可多选, 点击右侧可展开列表)</div>
+                <div id="decodeFileInput" class="displayFlex alignCenter marginTopMedium">
                     <label for="decodeImageFileInput"
                         class="fileInputLabel marginLeftLow inputReact transformSize">选择图片文件</label>
-                    <input type="file" id="decodeImageFileInput" accept="image/*">
+                    <input type="file" id="decodeImageFileInput" accept="image/*" multiple>
                 </div>
                 <div id="decodePasteInput" class="marginTopMedium">
                     或从剪贴板粘贴图片 (ctrl+v),
@@ -73,13 +78,13 @@
             </div>
 
             <div class="marginTopHigh">↓ 解码结果 ↓</div>
-            <canvas id="decodeOutputCanvas" class="marginTopMedium"></canvas>
             <button id="decodeSaveButton" class="inputReact marginTopMedium transformSize">保存结果</button>
+            <canvas id="decodeOutputCanvas" class="marginTopMedium"></canvas>
 
             <div class="marginTopHigh">↓ 原图 ↓</div>
-            <canvas id="decodeInputCanvas" class="marginTopMedium"></canvas>
-            <div class="marginTopMedium fontSmall">(下方开关灯可切换显示表里图)</div>
-            <div class="marginTopLow fontSmall marginBottomExtreme">(若出现摩尔纹可适当缩放网页界面)</div>
+            <div class="marginTopMedium fontSmall">(左下方开关灯可切换显示表里图)</div>
+            <div class="marginTopLow fontSmall">(若出现摩尔纹可适当缩放网页界面)</div>
+            <canvas id="decodeInputCanvas" class="marginTopMedium marginBottomExtreme"></canvas>
 
         </div>
 
@@ -121,6 +126,18 @@
                 </div>
             </div>
 
+            <div class="displayFlex flexRow justifyCenter alignCenter marginTopHigh">
+                <label for="hiddenSourceFileInput" class="fileInputLabel inputReact transformSize marginLeftLow">
+                    选择隐写文件</label>
+                <input type="file" id="hiddenSourceFileInput">
+            </div>
+
+            <div class="encodeDrag marginTopMedium fontSmall">或直接拖动至下方画布</div>
+            <canvas id="hiddenCanvas" class="marginTopMedium"></canvas>
+            <div id="encodeOutputSize" class="marginTopMedium"></div>
+            <div id="encodeHiddenSize" class="marginTopLow"></div>
+            <div class="marginTopLow fontSmall">(若输出文件过大可尝试降低"预期输出尺寸")</div>
+
             <label for="mirageSizeInput" class="marginTopMedium">5. 预期输出尺寸:</label>
             <div class="displyFlex flexRow justifyCenter alignCenter marginTopLow">
                 <input id="mirageSizeInput" type="number" class="inputReact"></input>
@@ -159,18 +176,6 @@
             </div>
 
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopHigh">
-                <label for="hiddenSourceFileInput" class="fileInputLabel inputReact transformSize marginLeftLow">
-                    选择隐写文件</label>
-                <input type="file" id="hiddenSourceFileInput">
-            </div>
-
-            <div class="encodeDrag marginTopMedium fontSmall">或直接拖动至下方画布</div>
-            <canvas id="hiddenCanvas" class="marginTopMedium"></canvas>
-            <div id="encodeOutputSize" class="marginTopMedium"></div>
-            <div class="marginTopLow fontSmall">(若尺寸过大可适当降低"5.预期输出尺寸")</div>
-            <div id="encodeHiddenSize" class="marginTopMedium"></div>
-
-            <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium">
                 <button id="encodeProcessButton" class="inputReact marginRightLow transformSize">开始编码</button>
                 <button id="encodeSaveButton" class="inputReact transformSize">保存结果</button>
             </div>
@@ -179,15 +184,7 @@
 
         </div>
 
-        <div class="switchContainer">
-            <p id="isDarkModeLabel">切换明/暗主题</p>
-            <label class="switch" id="isDarkmodeSwitch">
-                <input type="checkbox" id="isDarkmodeCheckbox" title="switch from themes">
-                <span class="switchSlider"></span>
-            </label>
-        </div>
-
-        <div id="pageBelow" class="displayFlex frontColor justifyCenter alignCenter flexColumn">
+        <div id="pageBelow" class="displayFlex frontColor justifyCenter alignCenter flexColumn marginTopHigh">
             <div id="versionInfo" class="fontLarge">version: <b>UNKNOWN</b></div>
 
             <div class="marginTopLow fontSmall">
@@ -274,6 +271,11 @@
                             <td>1.0.7</td>
                             <td>再次调整项目结构，部署目录完全由webpack管理；<br>
                                 实现懒加载。</td>
+                        </tr>
+                        <tr>
+                            <td>1.0.8</td>
+                            <td>增加了解码时多文件选择的功能；<br>
+                                为了配合此功能添加了侧边栏。</td>
                         </tr>
                     </tbody>
                 </table>

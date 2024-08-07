@@ -1,10 +1,85 @@
-import { ImageLoader } from './ImageLoader.js';
+function handleImageLoadError(error, callback) {
+    alert('图像处理失败！' + error.message);
+    // if (errorHandling.defaultImg[errorHandling.currCanvasIndex].src) {
+    //     const img = new Image();
+    //     img.src = copyImage(errorHandling.defaultImg[errorHandling.currCanvasIndex]);
+    //     img.onload = () => {
+    //         callback(img);
+    //     };
+    // }
+}
+
+// 从源加载图像并返回
+async function loadImage(input, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        let timer;
+
+        img.onload = () => {
+            clearTimeout(timer);
+            resolve(img);
+        };
+
+        img.onerror = (error) => {
+            clearTimeout(timer);
+            reject(error);
+        };
+
+        timer = setTimeout(() => {
+            img.src = '';
+            reject(new Error('加载图像超时'));
+        }, timeout);
+
+        if (typeof input === 'string') {
+            img.crossOrigin = 'anonymous';
+            img.src = input;
+        } else if (input instanceof File) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                img.src = e.target.result;
+            };
+            reader.onerror = (error) => {
+                clearTimeout(timer);
+                reject(error);
+            };
+            reader.readAsDataURL(input);
+        } else {
+            clearTimeout(timer);
+            reject(new Error('不支持的输入类型'));
+        }
+    });
+}
+
+// 从文件加载图像，调用callback
+async function updateImageFromFile(file, callback) {
+    loadImage(file).then((img) => {
+        callback(img);
+    }).catch((error) => {
+        handleImageLoadError(error, callback);
+    });
+}
+
+// 拖动文件加载图像
+async function dragDropLoadImage(event, callback) {
+    event.preventDefault();
+    if (event.dataTransfer.items) {
+        for (const item of event.dataTransfer.items) {
+            if (item.kind === 'file') {
+                const file = item.getAsFile();
+                loadImage(file).then((img) => {
+                    callback(img);
+                }).catch((error) => {
+                    handleImageLoadError(error, callback);
+                });
+            }
+        }
+    }
+}
 
 // 从文件加载里图
 function encodeLoadInnerImageFile(event) {
-    errorHandling.currCanvasIndex = 1;
     const file = event.target.files[0];
-    ImageLoader.updateImageFromFile(file, (img) => {
+    updateImageFromFile(file, (img) => {
         CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.updateInnerImage(img);
     });
@@ -13,9 +88,8 @@ function encodeLoadInnerImageFile(event) {
 
 // 从文件加载表图
 function encodeLoadCoverImageFile(event) {
-    errorHandling.currCanvasIndex = 2;
     const file = event.target.files[0];
-    ImageLoader.updateImageFromFile(file, (img) => {
+    updateImageFromFile(file, (img) => {
         CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.updateCoverImage(img);
     });
@@ -30,8 +104,7 @@ function encodeLoadHiddenFile(event) {
 
 // 从拖动加载里图
 function encodeLoadInnerImageFromDrag(event) {
-    errorHandling.currCanvasIndex = 1;
-    ImageLoader.dragDropLoadImage(event, (img) => {
+    dragDropLoadImage(event, (img) => {
         CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.updateInnerImage(img);
     });
@@ -39,8 +112,7 @@ function encodeLoadInnerImageFromDrag(event) {
 
 // 从拖动加载表图
 function encodeLoadCoverImageFromDrag(event) {
-    errorHandling.currCanvasIndex = 2;
-    ImageLoader.dragDropLoadImage(event, (img) => {
+    dragDropLoadImage(event, (img) => {
         CloakProcessor.CloakEncoder.clearOutputCanvas();
         CloakProcessor.CloakEncoder.updateCoverImage(img);
     });
@@ -193,7 +265,7 @@ function encodeProcessImage() {
         CloakProcessor.CloakEncoder.process();
     } catch (error) {
         CloakProcessor.CloakEncoder.clearOutputCanvas();
-        alert(error);
+        alert(error.message);
     }
 }
 
@@ -202,7 +274,7 @@ function encodeSaveImage() {
     try {
         CloakProcessor.CloakEncoder.saveOutputImage();
     } catch (error) {
-        alert(error);
+        alert(error.message);
     }
 }
 
@@ -268,5 +340,3 @@ const EncodeListeners = {
 };
 
 export { EncodeListeners };
-
-errorHandling.scriptsLoaded.EncodeListeners = true;

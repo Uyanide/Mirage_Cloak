@@ -1,6 +1,6 @@
 :root {
     --sidebar-width: 200px;
-    --sidebar-padding: 20px;
+    --sidebar-padding: 30px;
 }
 
 .sidebarContainer {
@@ -14,7 +14,7 @@
     box-shadow: -5px 0 10px rgba(0, 0, 0, 0.1);
     padding: var(--sidebar-padding);
     z-index: 100;
-    transition: transform 0.5s;
+    transition: transform 0.5s, background-color 0.3s ease-in-out;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -58,4 +58,8 @@
     border-radius: 50%;
     cursor: pointer;
     z-index: 101;
+}
+
+.canvasSelected {
+    border: var(--front-color) 5px solid;
 }

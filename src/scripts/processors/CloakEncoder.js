@@ -772,5 +772,3 @@ class Encoder_v0 { // typical LSB Steganography, also works with mirage images :
         return Math.floor(value * this._scale_c + this._offset_c);
     }
 }
-
-errorHandling.scriptsLoaded.CloakEncoder = true;
