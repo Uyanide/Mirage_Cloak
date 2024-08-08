@@ -32,7 +32,7 @@ function switchPage() {
     } else {
         if (CloakProcessor.MultiDecoder === undefined) {
             import('../processors/MultiDecoder.js').then(module => {
-                CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputCanvas', 'sidebarContent', 'sidebarAmountLabel');
+                CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputCanvas', 'decodeSizeLabel', 'sidebarContent', 'sidebarAmountLabel');
                 document.getElementById('sidebarClearButton').addEventListener('click', CloakProcessor.MultiDecoder.clearQueue);
             }).catch(error => {
                 console.error('Failed to load MultiDecoder:', error);

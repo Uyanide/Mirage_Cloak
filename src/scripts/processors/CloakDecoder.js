@@ -2,12 +2,13 @@ import { CloakUniversal } from './CloakUniversal.js';
 import { decode as pngDecode } from 'fast-png';
 
 export class CloakDecoder extends CloakUniversal {
-    constructor(defaultArguments, inputCanvasId, outputCanvasId) {
+    constructor(defaultArguments, inputCanvasId, outputCanvasId, sizeLabelId) {
         super(defaultArguments);
         this._srcImageFile = null;
         this._srcImageData = null;
         this._inputCanvas = document.getElementById(inputCanvasId);
         this._outputCanvas = document.getElementById(outputCanvasId);
+        this._sizeLabel = document.getElementById(sizeLabelId)
 
         this._version = defaultArguments.version;
 
@@ -18,7 +19,7 @@ export class CloakDecoder extends CloakUniversal {
         ];
     }
 
-    updateImage = async (imageFile, srcImage = null, url = null, fileExt = null) => {
+    updateImage = async (imageFile, srcImage = null, url = null, fileExt = null, length = null) => {
 
         this._fileExtension = null;
         this._byteArray = null;
@@ -27,6 +28,7 @@ export class CloakDecoder extends CloakUniversal {
 
         return new Promise((resolve, reject) => {
             this.showTextOnCanvas(this._outputCanvas, '正在处理...');
+            this._sizeLabel.innerText = '';
             (async () => {
                 try {
                     // if srcImage is not null, then draw it on the input canvas
@@ -59,7 +61,7 @@ export class CloakDecoder extends CloakUniversal {
                     } else if (url) {
                         this._dataUrl = url;
                         this._fileExtension = fileExt;
-                        this.showResult(this._outputCanvas, this._dataUrl, this._fileExtension);
+                        this.showResult(url, fileExt, length);
                         resolve();
                         return;
                     }
@@ -122,9 +124,48 @@ export class CloakDecoder extends CloakUniversal {
         this._fileType = CloakUniversal.classifyFileType(this._fileExtension);
         const blob = new Blob([this._byteArray], { type: this._fileType });
         this._dataUrl = URL.createObjectURL(blob);
-        this.showResult(this._outputCanvas, this._dataUrl, this._fileExtension);
-
+        this.showResult();
         console.log('Decoding finished');
+    }
+
+    showResult(url, fileExt, length) {
+        const canvas = this._outputCanvas;
+        const dataUrl = url === undefined ? this._dataUrl : url;
+        const fileExtension = fileExt === undefined ? this._fileExtension : fileExt;
+        const sizeLabel = this._sizeLabel;
+        const dataLength = length === undefined ? this._byteArray.length : length;
+
+        switch (fileExtension) {
+            case 'png':
+            case 'jpg':
+            case 'jpeg':
+            case 'bmp':
+            case 'webp':
+                const img = new Image();
+                img.onload = () => {
+                    this.clearCanvas(canvas);
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                };
+                img.src = dataUrl;
+                break;
+            default:
+                if (fileExtension) {
+                    this.showTextOnCanvas(canvas, '暂不支持预览此文件', '文件拓展名: ' + fileExtension);
+                } else {
+                    this.showTextOnCanvas(canvas, '暂不支持预览此文件');
+                }
+        }
+        sizeLabel.innerText = '里文件大小：' + ((length) => {
+            if (length >= 0x100000) {
+                return (length / 0x100000).toFixed(2) + ' MB';
+            } else if (length > 0x400) {
+                return (length / 0x400).toFixed(2) + ' KB';
+            } else {
+                return length + ' B';
+            }
+        })(dataLength);
     }
 
     saveResult = () => {
@@ -140,7 +181,8 @@ export class CloakDecoder extends CloakUniversal {
         } else {
             return {
                 url: this._dataUrl,
-                fileExt: this._fileExtension
+                fileExt: this._fileExtension,
+                length: this._byteArray.length
             }
         }
     }

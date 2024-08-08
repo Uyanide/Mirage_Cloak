@@ -29,31 +29,6 @@ export class CloakUniversal {
         }
     }
 
-    showResult(canvas, dataUrl, fileExtention) {
-        switch (fileExtention) {
-            case 'png':
-            case 'jpg':
-            case 'jpeg':
-            case 'bmp':
-            case 'webp':
-                const img = new Image();
-                img.onload = () => {
-                    this.clearCanvas(canvas);
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    canvas.getContext('2d').drawImage(img, 0, 0);
-                };
-                img.src = dataUrl;
-                break;
-            default:
-                if (fileExtention) {
-                    this.showTextOnCanvas(canvas, '暂不支持预览此文件', '文件拓展名: ' + fileExtention);
-                } else {
-                    this.showTextOnCanvas(canvas, '暂不支持预览此文件');
-                }
-        }
-    }
-
     showTextOnCanvas(canvas, text = '暂不支持预览此文件', additionalText = '') {
         this.clearCanvas(canvas);
         const ctx = canvas.getContext('2d');

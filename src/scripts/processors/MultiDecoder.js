@@ -1,9 +1,9 @@
 import { UniversalListeners } from "../listeners/UniversalListeners";
 
 export class MultiDecoder {
-    constructor(defaultArguments, inputCanvasId, outputCanvasId, sidebarContentId, sidebarAmountLabelId) {
+    constructor(defaultArguments, inputCanvasId, outputCanvasId, sizeLabelId, sidebarContentId, sidebarAmountLabelId) {
         import('./CloakDecoder.js').then(module => {
-            this._decoder = new module.CloakDecoder(defaultArguments, inputCanvasId, outputCanvasId);
+            this._decoder = new module.CloakDecoder(defaultArguments, inputCanvasId, outputCanvasId, sizeLabelId);
         }).catch(error => {
             console.error('Failed to load CloakDecoder:', error);
             alert('加载解码器失败，请刷新页面重试。');
@@ -18,7 +18,7 @@ export class MultiDecoder {
     appendQueue = async (file) => {
         return new Promise((resolve, reject) => {
             if (!file.type.startsWith('image')) reject(new Error('请选择图片文件'));
-            this._fileList.push({ src: file, status: 'pending', image: null, url: null, fileExt: null });
+            this._fileList.push({ src: file, status: 'pending', image: null, url: null, fileExt: null, length: null });
             const img = new Image();
             img.onload = () => {
                 const canvas = document.createElement('canvas');
@@ -78,17 +78,18 @@ export class MultiDecoder {
                             this._fileList[index].status = 'decoded';
                             this._fileList[index].url = result.url;
                             this._fileList[index].fileExt = result.fileExt;
+                            this._fileList[index].length = result.length;
                         } else {
                             this._fileList[index].status = 'failed';
                         }
                         break;
                     case 'decoded':
-                        await this._decoder.updateImage(null, this._fileList[index].image, this._fileList[index].url, this._fileList[index].fileExt).catch((error) => {
+                        await this._decoder.updateImage(null, this._fileList[index].image, this._fileList[index].url, this._fileList[index].fileExt, this._fileList[index].length).catch((error) => {
                             reject(error);
                         });
                         break;
                     case 'failed':
-                        await this._decoder.updateImage(null, this._fileList[index].image, 'failed', null).catch((error) => {
+                        await this._decoder.updateImage(null, this._fileList[index].image, 'failed', null, null).catch((error) => {
                             reject(error);
                         });
                         break;

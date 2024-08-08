@@ -1,5 +1,8 @@
+app_version:
+    version of the site, was used for cache busting, but has been no longer essential since using Webpack to build.
+
 defaultPageId:
-    the default page which should show up when launched.
+    the default page which should show up after launch.
 
 version:
     the default version of encoding algorithm.
