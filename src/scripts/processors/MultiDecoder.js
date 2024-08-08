@@ -56,12 +56,32 @@ export class MultiDecoder {
             }
             event.target.classList.add('canvasSelected');
             this._selected = index;
+            let color = '#00FF00';
+            let retError = null;
             await this.processSingle(index).catch((error) => {
-                throw error;
+                color = '#FF0000';
+                retError = error;
             });
+            this.showCornerStatus(event.target, color);
+            if (retError) {
+                throw retError;
+            }
         } catch (error) {
             alert('图像处理失败：' + error.message);
         }
+    }
+
+    showCornerStatus = (canvas, color) => {
+        const offset = Math.min(canvas.width, canvas.height) / 10;
+        const ctx = canvas.getContext('2d');
+        // 画圆
+        const centerX = canvas.width - offset / 2;
+        const centerY = canvas.height - offset / 2;
+        const radius = offset * 0.4;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = color;
+        ctx.fill();
     }
 
     processSingle = async (index) => {
@@ -79,8 +99,10 @@ export class MultiDecoder {
                             this._fileList[index].url = result.url;
                             this._fileList[index].fileExt = result.fileExt;
                             this._fileList[index].length = result.length;
+                            resolve();
                         } else {
                             this._fileList[index].status = 'failed';
+                            reject(new Error('Invalid result'));
                         }
                         break;
                     case 'decoded':
@@ -96,7 +118,6 @@ export class MultiDecoder {
                     default:
                         reject(new Error('Invalid status'));
                 }
-                resolve();
             })();
         });
     }
@@ -133,13 +154,17 @@ export class MultiDecoder {
                         break;
                     case 'pending':
                         let flag = false;
-                        await this.processSingle(i).catch((error) => {
+                        await this.processSingle(i).catch(() => {
                             failed++;
                             flag = true;
                         });
                         if (flag) {
+                            this.showCornerStatus(document.getElementById('queue' + i), '#FF0000');
                             break;
-                        } else { /*fall through*/ }
+                        } else {
+                            this.showCornerStatus(document.getElementById('queue' + i), '#00FF00');
+                            /*fall through*/
+                        }
                     case 'decoded':
                         const link = document.createElement('a');
                         link.href = this._fileList[i].url;
@@ -148,7 +173,7 @@ export class MultiDecoder {
                         link.click();
                         document.body.removeChild(link);
                         successed++;
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await new Promise(resolve => setTimeout(resolve, 500));
                         break;
                     default:
                         throw new Error('Invalid status');
