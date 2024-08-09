@@ -1,3 +1,5 @@
+import { BusyStatus } from "./BusyStatus";
+
 // 调整侧边栏宽度
 function disableHorizontalScroll() {
     document.documentElement.style.overflowX = 'hidden';
@@ -84,20 +86,24 @@ async function decodeProcessQueue(files, callback) {
     }
     CloakProcessor.MultiDecoder.clearQueue();
     let successed = 0;
+    let promises = [];
     for (let i = 0; i < files.length; i++) {
-        await CloakProcessor.MultiDecoder.appendQueue(files[i]).catch((error) => {
-            alert('图像加载失败：' + error.message);
-            successed--;
-        });
-        successed++;
+        promises.push(
+            CloakProcessor.MultiDecoder.appendQueue(files[i])
+                .then(() => successed++)
+                .catch((error) => {
+                    console.error(`Error on ${files[i].name}：`, error.stack, error.message);
+                })
+        );
+    }
+    await Promise.all(promises);
+    if (successed > 0) {
+        document.getElementById('queue0').dispatchEvent(new Event('click'));
     }
     if (successed > 1) {
         showSidebar();
     } else {
         hideSidebar();
-    }
-    if (successed > 0) {
-        document.getElementById('queue0').dispatchEvent(new Event('click'));
     }
     document.getElementById('sidebarAmountLabel').innerText = `数量：${successed}`;
     if (callback) {
@@ -107,35 +113,52 @@ async function decodeProcessQueue(files, callback) {
 
 // 从文件加载图像
 async function decodeLoadImageFile(event) {
-    const files = event.target.files;
-    await decodeProcessQueue(files, () => {
-        event.target.value = '';
-    });
+    try {
+        BusyStatus.showBusy();
+        const files = event.target.files;
+        await decodeProcessQueue(files, () => {
+            event.target.value = '';
+        });
+        BusyStatus.hideBusy();
+    } catch (error) {
+        BusyStatus.hideBusy();
+        alert('图像加载失败：' + error.message);
+        console.error('Failed to load image:', error.stack, error.message);
+    }
 }
 
 // 从剪贴板加载图像
-function decodeLoadImageFromClipboard(event) {
-    const files = [];
-    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
-    for (const item of items) {
-        if (item.type.indexOf('image') !== -1) {
-            const blob = item.getAsFile();
-            files.push(blob);
+async function decodeLoadImageFromClipboard(event) {
+    try {
+        BusyStatus.showBusy();
+        const files = [];
+        const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+        for (const item of items) {
+            if (item.type.indexOf('image') !== -1) {
+                const blob = item.getAsFile();
+                files.push(blob);
+            }
         }
+        await decodeProcessQueue(files);
+        BusyStatus.hideBusy();
+    } catch (error) {
+        BusyStatus.hideBusy();
+        alert('图像加载失败：' + error.message);
+        console.error('Failed to load image:', error.stack, error.message);
     }
-    decodeProcessQueue(files);
 }
 
 // 从粘贴按钮加载图像
 async function decodeLoadImageFromPasteButton() {
     try {
+        BusyStatus.showBusy();
         const permission = await navigator.permissions.query({ name: 'clipboard-read' });
         if (permission.state === 'granted' || permission.state === 'prompt') {
             const clipboardItems = await navigator.clipboard.read();
             for (const item of clipboardItems) {
                 if (item.types.some(type => type.startsWith('image/'))) {
                     const blob = await item.getType(item.types.find(type => type.startsWith('image/')));
-                    decodeProcessQueue([blob]);
+                    await decodeProcessQueue([blob]);
                 } else {
                     throw new Error('剪贴板中没有图像');
                 }
@@ -143,26 +166,53 @@ async function decodeLoadImageFromPasteButton() {
         } else {
             throw new Error('未获得剪贴板访问权限');
         }
+        BusyStatus.hideBusy();
     } catch (error) {
+        BusyStatus.hideBusy();
         alert('图像加载失败：' + error.message);
+        console.error('Failed to load image:', error.stack, error.message);
     }
 }
 
 // 从拖动加载图像
-function decodeLoadImageFromDrag(event) {
-    event.preventDefault();
-    const files = event.dataTransfer.files;
-    decodeProcessQueue(files);
+async function decodeLoadImageFromDrag(event) {
+    try {
+        BusyStatus.showBusy();
+        event.preventDefault();
+        const files = event.dataTransfer.files;
+        await decodeProcessQueue(files);
+        BusyStatus.hideBusy();
+    } catch (error) {
+        BusyStatus.hideBusy();
+        alert('图像加载失败：' + error.message);
+        console.error('Failed to load image:', error.stack, error.message);
+    }
 }
 
 // 保存当前结果
 function decodeSaveCurrResult() {
-    CloakProcessor.MultiDecoder.saveCurrResult();
+    try {
+        BusyStatus.showBusy();
+        CloakProcessor.MultiDecoder.saveCurrResult();
+        BusyStatus.hideBusy();
+    } catch (error) {
+        BusyStatus.hideBusy();
+        alert('保存结果失败：' + error.message);
+        console.error('Failed to save result:', error.stack, error.message);
+    }
 }
 
 // 保存所有结果
-function decodeSaveAllResults() {
-    CloakProcessor.MultiDecoder.saveAllResults();
+async function decodeSaveAllResults() {
+    try {
+        BusyStatus.showBusy();
+        await CloakProcessor.MultiDecoder.saveAllResults();
+        BusyStatus.hideBusy();
+    } catch (error) {
+        BusyStatus.hideBusy();
+        alert('保存结果失败：' + error.message);
+        console.error('Failed to save result:', error.stack, error.message);
+    }
 }
 
 // 设置解码事件监听器

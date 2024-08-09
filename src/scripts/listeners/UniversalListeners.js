@@ -36,13 +36,20 @@ function switchPage() {
     } else {
         if (CloakProcessor.MultiDecoder === undefined) {
             BusyStatus.showBusy();
-            import('../processors/MultiDecoder.js').then(module => {
-                CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputMetaCanvas', 'sidebarContent', 'sidebarAmountLabel');
-                document.getElementById('sidebarClearButton').addEventListener('click', CloakProcessor.MultiDecoder.clearQueue);
-                BusyStatus.hideBusy();
+            import('../processors/CloakDecoder.js').then(module => {
+                const decoder = new module.CloakDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputMetaCanvas');
+                import('../processors/MultiDecoder.js').then(module => {
+                    CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, decoder, 'sidebarContent', 'sidebarAmountLabel');
+                    document.getElementById('sidebarClearButton').addEventListener('click', CloakProcessor.MultiDecoder.clearQueue);
+                    BusyStatus.hideBusy();
+                }).catch(error => {
+                    BusyStatus.hideBusy();
+                    console.error('Failed to load MultiDecoder:', error);
+                    alert('加载解码器失败，请刷新页面重试。');
+                });
             }).catch(error => {
                 BusyStatus.hideBusy();
-                console.error('Failed to load MultiDecoder:', error);
+                console.error('Failed to load CloakDecoder:', error);
                 alert('加载解码器失败，请刷新页面重试。');
             });
         }
@@ -71,6 +78,20 @@ const applyTheme = (tarTheme) => {
     document.documentElement.setAttribute("data-theme", tarTheme);
     document.getElementById('isDarkmodeCheckbox').checked = tarTheme === 'dark';
     document.getElementById('isDarkModeLabel').innerText = tarTheme === 'dark' ? '开灯' : '关灯';
+};
+
+// 侧边栏图片点击事件回调
+const sidebarImageProcess = async (event) => {
+    try {
+        BusyStatus.showBusy();
+        await CloakProcessor.MultiDecoder.decode(event).then(() => {
+            BusyStatus.hideBusy();
+        });
+    } catch (error) {
+        BusyStatus.hideBusy();
+        alert('解码失败：' + error.message);
+        console.error('Failed to decode:', error.stack, error.message);
+    }
 };
 
 function universalSetupEventListeners() {
@@ -124,6 +145,7 @@ function universalSetupEventListeners() {
 const UniversalListeners = {
     switchPage,
     applyTheme,
+    sidebarImageProcess,
     universalSetupEventListeners
 };
 

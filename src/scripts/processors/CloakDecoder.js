@@ -25,63 +25,56 @@ export class CloakDecoder extends CloakUniversal {
         this._fileType = null;
         this._dataUrl = null;
 
-        return new Promise((resolve, reject) => {
-            CloakUniversal.showTextOnMetaCanvas(this._outputMetaCanvas, '正在处理...');
-            (async () => {
-                try {
-                    // if srcImage is not null, then draw it on the input canvas
-                    if (srcImage) {
-                        this._inputCanvas.width = srcImage.width;
-                        this._inputCanvas.height = srcImage.height;
-                        this._inputCanvas.getContext('2d').drawImage(srcImage, 0, 0);
-                    } else { // otherwise load image from imageFile
-                        await new Promise((resolve, reject) => {
-                            const image = new Image();
-                            image.onload = () => {
-                                this._inputCanvas.width = image.width;
-                                this._inputCanvas.height = image.height;
-                                this._inputCanvas.getContext('2d').drawImage(image, 0, 0);
-                                URL.revokeObjectURL(image.src);
-                                resolve();
-                            };
-                            image.onerror = (error) => {
-                                reject(error);
-                            };
-                            image.src = URL.createObjectURL(imageFile);
-                        }).catch((error) => {
-                            reject(new Error('加载图像失败！' + error));
-                        });
-                    }
-                    if (url === 'failed') {
-                        CloakUniversal.showTextOnMetaCanvas(this._outputMetaCanvas, '无法解码');
+        CloakUniversal.showTextOnMetaCanvas(this._outputMetaCanvas, '正在处理...');
+        try {
+            // handle with inputCanvas
+            if (srcImage) {
+                this._inputCanvas.width = srcImage.width;
+                this._inputCanvas.height = srcImage.height;
+                this._inputCanvas.getContext('2d').drawImage(srcImage, 0, 0);
+            } else if (url !== 'failed') { // srcImage can also be null sometimes if url is 'failed'
+                await new Promise((resolve, reject) => {
+                    const image = new Image();
+                    image.onload = () => {
+                        this._inputCanvas.width = image.width;
+                        this._inputCanvas.height = image.height;
+                        this._inputCanvas.getContext('2d').drawImage(image, 0, 0);
+                        URL.revokeObjectURL(image.src);
                         resolve();
-                        return;
-                    } else if (url) {
-                        this._dataUrl = url;
-                        this._fileExtension = fileExt;
-                        await CloakUniversal.showMetaCanvas(this._outputMetaCanvas, url, fileExt, length);
-                        resolve();
-                        return;
-                    }
-                    this._srcImageFile = imageFile;
-                    this._srcImageData = await this._getImageDataFromImageFile(imageFile).catch((error) => {
-                        throw new Error('PNG解析失败，请确保选择的图片为原图！' + error.message);
-                    });
-
-                    this.process();
-                    resolve();
-                } catch (error) {
-                    try {
-                        this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, this._inputCanvas.width, this._inputCanvas.height);
-                        this.process();
-                        resolve();
-                    } catch (innerError) {
-                        CloakUniversal.clearMetaCanvas(this._outputMetaCanvas);
-                        reject(new Error('处理失败！' + error.message + innerError.message));
-                    }
-                }
-            })();
-        });
+                    };
+                    image.onerror = (error) => {
+                        reject(error);
+                    };
+                    image.src = URL.createObjectURL(imageFile);
+                })
+            } else {
+                CloakUniversal.clearCanvas(this._inputCanvas);
+            }
+            // handle with outputMetaCanvas
+            if (url === 'failed') {
+                CloakUniversal.showTextOnMetaCanvas(this._outputMetaCanvas, '无法解码');
+                return;
+            } else if (url) {
+                this._dataUrl = url;
+                this._fileExtension = fileExt;
+                await CloakUniversal.showMetaCanvas(this._outputMetaCanvas, url, fileExt, length);
+                return;
+            }
+            this._srcImageFile = imageFile;
+            this._srcImageData = await this._getImageDataFromImageFile(imageFile);
+            this.process();
+        } catch (error) {
+            error.message = '第一次处理失败！' + error.message;
+            try {
+                this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, this._inputCanvas.width, this._inputCanvas.height);
+                this.process();
+            } catch (innerError) {
+                CloakUniversal.clearMetaCanvas(this._outputMetaCanvas);
+                const combinedError = new Error(error.message + ' 第二次处理失败！' + innerError.message);
+                combinedError.stack = error.stack + '\n' + innerError.stack;
+                throw combinedError;
+            }
+        }
     }
 
     _getImageDataFromImageFile = async (imageFile) => {

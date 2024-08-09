@@ -131,7 +131,7 @@ export class CloakUniversal {
                     resolve();
                     break;
                 default:
-                    CloakUniversal.showTextOnMetaCanvas(displayers[0], '暂不支持预览此文件', '文件类型：' + type);
+                    CloakUniversal.showTextOnMetaCanvas(metaCanvas, '暂不支持预览此文件', '文件类型：' + type);
                     resolve();
                     break;
             }
