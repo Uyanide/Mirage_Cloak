@@ -1,4 +1,5 @@
 import { UniversalListeners } from "../listeners/UniversalListeners";
+import { BusyStatus } from "../listeners/BusyStatus";
 
 export class MultiDecoder {
     constructor(defaultArguments, inputCanvasId, outputCanvasId, sidebarContentId, sidebarAmountLabelId) {
@@ -43,6 +44,7 @@ export class MultiDecoder {
     }
 
     decode = async (event) => {
+        BusyStatus.showBusy();
         if (applicationState.currPageId !== 'decodePage') {
             UniversalListeners.switchPage();
         }
@@ -58,15 +60,17 @@ export class MultiDecoder {
             this._selected = index;
             let color = '#00FF00';
             let retError = null;
-            await this.processSingle(index).catch((error) => {
+            await this._processSingle(index).catch((error) => {
                 color = '#FF0000';
                 retError = error;
             });
             this.showCornerStatus(event.target, color);
+            BusyStatus.hideBusy();
             if (retError) {
                 throw retError;
             }
         } catch (error) {
+            BusyStatus.hideBusy();
             alert('图像处理失败：' + error.message);
         }
     }
@@ -84,7 +88,7 @@ export class MultiDecoder {
         ctx.fill();
     }
 
-    processSingle = async (index) => {
+    _processSingle = async (index) => {
         return new Promise((resolve, reject) => {
             (async () => {
                 switch (this._fileList[index].status) {
@@ -109,11 +113,13 @@ export class MultiDecoder {
                         await this._decoder.updateImage(null, this._fileList[index].image, this._fileList[index].url, this._fileList[index].fileExt, this._fileList[index].length).catch((error) => {
                             reject(error);
                         });
+                        resolve();
                         break;
                     case 'failed':
                         await this._decoder.updateImage(null, this._fileList[index].image, 'failed', null, null).catch((error) => {
                             reject(error);
                         });
+                        resolve();
                         break;
                     default:
                         reject(new Error('Invalid status'));
@@ -138,50 +144,52 @@ export class MultiDecoder {
 
     saveCurrResult = () => {
         try {
+            BusyStatus.showBusy();
             this._decoder.saveResult();
+            BusyStatus.hideBusy();
         } catch (error) {
+            BusyStatus.hideBusy();
             alert('保存失败：' + error.message);
         }
     }
 
     saveAllResults = async () => {
-        try {
-            let successed = 0, failed = 0;
-            for (let i = 0; i < this._fileList.length; i++) {
-                switch (this._fileList[i].status) {
-                    case 'failed':
+        BusyStatus.showBusy();
+        let successed = 0, failed = 0;
+        for (let i = 0; i < this._fileList.length; i++) {
+            switch (this._fileList[i].status) {
+                case 'failed':
+                    failed++;
+                    break;
+                case 'pending':
+                    let flag = false;
+                    await this._processSingle(i).catch(() => {
                         failed++;
+                        flag = true;
+                    });
+                    if (flag) {
+                        this.showCornerStatus(document.getElementById('queue' + i), '#FF0000');
                         break;
-                    case 'pending':
-                        let flag = false;
-                        await this.processSingle(i).catch(() => {
-                            failed++;
-                            flag = true;
-                        });
-                        if (flag) {
-                            this.showCornerStatus(document.getElementById('queue' + i), '#FF0000');
-                            break;
-                        } else {
-                            this.showCornerStatus(document.getElementById('queue' + i), '#00FF00');
-                            /*fall through*/
-                        }
-                    case 'decoded':
-                        const link = document.createElement('a');
-                        link.href = this._fileList[i].url;
-                        link.download = `decoded_${new Date().getTime()}.${this._fileList[i].fileExt}`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        successed++;
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        break;
-                    default:
-                        throw new Error('Invalid status');
-                }
+                    } else {
+                        this.showCornerStatus(document.getElementById('queue' + i), '#00FF00');
+                        /*fall through*/
+                    }
+                case 'decoded':
+                    const link = document.createElement('a');
+                    link.href = this._fileList[i].url;
+                    link.download = `decoded_${new Date().getTime()}.${this._fileList[i].fileExt}`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    successed++;
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    break;
+                default:
+                    BusyStatus.hideBusy();
+                    throw new Error('Invalid status');
             }
-            this._sidebarAmountLabel.innerHTML = `数量：${this._fileList.length}<br>成功：${successed}<br>失败：${failed}`;
-        } catch (error) {
-            alert('保存失败：' + error.message);
         }
+        this._sidebarAmountLabel.innerHTML = `数量：${this._fileList.length}<br>成功：${successed}<br>失败：${failed}`;
+        BusyStatus.hideBusy();
     }
 }

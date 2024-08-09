@@ -1,6 +1,7 @@
 import { CloakUniversal } from './CloakUniversal.js';
 import { encode as pngEncode } from 'fast-png';
 import { JPEGEncoder } from '../libs/JPEGEncoder.js';
+import { BusyStatus } from '../listeners/BusyStatus.js';
 
 export class CloakEncoder extends CloakUniversal {
     constructor(defaultArguments, innerCanvasId, coverCanvasId, hiddenMetaCanvasId, outputCanvasId, sizeLabelId, hiddenSizeLabelId) {
@@ -60,6 +61,7 @@ export class CloakEncoder extends CloakUniversal {
     }
 
     updateInnerImage = async (img) => {
+        BusyStatus.showBusy();
         this._innerImage = img;
 
         if (this._mirageSize !== 0) {
@@ -95,6 +97,8 @@ export class CloakEncoder extends CloakUniversal {
         }
         if (this._coverImageData) {
             this.updateCoverImage(this._coverImage);
+        } else {
+            BusyStatus.hideBusy();
         }
     }
 
@@ -158,6 +162,7 @@ export class CloakEncoder extends CloakUniversal {
     }
 
     updateCoverImage(img) {
+        BusyStatus.showBusy();
         this._coverImage = img;
         if (this._innerImage) {
             const currRatio = img.width / img.height;
@@ -191,9 +196,11 @@ export class CloakEncoder extends CloakUniversal {
         if (this._isAddMark) {
             this.addMark(this._coverCanvas);
         }
+        BusyStatus.hideBusy();
     }
 
     updateHiddenFile = async (file) => {
+        BusyStatus.showBusy();
         this._hiddenFile = file;
         this._byteArrayCompressed = null;
         if (this._hiddenUrl) {
@@ -229,41 +236,50 @@ export class CloakEncoder extends CloakUniversal {
             this._byteArray = new Uint8Array(arrayBuffer);
             if (this._innerImage) {
                 this.updateInnerImage(this._innerImage);
+            } else {
+                BusyStatus.hideBusy();
             }
         }
         reader.readAsArrayBuffer(this._hiddenFile);
     }
 
     process = () => {
-        if (!this._innerImageData || !this._coverImageData || !this._byteArray) {
-            throw new Error('请先选择图像和文件！');
+        try {
+            if (!this._innerImageData || !this._coverImageData || !this._byteArray) {
+                throw new Error('请先选择图像和文件！');
+            }
+
+            BusyStatus.showBusy();
+            const innerImageDataAdjust = this._innerCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
+            const coverImageDataAdjust = this._coverCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
+
+            console.log('Encoding...');
+            console.log('    Version: ' + this._version);
+            console.log('    Output size: ' + this._width + 'x' + this._height);
+            console.log('    Size to be encoded: ' + ((this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed.length : this._byteArray.length));
+            console.log('    File extension: ' + ((this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension));
+            console.log('    Difference: ' + this._diff);
+
+            this._outputData = this._encoders[this._version].encode(
+                innerImageDataAdjust,
+                coverImageDataAdjust,
+                (this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed : this._byteArray,
+                (this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension,
+                this._diff
+            );
+
+            this._outputCanvas.width = this._width;
+            this._outputCanvas.height = this._height;
+            const imgData = new ImageData(this._outputData, this._width, this._height);
+            this._outputCanvas.getContext('2d').putImageData(imgData, 0, 0);
+            this._isOutputCanvasCleared = false;
+
+            BusyStatus.hideBusy();
+            console.log('Encoding finished');
+        } catch (error) {
+            BusyStatus.hideBusy();
+            alert('编码失败：' + error.message);
         }
-
-        const innerImageDataAdjust = this._innerCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
-        const coverImageDataAdjust = this._coverCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
-
-        console.log('Encoding...');
-        console.log('    Version: ' + this._version);
-        console.log('    Output size: ' + this._width + 'x' + this._height);
-        console.log('    Size to be encoded: ' + ((this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed.length : this._byteArray.length));
-        console.log('    File extension: ' + ((this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension));
-        console.log('    Difference: ' + this._diff);
-
-        this._outputData = this._encoders[this._version].encode(
-            innerImageDataAdjust,
-            coverImageDataAdjust,
-            (this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed : this._byteArray,
-            (this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension,
-            this._diff
-        );
-
-        this._outputCanvas.width = this._width;
-        this._outputCanvas.height = this._height;
-        const imgData = new ImageData(this._outputData, this._width, this._height);
-        this._outputCanvas.getContext('2d').putImageData(imgData, 0, 0);
-        this._isOutputCanvasCleared = false;
-
-        console.log('Encoding finished');
     }
 
     convertGray = (imgData) => {
@@ -320,6 +336,7 @@ export class CloakEncoder extends CloakUniversal {
         if (!this._outputData) {
             throw new Error('请先处理图像！');
         }
+        BusyStatus.showBusy();
         const timestamp = new Date().getTime();
         const link = document.createElement('a');
 
@@ -337,6 +354,7 @@ export class CloakEncoder extends CloakUniversal {
         document.body.removeChild(link);
 
         URL.revokeObjectURL(link.href);
+        BusyStatus.hideBusy();
     }
 
     setIsAddMark = (isAddMark) => {

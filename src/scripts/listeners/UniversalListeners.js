@@ -1,5 +1,6 @@
 import { DecodeListeners } from './DecodeListeners.js';
 import { EncodeListeners } from './EncodeListeners.js';
+import { BusyStatus } from './BusyStatus.js';
 
 // 切换页面显示
 function switchPage() {
@@ -9,9 +10,12 @@ function switchPage() {
     var encodeButton = document.getElementById('encodeButton');
     if (applicationState.currPageId === 'decodePage') {
         if (CloakProcessor.CloakEncoder === undefined) {
+            BusyStatus.showBusy();
             import('../processors/CloakEncoder.js').then(module => {
                 CloakProcessor.CloakEncoder = new module.CloakEncoder(applicationState.defaultArguments, 'innerCanvas', 'coverCanvas', 'hiddenMetaCanvas', 'encodeOutputCanvas', 'encodeOutputSize', 'encodeHiddenSize');
+                BusyStatus.hideBusy();
             }).catch(error => {
+                BusyStatus.hideBusy();
                 console.error('Failed to load CloakEncoder:', error);
                 alert('加载编码器失败，请刷新页面重试。');
             });
@@ -31,10 +35,13 @@ function switchPage() {
         applicationState.currPageId = 'encodePage';
     } else {
         if (CloakProcessor.MultiDecoder === undefined) {
+            BusyStatus.showBusy();
             import('../processors/MultiDecoder.js').then(module => {
                 CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputMetaCanvas', 'sidebarContent', 'sidebarAmountLabel');
                 document.getElementById('sidebarClearButton').addEventListener('click', CloakProcessor.MultiDecoder.clearQueue);
+                BusyStatus.hideBusy();
             }).catch(error => {
+                BusyStatus.hideBusy();
                 console.error('Failed to load MultiDecoder:', error);
                 alert('加载解码器失败，请刷新页面重试。');
             });
