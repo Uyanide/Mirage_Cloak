@@ -33,7 +33,7 @@
             <div class="fontMedium" id="sidebarAmountLabel">数量: 0</div>
             <button class="inputReact marginTopMedium transformSize" id="sidebarClearButton">清空列表</button>
             <button class="inputReact marginTopMedium transformSize" id="sidebarSaveAllButton">保存全部结果</button>
-            <div class="fontSmall marginTopLow">(为尽量避免被视作恶意行为，两次下载之间会有一定延迟)</div>
+            <div class="fontSmall marginTopLow">(点击下方图片可切换显示)</div>
         </div>
     </div>
 
@@ -79,9 +79,13 @@
 
             <div class="marginTopHigh">↓ 解码结果 ↓</div>
             <button id="decodeSaveButton" class="inputReact marginTopMedium transformSize">保存结果</button>
-            <div class="marginTopLow fontMedium" id="decodeSizeLabel"></div>
-            <canvas id="decodeOutputCanvas" class="marginTopMedium"></canvas>
-
+            <div class="marginTopLow metaCanvas displayFlex flexColumn alignCenter" id="decodeOutputMetaCanvas">
+                <div class="sizeLabel fontMedium"></div>
+                <div class="typeLabel marginToplow fontMedium"></div>
+                <canvas class="marginTopMedium refWidthFull displayNone displayFlex"></canvas>
+                <video controls class="marginTopMedium refWidthFull displayNone"></video>
+                <audio controls class="marginTopMedium refWidthFull displayNone"></audio>
+            </div>
             <div class="marginTopHigh">↓ 原图 ↓</div>
             <div class="marginTopMedium fontSmall">(左下方开关灯可切换显示表里图)</div>
             <div class="marginTopLow fontSmall">(若出现摩尔纹可适当缩放网页界面)</div>
@@ -132,14 +136,20 @@
                     选择隐写文件</label>
                 <input type="file" id="hiddenSourceFileInput">
             </div>
+            <div class="marginTopLow fontSmall">(可选择任意格式的文件)</div>
 
             <div class="encodeDrag marginTopMedium fontSmall">或直接拖动至下方画布</div>
-            <canvas id="hiddenCanvas" class="marginTopMedium"></canvas>
-            <div id="encodeOutputSize" class="marginTopMedium"></div>
+            <div class="displayFlex flexColumn alignCenter" id="hiddenMetaCanvas">
+                <canvas class="marginTopMedium refWidthFull displayNone displayFlex"></canvas>
+                <video controls class="marginTopMedium refWidthFull displayNone"></video>
+                <audio controls class="marginTopMedium refWidthFull displayNone"></audio>
+                <div class="sizeLabel marginTopMedium fontMedium"></div>
+                <div class="typeLabel marginToplow fontMedium"></div>
+            </div>
+            <div id="encodeOutputSize" class="marginTopLow"></div>
             <div id="encodeHiddenSize" class="marginTopLow"></div>
-            <div class="marginTopLow fontSmall">(若输出文件过大可尝试降低"预期输出尺寸")</div>
 
-            <label for="mirageSizeInput" class="marginTopMedium">5. 预期输出尺寸:</label>
+            <label for="mirageSizeInput" class="marginTopHigh">1. 预期输出尺寸:</label>
             <div class="displyFlex flexRow justifyCenter alignCenter marginTopLow">
                 <input id="mirageSizeInput" type="number" class="inputReact"></input>
                 <button id="mirageSizeConfirmButton" class="inputReact transformSize marginLeftLow">确认应用</button>
@@ -148,29 +158,29 @@
             <div class="fontSmall marginTopLow">(若隐藏文件过大则实际输出尺寸可能会大于此值)</div>
 
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium">
-                <label for="isAddMarkCheckbox">6. </label>
+                <label for="isAddMarkCheckbox">2. </label>
                 <input type="checkbox" id="isAddMarkCheckbox" class="inputReact marginLeftLow marginRightLow">
                 <label for="isAddMarkCheckbox">是否添加坦克水印</label>
             </div>
 
             <div class="diplayFlex flexRow justifyCenter alignCenter marginTopMedium">
-                <label for="encodeDiffInput">7. 噪声强度:</label>
+                <label for="encodeDiffInput">3. 噪声强度:</label>
                 <input type="number" id="encodeDiffInput" class="inputReact marginLeftLow"></input>
             </div>
             <div id="encodeDiffinputHint" class="fontSmall marginTopLow"></div>
 
             <div class="diplayFlex flexRow justifyCenter alignCenter marginTopMedium">
-                <label for="encodeMethodSelect">8. 选择编码方式:</label>
+                <label for="encodeMethodSelect">4. 选择编码方式:</label>
                 <select id="encodeMethodSelect" class="inputReact marginLeftLow">
                     <option value="1">双极 (0.33字节/像素)</option>
                     <option value="2">四极 (0.67字节/像素)</option>
                     <option value="0">传统无影 (LSB隐写)</option>
                 </select>
             </div>
-            <div class="fontSmall marginTopLow">(越靠下的选项隐写效率越高，但抗干扰能力越差)</div>
+            <div class="fontSmall marginTopLow">(越靠下的选项隐写信息密度越高，但抗干扰能力越差)</div>
 
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium refWidthHigh">
-                <label for="isEncodeCompressCheckbox">9. </label>
+                <label for="isEncodeCompressCheckbox">5. </label>
                 <input type="checkbox" id="isEncodeCompressCheckbox"
                     class="inputReact marginLeftLow marginRightLow"></input>
                 <label for="isEncodeCompressCheckbox">是否尝试压缩隐写图像以限制输出图像大小</label>

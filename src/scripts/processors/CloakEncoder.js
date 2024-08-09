@@ -3,7 +3,7 @@ import { encode as pngEncode } from 'fast-png';
 import { JPEGEncoder } from '../libs/JPEGEncoder.js';
 
 export class CloakEncoder extends CloakUniversal {
-    constructor(defaultArguments, innerCanvasId, coverCanvasId, hiddenCanvasId, outputCanvasId, sizeLabelId, hiddenSizeLabelId) {
+    constructor(defaultArguments, innerCanvasId, coverCanvasId, hiddenMetaCanvasId, outputCanvasId, sizeLabelId, hiddenSizeLabelId) {
         super(defaultArguments);
         this._innerImage = null;
         this._coverImage = null;
@@ -41,7 +41,8 @@ export class CloakEncoder extends CloakUniversal {
 
         this._innerCanvas = document.getElementById(innerCanvasId);
         this._coverCanvas = document.getElementById(coverCanvasId);
-        this._hiddenCanvas = document.getElementById(hiddenCanvasId);
+        this._hiddenMetaCanvas = document.getElementById(hiddenMetaCanvasId);
+        this._hiddenCanvas = this._hiddenMetaCanvas.querySelector('canvas');
         this._outputCanvas = document.getElementById(outputCanvasId);
         this._sizeLabel = document.getElementById(sizeLabelId);
         this._hiddenSizeLabel = document.getElementById(hiddenSizeLabelId);
@@ -76,6 +77,7 @@ export class CloakEncoder extends CloakUniversal {
 
         if (this._byteArray) {
             const length = await this._adjustSize();
+            CloakUniversal.showSize(this._hiddenMetaCanvas.querySelector('.sizeLabel'), length);
             console.log('Size to be encoded: ' + length);
         }
 
@@ -84,10 +86,10 @@ export class CloakEncoder extends CloakUniversal {
         const ctx = this._innerCanvas.getContext('2d');
         ctx.drawImage(img, 0, 0, this._width, this._height);
         this._innerImageData = ctx.getImageData(0, 0, this._width, this._height);
-        this._sizeLabel.innerHTML = `输出图像预计尺寸: ${this._width}x${this._height}`;
+        this._sizeLabel.innerHTML = `输出图像预计尺寸：${this._width}x${this._height}`;
 
         this.convertGray(this._innerImageData);
-        this.adjustImageData(this._innerCanvas, this._innerImageData, this._innerContrast, this._innerLuminance);
+        CloakUniversal.adjustImageData(this._innerCanvas, this._innerImageData, this._innerContrast, this._innerLuminance);
         if (this._isAddMark) {
             this.addMark(this._innerCanvas);
         }
@@ -104,8 +106,8 @@ export class CloakEncoder extends CloakUniversal {
             if (tarLength > currLength) { // if the hidden file is too large
                 let ratio = tarLength / currLength;
                 if (this._hiddenFile.type.startsWith('image') && !this._hiddenFile.type.startsWith('image/gif')) { // if the hidden file is a static image
-                    await this._drawHiddenImageOnCanvas();
-                    if (this._isCompress) {
+                    await CloakUniversal.showMetaCanvas(this._hiddenMetaCanvas, this._hiddenUrl, this._fileExtension, this._hiddenFile.size); // repaint the hidden image
+                    if (this._isCompress) { // if compress is enabled
                         let hiddenImageData = this._hiddenCanvas.getContext('2d').getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
                         if (hiddenImageData) { // if get image data successfully, try to compress the hidden image by converting it to jpeg
                             let jpegData = this._JpegEncoder.encode(hiddenImageData, this._compressQuality);
@@ -113,12 +115,8 @@ export class CloakEncoder extends CloakUniversal {
                             ratio = tarLength / currLength;
                             if (ratio > 1) { // if the hidden image is still too large after compression, resize it
                                 ratio = Math.sqrt(ratio);
-                                this._hiddenCanvas.width = Math.ceil(this._hiddenCanvas.width * ratio);
-                                this._hiddenCanvas.height = Math.ceil(this._hiddenCanvas.height * ratio);
-
-                                await this._drawHiddenImageOnCanvas(1 / ratio);
-                                const ctx = this._hiddenCanvas.getContext('2d');
-                                hiddenImageData = ctx.getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
+                                await CloakUniversal.showMetaCanvas(this._hiddenMetaCanvas, this._hiddenUrl, this._fileExtension, this._hiddenFile.size, 1 / ratio);
+                                hiddenImageData = this._hiddenCanvas.getContext('2d').getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
                                 jpegData = this._JpegEncoder.encode(hiddenImageData, this._compressQuality);
 
                                 tarLength = this._encoders[this._version].getRequiredLength(jpegData, this._diff); // update target length
@@ -127,14 +125,15 @@ export class CloakEncoder extends CloakUniversal {
                                     this._scaleSize(ratio);
                                 }
                             }
-                            this._hiddenSizeLabel.innerHTML = `隐藏图像尺寸: ${this._hiddenCanvas.width}x${this._hiddenCanvas.height}`;
+                            this._hiddenSizeLabel.innerHTML = `隐藏图像尺寸：${this._hiddenCanvas.width}x${this._hiddenCanvas.height}`;
                             this._byteArrayCompressed = jpegData;
                             this._fileExtensionCompressed = 'jpg'; // change file extension to jpg
+                            this._hiddenMetaCanvas.querySelector('.typeLabel').innerText = '里文件类型：image/jpeg';
                             resolve(this._byteArrayCompressed.length);
                             return;
                         }
                     }
-                    this._hiddenSizeLabel.innerHTML = `隐藏图像尺寸: ${this._hiddenCanvas.width}x${this._hiddenCanvas.height}`;
+                    this._hiddenSizeLabel.innerHTML = `隐藏图像尺寸：${this._hiddenCanvas.width}x${this._hiddenCanvas.height}`;
                 } else { // if the hidden file is not an image, not compressible
                     this._hiddenSizeLabel.innerHTML = '';
                     this._byteArrayCompressed = null;
@@ -188,7 +187,7 @@ export class CloakEncoder extends CloakUniversal {
             this._coverImageData = ctx.getImageData(0, 0, img.width, img.height);
         }
         this.convertGray(this._coverImageData);
-        this.adjustImageData(this._coverCanvas, this._coverImageData, this._coverContrast, this._coverLuminance);
+        CloakUniversal.adjustImageData(this._coverCanvas, this._coverImageData, this._coverContrast, this._coverLuminance);
         if (this._isAddMark) {
             this.addMark(this._coverCanvas);
         }
@@ -197,6 +196,10 @@ export class CloakEncoder extends CloakUniversal {
     updateHiddenFile = async (file) => {
         this._hiddenFile = file;
         this._byteArrayCompressed = null;
+        if (this._hiddenUrl) {
+            URL.revokeObjectURL(this._hiddenUrl);
+        }
+        this._hiddenUrl = URL.createObjectURL(file);
 
         const fileName = file.name;
         const dotIndex = fileName.lastIndexOf('.');
@@ -210,15 +213,13 @@ export class CloakEncoder extends CloakUniversal {
             this._fileExtension = '';
         }
 
+        await CloakUniversal.showMetaCanvas(this._hiddenMetaCanvas, this._hiddenUrl, this._fileExtension, file.size);
         if (file.type.startsWith('image/') && !file.type.startsWith('image/gif')) {
-            await this._drawHiddenImageOnCanvas();
             this._hiddenSizeLabel.innerHTML = `隐藏图像尺寸: ${this._hiddenCanvas.width}x${this._hiddenCanvas.height}`;
-            this._getHiddenByteArray();
         } else {
             this._hiddenSizeLabel.innerHTML = '';
-            this.showTextOnCanvas(this._hiddenCanvas, '暂不支持预览此文件', file.type ? '文件类型: ' + file.type : '');
-            this._getHiddenByteArray();
         }
+        this._getHiddenByteArray();
     }
 
     _getHiddenByteArray = () => {
@@ -233,29 +234,10 @@ export class CloakEncoder extends CloakUniversal {
         reader.readAsArrayBuffer(this._hiddenFile);
     }
 
-    _drawHiddenImageOnCanvas = async (scaleRatio = 1) => {
-        const img = new Image();
-        await new Promise((resolve, reject) => {
-            img.onload = () => {
-                this.clearCanvas(this._hiddenCanvas);
-                this._hiddenCanvas.width = img.width * scaleRatio;
-                this._hiddenCanvas.height = img.height * scaleRatio;
-                const ctx = this._hiddenCanvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
-                URL.revokeObjectURL(img.src);
-                resolve();
-            };
-            img.onerror = reject;
-            img.src = URL.createObjectURL(this._hiddenFile);
-        });
-    }
-
     process = () => {
         if (!this._innerImageData || !this._coverImageData || !this._byteArray) {
             throw new Error('请先选择图像和文件！');
         }
-
-        this.showTextOnCanvas(this._outputCanvas, '正在处理，请稍候...');
 
         const innerImageDataAdjust = this._innerCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
         const coverImageDataAdjust = this._coverCanvas.getContext('2d').getImageData(0, 0, this._width, this._height);
@@ -297,7 +279,7 @@ export class CloakEncoder extends CloakUniversal {
     adjustInnerContrast = (contrast) => {
         this._innerContrast = contrast;
         if (this._innerImageData) {
-            this.adjustImageData(this._innerCanvas, this._innerImageData, contrast, this._innerLuminance);
+            CloakUniversal.adjustImageData(this._innerCanvas, this._innerImageData, contrast, this._innerLuminance);
             if (this._isAddMark) {
                 this.addMark(this._innerCanvas);
             }
@@ -307,7 +289,7 @@ export class CloakEncoder extends CloakUniversal {
     adjustCoverContrast = (contrast) => {
         this._coverContrast = contrast;
         if (this._coverImageData) {
-            this.adjustImageData(this._coverCanvas, this._coverImageData, contrast, this._coverLuminance);
+            CloakUniversal.adjustImageData(this._coverCanvas, this._coverImageData, contrast, this._coverLuminance);
             if (this._isAddMark) {
                 this.addMark(this._coverCanvas);
             }
@@ -317,7 +299,7 @@ export class CloakEncoder extends CloakUniversal {
     adjustInnerLuminance = (luminance) => {
         this._innerLuminance = luminance;
         if (this._innerImageData) {
-            this.adjustImageData(this._innerCanvas, this._innerImageData, this._innerContrast, luminance);
+            CloakUniversal.adjustImageData(this._innerCanvas, this._innerImageData, this._innerContrast, luminance);
             if (this._isAddMark) {
                 this.addMark(this._innerCanvas);
             }
@@ -327,7 +309,7 @@ export class CloakEncoder extends CloakUniversal {
     adjustCoverLuminance = (luminance) => {
         this._coverLuminance = luminance;
         if (this._coverImageData) {
-            this.adjustImageData(this._coverCanvas, this._coverImageData, this._coverContrast, luminance);
+            CloakUniversal.adjustImageData(this._coverCanvas, this._coverImageData, this._coverContrast, luminance);
             if (this._isAddMark) {
                 this.addMark(this._coverCanvas);
             }
@@ -368,10 +350,10 @@ export class CloakEncoder extends CloakUniversal {
             }
         } else {
             if (this._innerImageData) {
-                this.adjustImageData(this._innerCanvas, this._innerImageData, this._innerContrast, this._innerLuminance);
+                CloakUniversal.adjustImageData(this._innerCanvas, this._innerImageData, this._innerContrast, this._innerLuminance);
             }
             if (this._coverImageData) {
-                this.adjustImageData(this._coverCanvas, this._coverImageData, this._coverContrast, this._coverLuminance);
+                CloakUniversal.adjustImageData(this._coverCanvas, this._coverImageData, this._coverContrast, this._coverLuminance);
             }
         }
     }
@@ -427,7 +409,7 @@ export class CloakEncoder extends CloakUniversal {
 
     clearOutputCanvas = () => {
         if (!this._isOutputCanvasCleared) {
-            this.clearCanvas(this._outputCanvas);
+            CloakUniversal.clearCanvas(this._outputCanvas);
             this._isOutputCanvasCleared = true;
             this._outputData = null;
         }

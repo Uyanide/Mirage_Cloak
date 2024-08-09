@@ -2,13 +2,12 @@ import { CloakUniversal } from './CloakUniversal.js';
 import { decode as pngDecode } from 'fast-png';
 
 export class CloakDecoder extends CloakUniversal {
-    constructor(defaultArguments, inputCanvasId, outputCanvasId, sizeLabelId) {
+    constructor(defaultArguments, inputCanvasId, outputMetaCanvasId) {
         super(defaultArguments);
         this._srcImageFile = null;
         this._srcImageData = null;
         this._inputCanvas = document.getElementById(inputCanvasId);
-        this._outputCanvas = document.getElementById(outputCanvasId);
-        this._sizeLabel = document.getElementById(sizeLabelId)
+        this._outputMetaCanvas = document.getElementById(outputMetaCanvasId);
 
         this._version = defaultArguments.version;
 
@@ -27,8 +26,7 @@ export class CloakDecoder extends CloakUniversal {
         this._dataUrl = null;
 
         return new Promise((resolve, reject) => {
-            this.showTextOnCanvas(this._outputCanvas, '正在处理...');
-            this._sizeLabel.innerText = '';
+            CloakUniversal.showTextOnMetaCanvas(this._outputMetaCanvas, '正在处理...');
             (async () => {
                 try {
                     // if srcImage is not null, then draw it on the input canvas
@@ -55,13 +53,13 @@ export class CloakDecoder extends CloakUniversal {
                         });
                     }
                     if (url === 'failed') {
-                        this.showTextOnCanvas(this._outputCanvas, '无法解码');
+                        CloakUniversal.showTextOnMetaCanvas(this._outputMetaCanvas, '无法解码');
                         resolve();
                         return;
                     } else if (url) {
                         this._dataUrl = url;
                         this._fileExtension = fileExt;
-                        this.showResult(url, fileExt, length);
+                        await CloakUniversal.showMetaCanvas(this._outputMetaCanvas, url, fileExt, length);
                         resolve();
                         return;
                     }
@@ -78,7 +76,7 @@ export class CloakDecoder extends CloakUniversal {
                         this.process();
                         resolve();
                     } catch (innerError) {
-                        this.clearCanvas(this._outputCanvas);
+                        CloakUniversal.clearMetaCanvas(this._outputMetaCanvas);
                         reject(new Error('处理失败！' + error.message + innerError.message));
                     }
                 }
@@ -124,55 +122,15 @@ export class CloakDecoder extends CloakUniversal {
         this._fileType = CloakUniversal.classifyFileType(this._fileExtension);
         const blob = new Blob([this._byteArray], { type: this._fileType });
         this._dataUrl = URL.createObjectURL(blob);
-        this.showResult();
+        CloakUniversal.showMetaCanvas(this._outputMetaCanvas, this._dataUrl, this._fileExtension, this._byteArray.length);
         console.log('Decoding finished');
-    }
-
-    showResult(url, fileExt, length) {
-        const canvas = this._outputCanvas;
-        const dataUrl = url === undefined ? this._dataUrl : url;
-        const fileExtension = fileExt === undefined ? this._fileExtension : fileExt;
-        const sizeLabel = this._sizeLabel;
-        const dataLength = length === undefined ? this._byteArray.length : length;
-
-        switch (fileExtension) {
-            case 'png':
-            case 'jpg':
-            case 'jpeg':
-            case 'bmp':
-            case 'webp':
-                const img = new Image();
-                img.onload = () => {
-                    this.clearCanvas(canvas);
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    canvas.getContext('2d').drawImage(img, 0, 0);
-                };
-                img.src = dataUrl;
-                break;
-            default:
-                if (fileExtension) {
-                    this.showTextOnCanvas(canvas, '暂不支持预览此文件', '文件拓展名: ' + fileExtension);
-                } else {
-                    this.showTextOnCanvas(canvas, '暂不支持预览此文件');
-                }
-        }
-        sizeLabel.innerText = '里文件大小：' + ((length) => {
-            if (length >= 0x100000) {
-                return (length / 0x100000).toFixed(2) + ' MB';
-            } else if (length > 0x400) {
-                return (length / 0x400).toFixed(2) + ' KB';
-            } else {
-                return length + ' B';
-            }
-        })(dataLength);
     }
 
     saveResult = () => {
         if (!this._dataUrl) {
             throw new Error('没有文件可供保存！');
         }
-        this.saveResultFromUrl(this._dataUrl, this._fileExtension);
+        CloakUniversal.saveResultFromUrl(this._dataUrl, this._fileExtension);
     }
 
     getResult = () => {

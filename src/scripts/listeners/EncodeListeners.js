@@ -287,7 +287,7 @@ function encodeSetUpEventListeners() {
     if (!applicationState.isOnPhone) {
         document.getElementById('innerCanvas').addEventListener('drop', encodeLoadInnerImageFromDrag);
         document.getElementById('coverCanvas').addEventListener('drop', encodeLoadCoverImageFromDrag);
-        document.getElementById('hiddenCanvas').addEventListener('drop', encodeLoadHiddenFileFromDrag);
+        document.getElementById('hiddenMetaCanvas').addEventListener('drop', encodeLoadHiddenFileFromDrag);
     }
     document.getElementById('innerContrastRange').addEventListener('input', encodeSetInnerContrast);
     document.getElementById('coverContrastRange').addEventListener('input', encodeSetCoverContrast);
@@ -314,7 +314,7 @@ function encodeRemoveEventListeners() {
     if (!applicationState.isOnPhone) {
         document.getElementById('innerCanvas').removeEventListener('drop', encodeLoadInnerImageFromDrag);
         document.getElementById('coverCanvas').removeEventListener('drop', encodeLoadCoverImageFromDrag);
-        document.getElementById('hiddenCanvas').removeEventListener('drop', encodeLoadHiddenFileFromDrag);
+        document.getElementById('hiddenMetaCanvas').removeEventListener('drop', encodeLoadHiddenFileFromDrag);
     }
     document.getElementById('innerContrastRange').removeEventListener('input', encodeSetInnerContrast);
     document.getElementById('coverContrastRange').removeEventListener('input', encodeSetCoverContrast);

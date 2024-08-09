@@ -1,9 +1,9 @@
 import { UniversalListeners } from "../listeners/UniversalListeners";
 
 export class MultiDecoder {
-    constructor(defaultArguments, inputCanvasId, outputCanvasId, sizeLabelId, sidebarContentId, sidebarAmountLabelId) {
+    constructor(defaultArguments, inputCanvasId, outputCanvasId, sidebarContentId, sidebarAmountLabelId) {
         import('./CloakDecoder.js').then(module => {
-            this._decoder = new module.CloakDecoder(defaultArguments, inputCanvasId, outputCanvasId, sizeLabelId);
+            this._decoder = new module.CloakDecoder(defaultArguments, inputCanvasId, outputCanvasId);
         }).catch(error => {
             console.error('Failed to load CloakDecoder:', error);
             alert('加载解码器失败，请刷新页面重试。');

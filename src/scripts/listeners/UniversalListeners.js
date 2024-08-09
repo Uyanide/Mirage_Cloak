@@ -10,7 +10,7 @@ function switchPage() {
     if (applicationState.currPageId === 'decodePage') {
         if (CloakProcessor.CloakEncoder === undefined) {
             import('../processors/CloakEncoder.js').then(module => {
-                CloakProcessor.CloakEncoder = new module.CloakEncoder(applicationState.defaultArguments, 'innerCanvas', 'coverCanvas', 'hiddenCanvas', 'encodeOutputCanvas', 'encodeOutputSize', 'encodeHiddenSize');
+                CloakProcessor.CloakEncoder = new module.CloakEncoder(applicationState.defaultArguments, 'innerCanvas', 'coverCanvas', 'hiddenMetaCanvas', 'encodeOutputCanvas', 'encodeOutputSize', 'encodeHiddenSize');
             }).catch(error => {
                 console.error('Failed to load CloakEncoder:', error);
                 alert('加载编码器失败，请刷新页面重试。');
@@ -32,7 +32,7 @@ function switchPage() {
     } else {
         if (CloakProcessor.MultiDecoder === undefined) {
             import('../processors/MultiDecoder.js').then(module => {
-                CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputCanvas', 'decodeSizeLabel', 'sidebarContent', 'sidebarAmountLabel');
+                CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputMetaCanvas', 'sidebarContent', 'sidebarAmountLabel');
                 document.getElementById('sidebarClearButton').addEventListener('click', CloakProcessor.MultiDecoder.clearQueue);
             }).catch(error => {
                 console.error('Failed to load MultiDecoder:', error);

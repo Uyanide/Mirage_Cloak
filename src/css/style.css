@@ -45,12 +45,10 @@ Canvas {
 /**********************************************/
 
 #decodeInputCanvas,
-#decodeOutputCanvas,
-#hiddenCanvas,
+#decodeOutputMetaCanvas,
+#hiddenMetaCanvas,
 #encodeOutputCanvas {
-    max-width: min(90%, 600px);
-    margin-left: auto;
-    margin-right: auto;
+    width: min(90%, 600px);
 }
 
 #decodeUrlInput input[type=text] {
