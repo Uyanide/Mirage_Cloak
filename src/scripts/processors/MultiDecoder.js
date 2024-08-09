@@ -32,6 +32,12 @@ export class MultiDecoder {
                 img.onerror = () => {
                     URL.revokeObjectURL(img.src);
                     this._fileList[index].status = 'failed';
+                    const canvasElement = document.getElementById('queue' + index);
+                    if (canvasElement && typeof canvasElement.remove === 'function') {
+                        canvasElement.remove();
+                    } else if (canvasElement && canvasElement.parentNode) {
+                        canvasElement.parentNode.removeChild(canvasElement);
+                    }
                     reject(new Error('Error loading image'));
                 };
                 img.src = URL.createObjectURL(file);
@@ -57,10 +63,16 @@ export class MultiDecoder {
             this._selected = index;
             let color = '#00FF00';
             let retError = null;
-            await this._processSingle(index).catch((error) => {
-                color = '#FF0000';
-                retError = error;
-            });
+            await this._processSingle(index)
+                .then((isSuc) => {
+                    if (!isSuc) {
+                        color = '#FF0000';
+                    }
+                })
+                .catch((error) => {
+                    color = '#FF0000';
+                    retError = error;
+                });
             this.showCornerStatus(event.target, color);
             if (retError) {
                 throw retError;
@@ -101,13 +113,13 @@ export class MultiDecoder {
                     this._fileList[index].status = 'failed';
                     throw new Error('Invalid result');
                 }
-                break;
+                return true;
             case 'decoded':
                 await this._decoder.updateImage(null, this._fileList[index].image, this._fileList[index].url, this._fileList[index].fileExt, this._fileList[index].length);
-                break;
+                return true;
             case 'failed':
                 await this._decoder.updateImage(null, this._fileList[index].image, 'failed', null, null);
-                break;
+                return false;
             default:
                 throw new Error('Invalid status');
         }
@@ -115,7 +127,10 @@ export class MultiDecoder {
 
     clearQueue = () => {
         for (let i = 0; i < this._fileList.length; i++) {
-            this._sidebarContent.removeChild(document.getElementById('queue' + i));
+            const element = document.getElementById('queue' + i);
+            if (element) {
+                this._sidebarContent.removeChild(element);
+            }
             if (this._fileList[i].image) {
                 URL.revokeObjectURL(this._fileList[i].image.src);
             }
