@@ -4,6 +4,7 @@
     --secondary-notselected-background-color: #f6f6f6;
     --element-backgound-color: #f6f6f6;
     --front-color: #000;
+    --front-secondary-color: #666;
     --element-border-color: #ccc;
     --link-color: #2285d5;
 
@@ -18,6 +19,7 @@
     --secondary-notselected-background-color: #f6f6f6;
     --element-backgound-color: #eaeaea;
     --front-color: #000;
+    --front-secondary-color: #666;
     --element-border-color: #cccccc;
     --link-color: #2285d5;
 }
@@ -28,6 +30,7 @@
     --secondary-notselected-background-color: #101010;
     --element-backgound-color: #444;
     --front-color: #dfdfdf;
+    --front-secondary-color: #999;
     --element-border-color: #555;
     --link-color: #4baeff;
 }
@@ -172,6 +175,10 @@
 
 .frontColor {
     color: var(--front-color);
+}
+
+.frontSecondaryColor {
+    color: var(--front-secondary-color);
 }
 
 .frontLinkColor {

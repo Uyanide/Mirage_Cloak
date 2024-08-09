@@ -33,7 +33,7 @@
             <div class="fontMedium" id="sidebarAmountLabel">数量: 0</div>
             <button class="inputReact marginTopMedium transformSize" id="sidebarClearButton">清空列表</button>
             <button class="inputReact marginTopMedium transformSize" id="sidebarSaveAllButton">保存全部结果</button>
-            <div class="fontSmall marginTopLow">(点击下方图片可切换显示)</div>
+            <div class="fontSmall marginTopLow frontSecondaryColor">(点击下方图片可切换显示)</div>
         </div>
     </div>
 
@@ -59,7 +59,7 @@
         <div class="DisplayArea frontColor borderRadiusOnlyBottom justifyCenter alignCenter flexColumn refWidthFull backgroundSecondary"
             id="decodePage">
             <div id="decodeImageSelect" class="displayFlex flexColumn alignCenter marginTopHigh ">
-                <div class="fontSmall">(可多选, 点击右侧可展开列表)</div>
+                <div class="fontSmall frontSecondaryColor">(可多选, 点击右侧可展开列表)</div>
                 <div id="decodeFileInput" class="displayFlex alignCenter marginTopMedium">
                     <label for="decodeImageFileInput"
                         class="fileInputLabel marginLeftLow inputReact transformSize">选择图片文件</label>
@@ -80,15 +80,17 @@
             <div class="marginTopHigh">↓ 解码结果 ↓</div>
             <button id="decodeSaveButton" class="inputReact marginTopMedium transformSize">保存结果</button>
             <div class="marginTopLow metaCanvas displayFlex flexColumn alignCenter" id="decodeOutputMetaCanvas">
-                <div class="sizeLabel fontMedium"></div>
-                <div class="typeLabel marginToplow fontMedium"></div>
+                <div class="sizeLabel fontMedium frontSecondaryColor"></div>
+                <div class="typeLabel marginTopLow fontMedium frontSecondaryColor"></div>
                 <canvas class="marginTopMedium refWidthFull displayNone displayFlex"></canvas>
                 <video controls class="marginTopMedium refWidthFull displayNone"></video>
                 <audio controls class="marginTopMedium refWidthFull displayNone"></audio>
             </div>
+            <div class="marginTopLow fontSmall frontSecondaryColor">(如视频等资源无法加载可尝试更换浏览器)</div>
+            <div class="marginTopLow fontSmall frontSecondaryColor">(譬如始终表现优异的Chrome :)</div>
             <div class="marginTopHigh">↓ 原图 ↓</div>
-            <div class="marginTopMedium fontSmall">(左下方开关灯可切换显示表里图)</div>
-            <div class="marginTopLow fontSmall">(若出现摩尔纹可适当缩放网页界面)</div>
+            <div class="marginTopMedium fontSmall frontSecondaryColor">(左下方开关灯可切换显示表里图)</div>
+            <div class="marginTopLow fontSmall frontSecondaryColor">(若出现摩尔纹可适当缩放网页界面)</div>
             <canvas id="decodeInputCanvas" class="marginTopMedium marginBottomExtreme"></canvas>
 
         </div>
@@ -136,26 +138,25 @@
                     选择隐写文件</label>
                 <input type="file" id="hiddenSourceFileInput">
             </div>
-            <div class="marginTopLow fontSmall">(可选择任意格式的文件)</div>
-
-            <div class="encodeDrag marginTopMedium fontSmall">或直接拖动至下方画布</div>
+            <div class="encodeDrag marginTopMedium fontMedium">或直接拖动至下方画布</div>
+            <div class="marginTopLow fontSmall frontSecondaryColor">(可选择任意格式的文件)</div>
             <div class="displayFlex flexColumn alignCenter" id="hiddenMetaCanvas">
                 <canvas class="marginTopMedium refWidthFull displayNone displayFlex"></canvas>
                 <video controls class="marginTopMedium refWidthFull displayNone"></video>
                 <audio controls class="marginTopMedium refWidthFull displayNone"></audio>
-                <div class="sizeLabel marginTopMedium fontMedium"></div>
-                <div class="typeLabel marginToplow fontMedium"></div>
+                <div class="sizeLabel marginTopMedium fontMedium frontSecondaryColor"></div>
+                <div class="typeLabel marginTopLow fontMedium frontSecondaryColor"></div>
             </div>
-            <div id="encodeOutputSize" class="marginTopLow"></div>
-            <div id="encodeHiddenSize" class="marginTopLow"></div>
+            <div id="encodeOutputSize" class="marginTopLow frontSecondaryColor"></div>
+            <div id="encodeHiddenSize" class="marginTopLow frontSecondaryColor"></div>
 
             <label for="mirageSizeInput" class="marginTopHigh">1. 预期输出尺寸:</label>
             <div class="displyFlex flexRow justifyCenter alignCenter marginTopLow">
                 <input id="mirageSizeInput" type="number" class="inputReact"></input>
                 <button id="mirageSizeConfirmButton" class="inputReact transformSize marginLeftLow">确认应用</button>
             </div>
-            <div class="fontSmall marginTopLow">(指长宽中较大值，0即为不指定)</div>
-            <div class="fontSmall marginTopLow">(若隐藏文件过大则实际输出尺寸可能会大于此值)</div>
+            <div class="fontSmall marginTopLow frontSecondaryColor">(指长宽中较大值，0即为不指定)</div>
+            <div class="fontSmall marginTopLow frontSecondaryColor">(若隐藏文件过大则实际输出尺寸可能会大于此值)</div>
 
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium">
                 <label for="isAddMarkCheckbox">2. </label>
@@ -167,7 +168,7 @@
                 <label for="encodeDiffInput">3. 噪声强度:</label>
                 <input type="number" id="encodeDiffInput" class="inputReact marginLeftLow"></input>
             </div>
-            <div id="encodeDiffinputHint" class="fontSmall marginTopLow"></div>
+            <div id="encodeDiffinputHint" class="fontSmall marginTopLow frontSecondaryColor"></div>
 
             <div class="diplayFlex flexRow justifyCenter alignCenter marginTopMedium">
                 <label for="encodeMethodSelect">4. 选择编码方式:</label>
@@ -177,7 +178,7 @@
                     <option value="0">传统无影 (LSB隐写)</option>
                 </select>
             </div>
-            <div class="fontSmall marginTopLow">(越靠下的选项隐写信息密度越高，但抗干扰能力越差)</div>
+            <div class="fontSmall marginTopLow frontSecondaryColor">(越靠下的选项隐写信息密度越高，但抗干扰能力越差)</div>
 
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium refWidthHigh">
                 <label for="isEncodeCompressCheckbox">5. </label>
@@ -290,7 +291,8 @@
                         </tr>
                         <tr>
                             <td>1.0.9</td>
-                            <td>增加了解码文件大小显示。</td>
+                            <td>增加了解码文件大小显示。<br>
+                                多媒体支持，现在也可以在网页播放音频和视频了。</td>
                         </tr>
                     </tbody>
                 </table>

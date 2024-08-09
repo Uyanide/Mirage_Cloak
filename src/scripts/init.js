@@ -11,11 +11,12 @@ import mark from '../res/mark.png';
 import icon from '../res/mugi.ico';
 
 // 运行环境检测
-errorHandling.userAgent = navigator.userAgent.toLowerCase();
+errorHandling.userAgent = navigator.userAgent;
 applicationState.isOnPhone = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(errorHandling.userAgent);
-applicationState.isDownloadNotSupported = applicationState.isOnPhone && /xiaomi|miui/i.test(errorHandling.userAgent);
-applicationState.isOnTiebaBrowser = /tieba/i.test(errorHandling.userAgent);
+// applicationState.isDownloadNotSupported = applicationState.isOnPhone && /xiaomi|miui/i.test(errorHandling.userAgent);
+// applicationState.isOnTiebaBrowser = /tieba/i.test(errorHandling.userAgent);
 // applicationState.isOnPhone = true;
+applicationState.isDownloadNotSupported = /tieba/i.test(errorHandling.userAgent);
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
