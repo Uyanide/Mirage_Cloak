@@ -12,7 +12,7 @@ function switchPage() {
         if (CloakProcessor.CloakEncoder === undefined) {
             BusyStatus.showBusy();
             import('../processors/CloakEncoder.js').then(module => {
-                CloakProcessor.CloakEncoder = new module.CloakEncoder(applicationState.defaultArguments, 'innerCanvas', 'coverCanvas', 'hiddenMetaCanvas', 'encodeOutputCanvas', 'encodeOutputSize', 'encodeHiddenSize');
+                CloakProcessor.CloakEncoder = new module.CloakEncoder(applicationState.defaultArguments, 'innerCanvas', 'coverCanvas', 'hiddenMetaCanvas', 'encodeOutputCanvas', 'encodeOutputSize', 'encodeHiddenSize', 'encodeSaveLabel');
                 BusyStatus.hideBusy();
             }).catch(error => {
                 BusyStatus.hideBusy();

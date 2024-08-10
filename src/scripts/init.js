@@ -41,9 +41,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.head.appendChild(link);
 
         // 初始化默认参数
-        applicationState.defaultArguments = new DefaultArguments();
-        applicationState.defaultArguments.loadDefaultArguments();
-        applicationState.defaultArguments.setDefaultValues();
+        applicationState.defaultArguments = DefaultArguments.loadDefaultArguments();
+        DefaultArguments.setDefaultValues();
         applicationState.version = applicationState.defaultArguments.app_version;
 
         // 检查版本号，清除缓存

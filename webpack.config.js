@@ -39,6 +39,15 @@ module.exports = {
                 test: /\.css$/i,
                 use: ['style-loader', 'css-loader'],
             },
+            {
+                test: /\.worker\.js$/, // 添加这一部分
+                use: {
+                    loader: 'worker-loader',
+                    options: {
+                        filename: '[name].[contenthash].worker.js',
+                    },
+                },
+            },
         ],
     },
     plugins: [
