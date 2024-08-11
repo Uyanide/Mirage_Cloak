@@ -24,7 +24,7 @@
     </div>
 
     <a class="fontMedium frontLinkColor marginTopMedium transformSize textDecorationNone" target="_blank"
-        href="https://github.com/Uyanide/Mirage_Cloak">⌈ 一种基于棋盘格幻影坦克的无影(类lsb)隐写术 ⌋</a>
+        href="https://github.com/Uyanide/Mirage_Cloak">⌈ 幻影 / 无影 / 幻影+无影 ⌋ 一站式解决方案 :)</a>
 
     <div class="sidebarContainer sidebarHide" id="sidebar">
         <button class="sidebarToggle fontLarge" id="sidebarToggleButton">&nbsp;≡</button>
@@ -180,12 +180,74 @@
             <div class="diplayFlex flexRow justifyCenter alignCenter marginTopMedium">
                 <label for="encodeMethodSelect">4. 选择编码方式:</label>
                 <select id="encodeMethodSelect" class="inputReact marginLeftLow">
-                    <option value="1">双极 (0.33字节/像素)</option>
-                    <option value="2">四极 (0.67字节/像素)</option>
-                    <option value="0">传统无影 (LSB隐写)</option>
+                    <option value="4">黑白幻影</option>
+                    <option value="5">全彩幻影</option>
+                    <option value="1">双极隐写</option>
+                    <option value="2">四极隐写</option>
+                    <option value="0">无影改</option>
+                    <option value="3">纯无影</option>
                 </select>
             </div>
-            <div class="fontSmall marginTopLow frontSecondaryColor">(越靠下的选项隐写信息密度越高，但抗干扰能力越差)</div>
+            <button
+                class="frontLinkColor backgroundSecondary borderNone fontSmall transformSize borderSolidNone marginTopMedium"
+                id="encodeInfoToggle">展开各模式说明
+            </button>
+            <div id="encodeMethodDescription"
+                class="marginTopMedium marginBottomMedium refWidthHigh displayNone alignCenter justifyCenter">
+                <table class="fontSmall paddingHigh borderRadiusExtreme displayFlex backgroundElement borderCollapse"
+                    id="encodeMethodTable">
+                    <tbody>
+                        <th>
+                        <td>使用源</td>
+                        <td>信息密度</td>
+                        <td>抗干扰能力</td>
+                        <td>描述</td>
+                        </th>
+                        <tr>
+                            <td>黑白幻影</td>
+                            <td>幻坦里图/幻坦表图</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>传统幻影坦克。仅灰度，无隐写功能，无坦克水印。</td>
+                        </tr>
+                        <tr>
+                            <td>全彩幻影</td>
+                            <td>幻坦里图/幻坦表图</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>传统幻影坦克。改进的使用Lab空间的算法。建议表里图色差不要过大。</td>
+                        </tr>
+                        <tr>
+                            <td>双极隐写</td>
+                            <td>幻坦里图/幻坦表图/隐写文件</td>
+                            <td>低</td>
+                            <td>强</td>
+                            <td>基于棋盘格幻影坦克的类lsb隐写，0.33字节/像素。</td>
+                        </tr>
+                        <tr>
+                            <td>四极隐写</td>
+                            <td>幻坦里图/幻坦表图/隐写文件</td>
+                            <td>中</td>
+                            <td>中</td>
+                            <td>基于棋盘格幻影坦克的类lsb隐写，0.67字节/像素。</td>
+                        </tr>
+                        <tr>
+                            <td>无影改</td>
+                            <td>幻坦里图/幻坦表图/隐写文件</td>
+                            <td>高</td>
+                            <td>低</td>
+                            <td>基于棋盘格幻影坦克的lsb隐写，但由于具有透明度，与部分无影工具不兼容。</td>
+                        </tr>
+                        <tr>
+                            <td>纯无影</td>
+                            <td>幻坦里图/隐写文件</td>
+                            <td>高</td>
+                            <td>低</td>
+                            <td>使用和传统无影坦克完全一致的编码方式，表图全彩，与其他无影工具兼容。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopMedium refWidthHigh">
                 <label for="isEncodeCompressCheckbox">5. </label>
@@ -199,7 +261,8 @@
                 <button id="encodeSaveButton" class="inputReact transformSize">保存结果</button>
             </div>
             <div class="fontSmall marginTopLow frontSecondaryColor" id="encodeSaveLabel"></div>
-
+            <div class="marginTopMedium fontSmall frontSecondaryColor">(左下方开关灯可切换显示表里图)</div>
+            <div class="marginTopLow fontSmall frontSecondaryColor">(若出现摩尔纹可适当缩放网页界面)</div>
             <canvas id="encodeOutputCanvas" class="marginTopMedium marginBottomExtreme"></canvas>
 
         </div>
@@ -305,7 +368,8 @@
                         </tr>
                         <tr>
                             <td>1.0.10</td>
-                            <td>重构部分代码，优化错误处理；</td>
+                            <td>重构部分代码，优化错误处理；<br>
+                                添加了三种新模式，全彩/灰度幻影/纯无影。</td>
                         </tr>
                     </tbody>
                 </table>

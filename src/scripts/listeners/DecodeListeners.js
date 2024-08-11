@@ -32,7 +32,9 @@ const hideSidebar = () => {
     sidebar.classList.remove('sidebarShow');
     sidebar.classList.add('sidebarHide');
     document.removeEventListener('click', hideSidebarFullscreen);
-    sidebar.addEventListener('click', showSidebar);
+    setTimeout(() => {
+        sidebar.addEventListener('click', showSidebar);
+    }, 500);
 }
 function adjustSidebarWidth(event) {
     if (!applicationState.sidebarVisible) {

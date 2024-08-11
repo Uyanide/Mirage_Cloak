@@ -14,7 +14,10 @@ export class CloakDecoder extends CloakUniversal {
         this._decoders = [
             new Decoder_v0(defaultArguments),
             new Decoder_v1(defaultArguments),
-            new Decoder_v2(defaultArguments)
+            new Decoder_v2(defaultArguments),
+            new Decoder_v3(defaultArguments),
+            new Decoder_v4(defaultArguments),
+            new Decoder_v5(defaultArguments)
         ];
     }
 
@@ -108,6 +111,11 @@ export class CloakDecoder extends CloakUniversal {
         if (version >= this._decoders.length) {
             throw new Error('未知的编码方式！');
         }
+        if (version === 4 || version === 5) {
+            CloakUniversal.showTextOnMetaCanvas(this._outputMetaCanvas, '无需解码');
+            this._dataUrl = 'dontcare';
+            return;
+        }
         const { fileExtension, byteArray } = this._decoders[version].decode(this._srcImageData);
         this._fileExtension = fileExtension;
         this._byteArray = byteArray;
@@ -120,6 +128,9 @@ export class CloakDecoder extends CloakUniversal {
     }
 
     saveResult = () => {
+        if (this._dataUrl === 'dontcare') {
+            return;
+        }
         if (!this._dataUrl) {
             throw new Error('没有文件可供保存！');
         }
@@ -127,6 +138,9 @@ export class CloakDecoder extends CloakUniversal {
     }
 
     getResult = () => {
+        if (this._dataUrl === 'dontcare') {
+            return 'dontcare';
+        }
         if (!this._dataUrl) {
             return null;
         } else {
@@ -148,7 +162,21 @@ class Decoder_v1 {
 
     getVersion = (srcImageData) => {
         const data = srcImageData.data;
-        if ((data[0] & 7) === 0 && (data[1] & 7) === 3 && (data[2] & 7) >= 1 && (data[2] & 7) <= 6) {
+        // Gray Mirage: 114, 114, 114, 255
+        if (data[0] === 114 && data[1] === 114 && data[2] === 114 && data[3] === 255) {
+            return 4;
+        }
+        // Colored Mirage: 51, 51, 51, 255
+        if (data[0] === 51 && data[1] === 51 && data[2] === 51 && data[3] === 255) {
+            return 5;
+        }
+        // Pure LSB: 0B-xx11-1000, 0B-xx10-0011, 0B-xx00-0xxx
+        if ((data[0] & 0x3f) === 0x38 && (data[1] & 0x3f) === 0x23 && (data[2] & 0x3f) >= 1 && (data[2] & 0x3f) <= 7) {
+            return 3;
+        }
+        // Typical LSB: 0B-xxxx-x000, 0B-xxxx-x011, 0B-xxxx-xxxx
+        // My encoding algorithm doesn't allow compress-rate to be 7, but it still should be possible to decode it
+        if ((data[0] & 7) === 0 && (data[1] & 7) === 3 && (data[2] & 7) >= 1 /*&& (data[2] & 7) <= 7*/) {
             return 0;
         }
         this._pos = 0;
@@ -416,3 +444,14 @@ class Decoder_v0 { // LSB
         return buffer >> (this._bufferSize);
     }
 }
+
+class Decoder_v3 extends Decoder_v0 {
+    // Pure LSB without Mirage, can be decoded by the exactly same method as Decoder_v0
+    constructor(defaultArguments) {
+        super(defaultArguments);
+    }
+}
+
+class Decoder_v4 { /* Just normal Mirage, no need to decode */ }
+
+class Decoder_v5 { /* Colored Mirage, also no need to decode */ }

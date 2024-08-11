@@ -113,9 +113,11 @@ export class CloakEncoder extends CloakUniversal {
         this._innerImageData = ctx.getImageData(0, 0, this._width, this._height);
         this._sizeLabel.innerHTML = `输出图像预计尺寸：${this._width}x${this._height}`;
 
-        this.convertGray(this._innerImageData);
+        if (this._version !== 3 && this._version !== 5) {
+            this.convertGray(this._innerImageData);
+        }
         CloakUniversal.adjustImageData(this._innerCanvas, this._innerImageData, this._innerContrast, this._innerLuminance);
-        if (this._isAddMark) {
+        if (this._version !== 4 && this._version !== 5 && this._isAddMark) {
             this.addMark(this._innerCanvas);
         }
         if (this._coverImageData) {
@@ -227,9 +229,11 @@ export class CloakEncoder extends CloakUniversal {
             ctx.drawImage(img, 0, 0);
             this._coverImageData = ctx.getImageData(0, 0, img.width, img.height);
         }
-        this.convertGray(this._coverImageData);
+        if (this._version !== 5) {
+            this.convertGray(this._coverImageData);
+        }
         CloakUniversal.adjustImageData(this._coverCanvas, this._coverImageData, this._coverContrast, this._coverLuminance);
-        if (this._isAddMark) {
+        if (this._version !== 4 && this._version !== 5 && this._isAddMark) {
             this.addMark(this._coverCanvas);
         }
     }
@@ -283,7 +287,7 @@ export class CloakEncoder extends CloakUniversal {
     }
 
     process = () => {
-        if (!this._innerImageData || !this._coverImageData || !this._byteArray) {
+        if (!this._innerImageData || (this._version !== 3 && !this._coverImageData) || (this._version !== 4 && this._version !== 5 && !this._byteArray)) {
             throw new Error('请先选择图像和文件！');
         }
 
@@ -293,9 +297,11 @@ export class CloakEncoder extends CloakUniversal {
         console.log('Encoding...');
         console.log('    Version: ' + this._version);
         console.log('    Output size: ' + this._width + 'x' + this._height);
-        console.log('    Size to be encoded: ' + ((this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed.length : this._byteArray.length));
-        console.log('    File extension: ' + ((this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension));
-        console.log('    Difference: ' + this._diff);
+        if (this._byteArray) {
+            console.log('    Size to be encoded: ' + ((this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed.length : this._byteArray.length));
+            console.log('    File extension: ' + ((this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension));
+            console.log('    Difference: ' + this._diff);
+        }
 
         this._encoder.onmessage = (event) => {
             if (event.data.success) {
@@ -394,6 +400,7 @@ export class CloakEncoder extends CloakUniversal {
 
     setIsAddMark = (isAddMark) => {
         this._isAddMark = isAddMark;
+        if (this._version === 4 || this._version === 5) { return; }
         if (isAddMark) {
             if (this._innerImageData) {
                 this.addMark(this._innerCanvas);
@@ -412,6 +419,7 @@ export class CloakEncoder extends CloakUniversal {
     }
 
     addMark(canvas, markImage) {
+        if (this._version === 4 || this._version === 5) { return; }
         if (!markImage) {
             if (applicationState.markImage) {
                 markImage = applicationState.markImage;
@@ -439,23 +447,25 @@ export class CloakEncoder extends CloakUniversal {
         }
     }
 
-    setDiff = async (diff) => {
+    setDiff = async (diff, resize = true) => {
         this._diff = diff;
-        if (this._version === 0 && this._byteArray && this._innerImage) {
+        if (this._version === 4 || this._version === 5) { return; } // mirage tanks dont need diff
+        if (resize === false) { return; }
+        if ((this._version === 0 || this._version === 3) && this._byteArray && this._innerImage) {
             await this.updateInnerImage(this._innerImage); // only when using LSB diff can affect the required size
         }
     }
 
     setVersion = async (version) => {
         this._version = version;
-        if (this._byteArray && this._innerImage) {
+        if (this._innerImage) {
             await this.updateInnerImage(this._innerImage); // update inner image to adjust size
         }
     }
 
     setIsCompress = async (isCompress) => {
         this._isCompress = isCompress;
-        if (this._byteArray && this._innerImage) {
+        if (this._version !== 4 && this._version !== 5 && this._byteArray && this._innerImage) {
             await this.updateInnerImage(this._innerImage); // update inner image to adjust size
         }
     }

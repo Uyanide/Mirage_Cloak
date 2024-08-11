@@ -61,16 +61,18 @@ Canvas {
     max-width: 320px;
 }
 
+#encodeMethodTable td {
+    padding: 5px;
+    text-align: center;
+}
+
 /**********************************************/
 
 #privacyPolicy {
     max-width: min(100%, 600px);
-    margin-top: 10px;
-    margin-bottom: 10px;
 }
 
 #versionRecordTable {
-    border-collapse: collapse;
     max-width: min(100%, 600px);
 }
 

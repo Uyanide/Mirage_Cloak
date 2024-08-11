@@ -8,6 +8,9 @@ self.onmessage = async (event) => {
                 encoders.push(new Encoder_v0(event.data.defaultArguments));
                 encoders.push(new Encoder_v1(event.data.defaultArguments));
                 encoders.push(new Encoder_v2(event.data.defaultArguments));
+                encoders.push(new Encoder_v3(event.data.defaultArguments));
+                encoders.push(new Encoder_v4(event.data.defaultArguments));
+                encoders.push(new Encoder_v5(event.data.defaultArguments));
                 break;
             case 'length':
                 postMessage({
@@ -370,5 +373,134 @@ class Encoder_v0 { // typical LSB Steganography, also works with mirage images :
 
     _scaleCover = (value) => {
         return Math.floor(value * this._scale_c + this._offset_c);
+    }
+}
+
+class Encoder_v3 extends Encoder_v0 {
+    constructor(defaultArguments) {
+        super(defaultArguments);
+        this._defaultDiff = defaultArguments.version_3.default_difference;
+        this._padding = defaultArguments.version_3.padding;
+    }
+
+    encode = (innerImageData, _, hiddenFile, fileExtensionName, customDiff) => {
+        const innerData = innerImageData.data;
+        const pixelRange = innerData.length >> 2;
+        this._targetSize = hiddenFile.length;
+        this._compress = this._calCompress(customDiff || this._defaultDiff);
+        let outputData = new Uint8ClampedArray(innerData.length);
+
+        outputData[0] = (innerData[0] & 0xc0) | 0x38;
+        outputData[1] = (innerData[1] & 0xc0) | 0x23;
+        outputData[2] = (innerData[1] & 0xc0) | this._compress;
+        outputData[3] = 255;
+
+        this._byteArray = [];
+        this._byteArray.push(...this._targetSize.toString().split('').map(c => c.charCodeAt(0)));
+        this._byteArray.push(1);
+        this._byteArray.push(...('mtc.' + fileExtensionName).split('').map(c => c.charCodeAt(0)));
+        this._byteArray.push(1);
+        this._byteArray.push(...CloakUniversal.classifyFileType(fileExtensionName).split('').map(c => c.charCodeAt(0)));
+        this._byteArray.push(0);
+        this._fileArray = hiddenFile;
+        if (this._byteArray.length > this._padding) {
+            throw new Error('头部信息过长！可尝试更改文件拓展名。');
+        }
+
+        this._bytePos = 0, this._buffer = 0, this._bufferSize = 0;
+        const baseInner = 255 & ~((1 << this._compress) - 1);
+        for (let pixelIndex = 1; pixelIndex < pixelRange; pixelIndex++) {
+            outputData[4 * pixelIndex] = (innerData[4 * pixelIndex] & baseInner) | this._popBits();
+            outputData[4 * pixelIndex + 1] = (innerData[4 * pixelIndex + 1] & baseInner) | this._popBits();
+            outputData[4 * pixelIndex + 2] = (innerData[4 * pixelIndex + 2] & baseInner) | this._popBits();
+            outputData[4 * pixelIndex + 3] = 255;
+        }
+
+        if (this._bytePos < this._byteArray.length + this._targetSize) {
+            throw new Error('可用像素过少，编码空间不足！');
+        }
+
+        return outputData;
+    }
+}
+
+class Encoder_v4 { // grayscale mirage image
+    constructor(defaultArguments) {
+        this._scale_i = defaultArguments.version_4.scale_inner;
+        this._scale_c = defaultArguments.version_4.scale_cover;
+    }
+
+    encode = (innerImageData, coverImageData) => {
+        const innerData = innerImageData.data;
+        const coverData = coverImageData.data;
+        let outputData = new Uint8ClampedArray(innerData.length);
+
+        // need some signs for decoding, case someone uses the decoder to decode this normal mirage image
+        outputData[0] = 114;
+        outputData[1] = 114;
+        outputData[2] = 114;
+        outputData[3] = 255;
+
+        for (let i = 4; i < innerData.length; i += 4) {
+            const li = this._scale_l(innerData[i], this._scale_i);
+            const lc = this._scale_h(coverData[i], this._scale_c);
+            outputData[i + 3] = 255 - lc + li;
+            outputData[i] = li * 255 / outputData[i + 3];
+            outputData[i + 1] = outputData[i + 2] = outputData[i];
+        }
+
+        return outputData;
+    }
+
+    _scale_l = (value, scale) => {
+        return Math.floor(value * scale);
+    }
+
+    _scale_h = (value, scale) => {
+        return Math.floor(255 - ((255 - value) * scale));
+    }
+
+    getRequiredLength = () => {
+        return 1;
+    }
+}
+
+class Encoder_v5 extends Encoder_v4 { // colored mirage image, improved from https://github.com/Ductory/ducklib/blob/main/tank.c
+    constructor(defaultArguments) {
+        super(defaultArguments);
+        this._scale_i = defaultArguments.version_4.scale_inner;
+        this._scale_c = defaultArguments.version_4.scale_cover;
+        this._weight_i = defaultArguments.version_5.weight_inner;
+        this._weight_c = defaultArguments.version_5.weight_cover;
+    }
+
+    encode = (innerImageData, coverImageData) => {
+        const innerData = innerImageData.data;
+        const coverData = coverImageData.data;
+        let outputData = new Uint8ClampedArray(innerData.length);
+
+        // need some signs for decoding, case someone uses the decoder to decode this normal mirage image
+        outputData[0] = 51;
+        outputData[1] = 51;
+        outputData[2] = 51;
+        outputData[3] = 255;
+
+        for (let i = 4; i < innerData.length; i += 4) {
+            const ir = this._scale_l(innerData[i], this._scale_i);
+            const ig = this._scale_l(innerData[i + 1], this._scale_i);
+            const ib = this._scale_l(innerData[i + 2], this._scale_i);
+            const cr = this._scale_h(coverData[i], this._scale_c);
+            const cg = this._scale_h(coverData[i + 1], this._scale_c);
+            const cb = this._scale_h(coverData[i + 2], this._scale_c);
+
+            const dr = ir - cr, dg = ig - cg, db = ib - cb;
+            const a = Math.max(255 + ((dr * dr - db * db) / 512 + (ir + cr) * (dr - db) / 256 + 4 * dr + 8 * dg + (5 + 127 / 128) * db) / ((dr - db) / 128 + 17 + 127. / 128), 0);
+            outputData[i] = (ir * 255 / a) * this._weight_i + (255 - (255 - cr) / a * 255) * this._weight_c;
+            outputData[i + 1] = (ig * 255 / a) * this._weight_i + (255 - (255 - cg) / a * 255) * this._weight_c;
+            outputData[i + 2] = (ib * 255 / a) * this._weight_i + (255 - (255 - cb) / a * 255) * this._weight_c;
+            outputData[i + 3] = a;
+        }
+
+        return outputData;
     }
 }

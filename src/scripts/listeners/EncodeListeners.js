@@ -268,8 +268,30 @@ const setDiffHelper = async (version) => {
             encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但幻影坦克效果越差)`;
             encodeDiffInput.value = Math.ceil(applicationState.defaultArguments.version_0.difference / 6);
             if (CloakProcessor.CloakEncoder !== undefined) {
-                await CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_0.difference); // lsb的diff参数会影响隐写信息密度，但此处调用setDiff时CloakEncoder的_version属性不为0，所以不会重新计算尺寸。
-                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10)); // version改变时是一定会重新计算尺寸的，结合上一行，将version设为0时，只会重新计算一次尺寸。
+                await CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_0.difference, false);
+                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
+            }
+            break;
+        case '3':
+            encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但输出图像质量越差)`;
+            encodeDiffInput.value = Math.ceil(applicationState.defaultArguments.version_3.difference / 6);
+            if (CloakProcessor.CloakEncoder !== undefined) {
+                await CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_3.difference, false);
+                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
+            }
+            break;
+        case '4':
+            encodeDiffInputHint.innerText = `制作纯幻影坦克时此设置项无效`;
+            encodeDiffInput.value = 0;
+            if (CloakProcessor.CloakEncoder !== undefined) {
+                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
+            }
+            break;
+        case '5':
+            encodeDiffInputHint.innerText = `制作纯幻影坦克时此设置项无效`;
+            encodeDiffInput.value = 0;
+            if (CloakProcessor.CloakEncoder !== undefined) {
+                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
             break;
     }
@@ -291,6 +313,18 @@ function encodeSaveImage() {
     }, undefined, '图像保存失败！', false);
 }
 
+// 切换编码信息显示
+function toggleEncodeInfo(event) {
+    const encodeInfo = document.getElementById('encodeMethodDescription');
+    if (event.target.innerText.startsWith('隐藏')) {
+        event.target.innerText = '显示各模式说明';
+        encodeInfo.classList.remove('displayFlex');
+    } else {
+        event.target.innerText = '隐藏各模式说明';
+        encodeInfo.classList.add('displayFlex');
+    }
+}
+
 // 编码监听事件列表
 applicationState.encodeEvents = [
     { id: 'innerSourceFileInput', event: 'change', handler: encodeLoadInnerImageFile },
@@ -310,7 +344,8 @@ applicationState.encodeEvents = [
     { id: 'encodeDiffInput', event: 'change', handler: encodeSetDiff },
     { id: 'encodeMethodSelect', event: 'change', handler: encodeSetMethod },
     { id: 'encodeProcessButton', event: 'click', handler: encodeProcessImage },
-    { id: 'encodeSaveButton', event: 'click', handler: encodeSaveImage }
+    { id: 'encodeSaveButton', event: 'click', handler: encodeSaveImage },
+    { id: 'encodeInfoToggle', event: 'click', handler: toggleEncodeInfo }
 ];
 applicationState.encodeDragEvents = [
     { id: 'innerCanvas', event: 'drop', handler: encodeLoadInnerImageFromDrag },

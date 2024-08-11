@@ -1,4 +1,5 @@
 import { UniversalListeners } from "../listeners/UniversalListeners";
+import { CloakUniversal } from "./CloakUniversal";
 
 export class MultiDecoder {
     constructor(defaultArguments, decoder, sidebarContentId, sidebarAmountLabelId) {
@@ -98,13 +99,17 @@ export class MultiDecoder {
 
     _processSingle = async (index) => {
         switch (this._fileList[index].status) {
+            case 'dontcare': // fall through
             case 'pending':
                 await this._decoder.updateImage(this._fileList[index].src, this._fileList[index].image).catch((error) => {
                     this._fileList[index].status = 'failed';
                     throw error;
                 });
                 const result = this._decoder.getResult();
-                if (result) {
+                if (result === 'dontcare') {
+                    this._fileList[index].status = 'dontcare';
+                    return true;
+                } else if (result) {
                     this._fileList[index].status = 'decoded';
                     this._fileList[index].url = result.url;
                     this._fileList[index].fileExt = result.fileExt;
@@ -168,7 +173,8 @@ export class MultiDecoder {
                         break;
                     } else {
                         this.showCornerStatus(document.getElementById('queue' + i), '#00FF00');
-                        /*fall through*/
+                        i--; // retry
+                        break;
                     }
                 case 'decoded':
                     const link = document.createElement('a');
@@ -179,6 +185,10 @@ export class MultiDecoder {
                     document.body.removeChild(link);
                     successed++;
                     await new Promise(resolve => setTimeout(resolve, 500));
+                    break;
+                case 'dontcare':
+                    // do nothing
+                    successed++;
                     break;
                 default:
                     throw new Error('Invalid status');

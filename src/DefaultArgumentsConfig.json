@@ -37,6 +37,23 @@
         "offset_inner": 32,
         "offset_cover": 0
     },
+    "version_3": {
+        "default_difference": 20,
+        "difference": 40,
+        "padding": 128
+    },
+    "version_4": {
+        "difference": 0,
+        "scale_inner": 0.5,
+        "scale_cover": 0.5
+    },
+    "version_5": {
+        "difference": 0,
+        "scale_inner": 0.3,
+        "scale_cover": 0.6,
+        "weight_inner": 0.5,
+        "weight_cover": 0.5
+    },
     "contrast_inner": 50,
     "contrast_cover": 50,
     "luminance_inner": 50,
