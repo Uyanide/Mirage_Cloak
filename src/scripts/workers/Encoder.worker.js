@@ -494,11 +494,11 @@ class Encoder_v5 extends Encoder_v4 { // colored mirage image, improved from htt
             const cb = this._scale_h(coverData[i + 2], this._scale_c);
 
             const dr = ir - cr, dg = ig - cg, db = ib - cb;
-            const a = Math.max(255 + ((dr * dr - db * db) / 512 + (ir + cr) * (dr - db) / 256 + 4 * dr + 8 * dg + (5 + 127 / 128) * db) / ((dr - db) / 128 + 17 + 127. / 128), 0);
-            outputData[i] = (ir * 255 / a) * this._weight_i + (255 - (255 - cr) / a * 255) * this._weight_c;
-            outputData[i + 1] = (ig * 255 / a) * this._weight_i + (255 - (255 - cg) / a * 255) * this._weight_c;
-            outputData[i + 2] = (ib * 255 / a) * this._weight_i + (255 - (255 - cb) / a * 255) * this._weight_c;
-            outputData[i + 3] = a;
+            const a = Math.max((1 + (((2048 | (dr + ((ir + cr) << 1))) * dr - (db + ((ir + cr) << 1) - 3068) * db + (dg << 12)) / (1020 * (dr - db) + 2349060))), 0)
+            outputData[i] = (ir / a) * this._weight_i + (255 - (255 - cr) / a) * this._weight_c;
+            outputData[i + 1] = (ig / a) * this._weight_i + (255 - (255 - cg) / a) * this._weight_c;
+            outputData[i + 2] = (ib / a) * this._weight_i + (255 - (255 - cb) / a) * this._weight_c;
+            outputData[i + 3] = a * 255;
         }
 
         return outputData;

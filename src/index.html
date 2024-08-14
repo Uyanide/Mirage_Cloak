@@ -38,7 +38,7 @@
     </div>
 
     <div class="switchContainer" id="isDarkmodeContainer">
-        <p id="isDarkModeLabel">切换明/暗主题</p>
+        <p id="isDarkModeLabel">开/关灯</p>
         <label class="switch" id="isDarkmodeSwitch">
             <input type="checkbox" id="isDarkmodeCheckbox" title="switch from themes">
             <span class="switchSlider"></span>
@@ -182,10 +182,10 @@
                 <select id="encodeMethodSelect" class="inputReact marginLeftLow">
                     <option value="4">黑白幻影</option>
                     <option value="5">全彩幻影</option>
-                    <option value="1">双极隐写</option>
-                    <option value="2">四极隐写</option>
-                    <option value="0">无影改</option>
-                    <option value="3">纯无影</option>
+                    <option value="1">双极棋盘</option>
+                    <option value="2">四极棋盘</option>
+                    <option value="0">无影棋盘</option>
+                    <option value="3">传统无影</option>
                 </select>
             </div>
             <button
@@ -218,31 +218,31 @@
                             <td>传统幻影坦克。改进的使用Lab空间的算法。建议表里图色差不要过大。</td>
                         </tr>
                         <tr>
-                            <td>双极隐写</td>
+                            <td>双极棋盘</td>
                             <td>幻坦里图/幻坦表图/隐写文件</td>
                             <td>低</td>
                             <td>强</td>
                             <td>基于棋盘格幻影坦克的类lsb隐写，0.33字节/像素。</td>
                         </tr>
                         <tr>
-                            <td>四极隐写</td>
+                            <td>四极棋盘</td>
                             <td>幻坦里图/幻坦表图/隐写文件</td>
                             <td>中</td>
                             <td>中</td>
                             <td>基于棋盘格幻影坦克的类lsb隐写，0.67字节/像素。</td>
                         </tr>
                         <tr>
-                            <td>无影改</td>
+                            <td>无影棋盘</td>
                             <td>幻坦里图/幻坦表图/隐写文件</td>
                             <td>高</td>
-                            <td>低</td>
+                            <td>弱</td>
                             <td>基于棋盘格幻影坦克的lsb隐写，但由于具有透明度，与部分无影工具不兼容。</td>
                         </tr>
                         <tr>
                             <td>纯无影</td>
                             <td>幻坦里图/隐写文件</td>
                             <td>高</td>
-                            <td>低</td>
+                            <td>弱</td>
                             <td>使用和传统无影坦克完全一致的编码方式，表图全彩，与其他无影工具兼容。</td>
                         </tr>
                     </tbody>
@@ -300,11 +300,6 @@
             <div id="privacyPolicy"
                 class="backgroundSecondary frontColor fontSmall displayNone paddingHigh borderRadiusExtreme marginTopMedium textAlignCenter">
                 <div>本网站仅供个人学习交流使用，禁止一切非法用途，否则一切后果由使用者自行承担。</div>
-                <div class="marginTopMedium">
-                    本网站可用于解码任何使用本网站编码的图片或由其他工具生成的传统无影坦克图片。<br>
-                    但由于某些无影工厂在设计时并未考虑透明度造成的颜色偏差，<br>
-                    因此在本网站中某些使用"传统无影"模式生成的图片<b>无法</b>被其他工具解码。
-                </div>
             </div>
 
             <div id="versionRecordButton" class="marginTopLow">

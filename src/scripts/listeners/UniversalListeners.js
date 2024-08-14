@@ -77,7 +77,6 @@ const applyTheme = (tarTheme) => {
     }
     document.documentElement.setAttribute("data-theme", tarTheme);
     document.getElementById('isDarkmodeCheckbox').checked = tarTheme === 'dark';
-    document.getElementById('isDarkModeLabel').innerText = tarTheme === 'dark' ? '开灯' : '关灯';
 };
 
 // 侧边栏图片点击事件回调

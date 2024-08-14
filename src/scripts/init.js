@@ -14,10 +14,9 @@ import icon from '../res/mugi.ico';
 // 运行环境检测
 errorHandling.userAgent = navigator.userAgent;
 applicationState.isOnPhone = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(errorHandling.userAgent);
-// applicationState.isDownloadNotSupported = applicationState.isOnPhone && /xiaomi|miui/i.test(errorHandling.userAgent);
-// applicationState.isOnTiebaBrowser = /tieba/i.test(errorHandling.userAgent);
+applicationState.isDownloadNotSupported = applicationState.isOnPhone && /xiaomi|miui|quark|ucbrowser/i.test(errorHandling.userAgent);
+applicationState.isOnTiebaBrowser = /tieba/i.test(errorHandling.userAgent);
 // applicationState.isOnPhone = true;
-applicationState.isDownloadNotSupported = /tieba/i.test(errorHandling.userAgent);
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -27,11 +26,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 屏蔽贴吧内置浏览器，某些浏览器提示兼容性
         if (applicationState.isOnTiebaBrowser) {
-            document.body.innerHTML = '<h1>请点击右上角<br>用浏览器打开</h1><img src="https://gsp0.baidu.com/5aAHeD3nKhI2p27j8IqW0jdnxx1xbK/tb/editor/images/client/image_emoticon1.png"></img>';
-            return;
+            alert('建议使用正常浏览器打开本页面，贴吧内置浏览器上一大堆功能有问题。');
         }
         if (applicationState.isDownloadNotSupported) {
-            alert('由于浏览器限制，部分功能可能无法使用，建议使用其他浏览器或等待后续更新适配');
+            alert('由于浏览器限制，下载功能可能出现异常，建议使用其他浏览器或等待后续更新适配。');
         }
 
         // 显示图标
