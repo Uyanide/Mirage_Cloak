@@ -102,6 +102,82 @@
 
         <div class="DisplayArea frontColor borderRadiusOnlyBottom justifyCenter alignCenter flexColumn refWidthFull backgroundSecondary"
             id="encodePage">
+            <hr class="refWidthHalf marginTopMedium marginBottomMedium marginTopHigh">
+            <div class="diplayFlex flexRow justifyCenter alignCenter">
+                <label for="encodeMethodSelect">选择编码方式:</label>
+                <select id="encodeMethodSelect" class="inputReact marginLeftLow">
+                    <option value="4">黑白幻影</option>
+                    <option value="5">全彩幻影</option>
+                    <option value="1">双极棋盘</option>
+                    <option value="2">四极棋盘</option>
+                    <option value="0">无影棋盘</option>
+                    <option value="3">传统无影</option>
+                </select>
+            </div>
+            <div class="frontLinkColor borderNone fontSmall transformSize marginTopMedium" id="encodeInfoToggle">展开各模式说明
+            </div>
+            <div id="encodeMethodDescription"
+                class="marginTopMedium marginBottomMedium refWidthHigh displayNone alignCenter justifyCenter">
+                <table class="fontSmall paddingHigh borderRadiusExtreme displayFlex backgroundElement borderCollapse"
+                    id="encodeMethodTable">
+                    <tbody>
+                        <th>
+                        <td>使用源</td>
+                        <td>信息密度</td>
+                        <td>抗干扰能力</td>
+                        <td>描述</td>
+                        </th>
+                        <tr>
+                            <td>黑白幻影</td>
+                            <td>幻坦里图/幻坦表图</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>传统幻影坦克。仅灰度，无隐写功能，无坦克水印。</td>
+                        </tr>
+                        <tr>
+                            <td>全彩幻影</td>
+                            <td>幻坦里图/幻坦表图</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>传统幻影坦克，建议表里图色差不要过大。</td>
+                        </tr>
+                        <tr>
+                            <td>双极棋盘</td>
+                            <td>幻坦里图/幻坦表图/隐写文件</td>
+                            <td>低</td>
+                            <td>强</td>
+                            <td>基于棋盘格幻影坦克的类lsb隐写，0.33字节/像素。</td>
+                        </tr>
+                        <tr>
+                            <td>四极棋盘</td>
+                            <td>幻坦里图/幻坦表图/隐写文件</td>
+                            <td>中</td>
+                            <td>中</td>
+                            <td>基于棋盘格幻影坦克的类lsb隐写，0.67字节/像素。</td>
+                        </tr>
+                        <tr>
+                            <td>无影棋盘</td>
+                            <td>幻坦里图/幻坦表图/隐写文件</td>
+                            <td>高</td>
+                            <td>弱</td>
+                            <td>基于棋盘格幻影坦克的lsb隐写，但由于具有透明度，与部分无影工具不兼容。</td>
+                        </tr>
+                        <tr>
+                            <td>传统无影</td>
+                            <td>幻坦里图/隐写文件</td>
+                            <td>高</td>
+                            <td>弱</td>
+                            <td>使用和传统无影坦克完全一致的编码方式，表图全彩，与其他无影工具兼容。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr class="refWidthHalf marginTopMedium marginBottomMedium">
+            <div class="fontSmall transformSize">
+                <a class="frontLinkColor" href="https://github.com/Uyanide/Mirage_Colored"
+                    target="_blank">一种更优的全彩幻影坦克生成方案</a>
+            </div>
+            <hr class="refWidthHalf marginTopMedium marginBottomMedium">
             <div class="displayFlex flexRow justifyCenter alignCenter marginTopHigh refWidthHigh">
                 <div class="encodeFileInput displayFlex flexColumn justifyCenter alignCenter refWidthHalf">
                     <label for="innerSourceFileInput" class="fileInputLabel inputReact transformSize">选择幻坦里图</label>
@@ -176,82 +252,8 @@
             </div>
             <div id="encodeDiffinputHint" class="fontSmall marginTopLow frontSecondaryColor"></div>
             <hr class="refWidthHalf marginTopMedium marginBottomMedium">
-            <div class="diplayFlex flexRow justifyCenter alignCenter">
-                <label for="encodeMethodSelect">4. 选择编码方式:</label>
-                <select id="encodeMethodSelect" class="inputReact marginLeftLow">
-                    <option value="4">黑白幻影</option>
-                    <option value="5">全彩幻影</option>
-                    <option value="1">双极棋盘</option>
-                    <option value="2">四极棋盘</option>
-                    <option value="0">无影棋盘</option>
-                    <option value="3">传统无影</option>
-                </select>
-            </div>
-            <div class="frontLinkColor borderNone fontSmall transformSize marginTopMedium" id="encodeInfoToggle">展开各模式说明
-            </div>
-            <div id="encodeMethodDescription"
-                class="marginTopMedium marginBottomMedium refWidthHigh displayNone alignCenter justifyCenter">
-                <table class="fontSmall paddingHigh borderRadiusExtreme displayFlex backgroundElement borderCollapse"
-                    id="encodeMethodTable">
-                    <tbody>
-                        <th>
-                        <td>使用源</td>
-                        <td>信息密度</td>
-                        <td>抗干扰能力</td>
-                        <td>描述</td>
-                        </th>
-                        <tr>
-                            <td>黑白幻影</td>
-                            <td>幻坦里图/幻坦表图</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>传统幻影坦克。仅灰度，无隐写功能，无坦克水印。</td>
-                        </tr>
-                        <tr>
-                            <td>全彩幻影</td>
-                            <td>幻坦里图/幻坦表图</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>传统幻影坦克，建议表里图色差不要过大。</td>
-                        </tr>
-                        <tr>
-                            <td>双极棋盘</td>
-                            <td>幻坦里图/幻坦表图/隐写文件</td>
-                            <td>低</td>
-                            <td>强</td>
-                            <td>基于棋盘格幻影坦克的类lsb隐写，0.33字节/像素。</td>
-                        </tr>
-                        <tr>
-                            <td>四极棋盘</td>
-                            <td>幻坦里图/幻坦表图/隐写文件</td>
-                            <td>中</td>
-                            <td>中</td>
-                            <td>基于棋盘格幻影坦克的类lsb隐写，0.67字节/像素。</td>
-                        </tr>
-                        <tr>
-                            <td>无影棋盘</td>
-                            <td>幻坦里图/幻坦表图/隐写文件</td>
-                            <td>高</td>
-                            <td>弱</td>
-                            <td>基于棋盘格幻影坦克的lsb隐写，但由于具有透明度，与部分无影工具不兼容。</td>
-                        </tr>
-                        <tr>
-                            <td>传统无影</td>
-                            <td>幻坦里图/隐写文件</td>
-                            <td>高</td>
-                            <td>弱</td>
-                            <td>使用和传统无影坦克完全一致的编码方式，表图全彩，与其他无影工具兼容。</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="marginTopMedium fontSmall transformSize">
-                <a class="frontLinkColor" href="https://github.com/Uyanide/Mirage_Colored"
-                    target="_blank">一种更优的全彩坦克生成方案</a>
-            </div>
-            <hr class="refWidthHalf marginTopMedium marginBottomMedium">
             <div class="displayFlex flexRow justifyCenter alignCenter refWidthHigh">
-                <label for="isEncodeCompressCheckbox">5. </label>
+                <label for="isEncodeCompressCheckbox">4. </label>
                 <input type="checkbox" id="isEncodeCompressCheckbox"
                     class="inputReact marginLeftLow marginRightLow"></input>
                 <label for="isEncodeCompressCheckbox">是否尝试压缩隐写图像以限制输出图像大小</label>
