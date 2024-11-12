@@ -432,8 +432,8 @@ export class CloakEncoder extends CloakUniversal {
             return;
         }
         if (!markImage) {
-            if (applicationState.markImage) {
-                markImage = applicationState.markImage;
+            if (window.applicationState.markImage) {
+                markImage = window.applicationState.markImage;
             } else {
                 return;
             }

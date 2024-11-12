@@ -13,7 +13,7 @@ function hideSidebarFullscreen(event) {
     }
 }
 const showSidebar = () => {
-    applicationState.sidebarVisible = true;
+    window.applicationState.sidebarVisible = true;
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.remove('sidebarHide');
     sidebar.classList.add('sidebarShow');
@@ -23,11 +23,11 @@ const showSidebar = () => {
     sidebar.removeEventListener('click', showSidebar);
 };
 const hideSidebar = () => {
-    if (applicationState.dontCareSidebarClick) {
-        applicationState.dontCareSidebarClick = false;
+    if (window.applicationState.dontCareSidebarClick) {
+        window.applicationState.dontCareSidebarClick = false;
         return;
     }
-    applicationState.sidebarVisible = false;
+    window.applicationState.sidebarVisible = false;
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.remove('sidebarShow');
     sidebar.classList.add('sidebarHide');
@@ -37,7 +37,7 @@ const hideSidebar = () => {
     }, 500);
 };
 function adjustSidebarWidth(event) {
-    if (!applicationState.sidebarVisible) {
+    if (!window.applicationState.sidebarVisible) {
         showSidebar();
         return;
     }
@@ -50,14 +50,14 @@ function adjustSidebarWidth(event) {
     let offset = 0;
 
     const adjustMouse = (event) => {
-        applicationState.dontCareSidebarClick = true;
+        window.applicationState.dontCareSidebarClick = true;
         offset = event.clientX - initX;
         const newWidth = Math.min(Math.max(parseInt(initWidth) - offset, minWidth), maxWidth);
         document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
     };
 
     const adjustTouch = (event) => {
-        applicationState.dontCareSidebarClick = true;
+        window.applicationState.dontCareSidebarClick = true;
         offset = event.touches[0].clientX - initX;
         const newWidth = Math.min(Math.max(parseInt(initWidth) - offset, minWidth), maxWidth);
         document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
@@ -71,8 +71,8 @@ function adjustSidebarWidth(event) {
         enableHorizontalScroll();
     };
 
-    applicationState.dontCareSidebarClick = false;
-    if (!applicationState.isOnPhone) {
+    window.applicationState.dontCareSidebarClick = false;
+    if (!window.applicationState.isOnPhone) {
         document.addEventListener('mousemove', adjustMouse);
         document.addEventListener('mouseup', adjustEnd);
     } else {
@@ -86,12 +86,12 @@ async function decodeProcessQueue(files, callback) {
     if (!files || files.length === 0) {
         return;
     }
-    CloakProcessor.MultiDecoder.clearQueue();
+    window.CloakProcessor.MultiDecoder.clearQueue();
     let successed = 0;
     let promises = [];
     for (let i = 0; i < files.length; i++) {
         promises.push(
-            CloakProcessor.MultiDecoder.appendQueue(files[i])
+            window.CloakProcessor.MultiDecoder.appendQueue(files[i])
                 .then(() => successed++)
                 .catch((error) => {
                     console.error(`Error on ${files[i].name}：`, error.stack, error.message);
@@ -195,7 +195,7 @@ async function decodeLoadImageFromDrag(event) {
 function decodeSaveCurrResult() {
     try {
         BusyStatus.showBusy();
-        CloakProcessor.MultiDecoder.saveCurrResult();
+        window.CloakProcessor.MultiDecoder.saveCurrResult();
         BusyStatus.hideBusy();
     } catch (error) {
         BusyStatus.hideBusy();
@@ -208,7 +208,7 @@ function decodeSaveCurrResult() {
 async function decodeSaveAllResults() {
     try {
         BusyStatus.showBusy();
-        await CloakProcessor.MultiDecoder.saveAllResults();
+        await window.CloakProcessor.MultiDecoder.saveAllResults();
         BusyStatus.hideBusy();
     } catch (error) {
         BusyStatus.hideBusy();
@@ -222,7 +222,7 @@ function decodeSetupEventListeners() {
     // 图像加载事件监听
     document.getElementById('decodeImageFileInput').addEventListener('change', decodeLoadImageFile);
 
-    if (!applicationState.isOnPhone) {
+    if (!window.applicationState.isOnPhone) {
         window.addEventListener('paste', decodeLoadImageFromClipboard);
         document.body.addEventListener('drop', decodeLoadImageFromDrag);
     } else {
@@ -235,7 +235,7 @@ function decodeSetupEventListeners() {
 // 移除解码事件监听器
 function decodeRemoveEventListeners() {
     document.getElementById('decodeImageFileInput').removeEventListener('change', decodeLoadImageFile);
-    if (!applicationState.isOnPhone) {
+    if (!window.applicationState.isOnPhone) {
         window.removeEventListener('paste', decodeLoadImageFromClipboard);
         document.body.removeEventListener('drop', decodeLoadImageFromDrag);
     } else {

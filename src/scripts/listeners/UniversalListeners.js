@@ -8,13 +8,13 @@ function switchPage() {
     var encodePage = document.getElementById('encodePage');
     var decodeButton = document.getElementById('decodeButton');
     var encodeButton = document.getElementById('encodeButton');
-    if (applicationState.currPageId === 'decodePage') {
-        if (CloakProcessor.CloakEncoder === undefined) {
+    if (window.applicationState.currPageId === 'decodePage') {
+        if (window.CloakProcessor.CloakEncoder === undefined) {
             BusyStatus.showBusy();
             import('../processors/CloakEncoder.js')
                 .then((module) => {
-                    CloakProcessor.CloakEncoder = new module.CloakEncoder(
-                        applicationState.defaultArguments,
+                    window.CloakProcessor.CloakEncoder = new module.CloakEncoder(
+                        window.applicationState.defaultArguments,
                         'innerCanvas',
                         'coverCanvas',
                         'hiddenMetaCanvas',
@@ -43,17 +43,17 @@ function switchPage() {
         encodeButton.removeEventListener('click', switchPage);
         DecodeListeners.decodeRemoveEventListeners();
         EncodeListeners.encodeSetUpEventListeners();
-        applicationState.currPageId = 'encodePage';
+        window.applicationState.currPageId = 'encodePage';
     } else {
-        if (CloakProcessor.MultiDecoder === undefined) {
+        if (window.CloakProcessor.MultiDecoder === undefined) {
             BusyStatus.showBusy();
             import('../processors/CloakDecoder.js')
                 .then((module) => {
-                    const decoder = new module.CloakDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputMetaCanvas');
+                    const decoder = new module.CloakDecoder(window.applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputMetaCanvas');
                     import('../processors/MultiDecoder.js')
                         .then((module) => {
-                            CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, decoder, 'sidebarContent', 'sidebarAmountLabel');
-                            document.getElementById('sidebarClearButton').addEventListener('click', CloakProcessor.MultiDecoder.clearQueue);
+                            window.CloakProcessor.MultiDecoder = new module.MultiDecoder(window.applicationState.defaultArguments, decoder, 'sidebarContent', 'sidebarAmountLabel');
+                            document.getElementById('sidebarClearButton').addEventListener('click', window.CloakProcessor.MultiDecoder.clearQueue);
                             BusyStatus.hideBusy();
                         })
                         .catch((error) => {
@@ -80,7 +80,7 @@ function switchPage() {
         decodeButton.removeEventListener('click', switchPage);
         DecodeListeners.decodeSetupEventListeners();
         EncodeListeners.encodeRemoveEventListeners();
-        applicationState.currPageId = 'decodePage';
+        window.applicationState.currPageId = 'decodePage';
     }
 }
 
@@ -98,7 +98,7 @@ const applyTheme = (tarTheme) => {
 const sidebarImageProcess = async (event) => {
     try {
         BusyStatus.showBusy();
-        await CloakProcessor.MultiDecoder.decode(event).then(() => {
+        await window.CloakProcessor.MultiDecoder.decode(event).then(() => {
             BusyStatus.hideBusy();
         });
     } catch (error) {
@@ -152,7 +152,7 @@ function universalSetupEventListeners() {
         applyTheme(theme);
     });
 
-    document.getElementById('sidebarToggleButton').addEventListener(applicationState.isOnPhone ? 'touchstart' : 'mousedown', DecodeListeners.adjustSidebarWidth);
+    document.getElementById('sidebarToggleButton').addEventListener(window.applicationState.isOnPhone ? 'touchstart' : 'mousedown', DecodeListeners.adjustSidebarWidth);
     document.getElementById('sidebar').addEventListener('click', DecodeListeners.showSidebar);
 }
 

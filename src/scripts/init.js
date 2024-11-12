@@ -12,11 +12,11 @@ import mark from '../res/mark.png';
 import icon from '../res/mugi.ico';
 
 // 运行环境检测
-errorHandling.userAgent = navigator.userAgent;
-applicationState.isOnPhone = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(errorHandling.userAgent);
-applicationState.isDownloadNotSupported = applicationState.isOnPhone && /xiaomi|miui|quark|ucbrowser/i.test(errorHandling.userAgent);
-applicationState.isOnTiebaBrowser = /tieba/i.test(errorHandling.userAgent);
-// applicationState.isOnPhone = true;
+window.errorHandling.userAgent = navigator.userAgent;
+window.applicationState.isOnPhone = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(window.errorHandling.userAgent);
+window.applicationState.isDownloadNotSupported = window.applicationState.isOnPhone && /xiaomi|miui|quark|ucbrowser/i.test(window.errorHandling.userAgent);
+window.applicationState.isOnTiebaBrowser = /tieba/i.test(window.errorHandling.userAgent);
+// window.applicationState.isOnPhone = true;
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -25,10 +25,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', UniversalListeners.applyTheme);
 
         // 屏蔽贴吧内置浏览器，某些浏览器提示兼容性
-        if (applicationState.isOnTiebaBrowser) {
+        if (window.applicationState.isOnTiebaBrowser) {
             alert('建议使用正常浏览器打开本页面，贴吧内置浏览器上一大堆功能有问题。');
         }
-        if (applicationState.isDownloadNotSupported) {
+        if (window.applicationState.isDownloadNotSupported) {
             alert('由于浏览器限制，下载功能可能出现异常，建议使用其他浏览器或等待后续更新适配。');
         }
 
@@ -39,58 +39,58 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.head.appendChild(link);
 
         // 初始化默认参数
-        applicationState.defaultArguments = DefaultArguments.loadDefaultArguments();
+        window.applicationState.defaultArguments = DefaultArguments.loadDefaultArguments();
         DefaultArguments.setDefaultValues();
-        applicationState.version = applicationState.defaultArguments.app_version;
+        window.applicationState.version = window.applicationState.defaultArguments.app_version;
 
         // 检查版本号，清除缓存
-        console.log('target version:', applicationState.version);
+        console.log('target version:', window.applicationState.version);
         console.log('local version:', localStorage.getItem('version'));
         const previousVersion = localStorage.getItem('version');
-        if (!previousVersion || previousVersion !== applicationState.version) {
+        if (!previousVersion || previousVersion !== window.applicationState.version) {
             console.log('new version detected, clearing cache');
             localStorage.clear();
-            localStorage.setItem('version', applicationState.version);
+            localStorage.setItem('version', window.applicationState.version);
             location.reload(true);
         }
 
         // 显示版本号
         const versionInfoElement = document.getElementById('versionInfo');
         if (versionInfoElement) {
-            versionInfoElement.innerHTML = `version: <b>${applicationState.version}</b>`;
+            versionInfoElement.innerHTML = `version: <b>${window.applicationState.version}</b>`;
         }
 
         // 根据版本显示不同的默认diff和提示
-        EncodeListeners.setDiffHelper(applicationState.defaultArguments.version.toString());
+        EncodeListeners.setDiffHelper(window.applicationState.defaultArguments.version.toString());
 
         // 加载水印
         try {
             await new Promise((resolve, reject) => {
-                applicationState.markImage = new Image();
-                applicationState.markImage.crossOrigin = 'anonymous';
-                applicationState.markImage.onload = () => {
+                window.applicationState.markImage = new Image();
+                window.applicationState.markImage.crossOrigin = 'anonymous';
+                window.applicationState.markImage.onload = () => {
                     resolve();
                 };
-                applicationState.markImage.onerror = (event) => {
+                window.applicationState.markImage.onerror = (event) => {
                     reject(event);
                 };
-                applicationState.markImage.src = mark;
+                window.applicationState.markImage.src = mark;
             });
         } catch (error) {
             console.error('Failed to load mark:', error);
             alert('加载水印失败，请刷新页面重试。');
-            applicationState.markImage = null;
+            window.applicationState.markImage = null;
         }
 
         // 设置全局事件监听器
         UniversalListeners.universalSetupEventListeners();
 
         // 设置默认页面
-        applicationState.currPageId = applicationState.defaultArguments.defaultPageId === 'decodePage' ? 'encodePage' : 'decodePage';
+        window.applicationState.currPageId = window.applicationState.defaultArguments.defaultPageId === 'decodePage' ? 'encodePage' : 'decodePage';
         UniversalListeners.switchPage();
 
         // 移动端隐藏部分元素，启用粘贴按钮
-        if (applicationState.isOnPhone) {
+        if (window.applicationState.isOnPhone) {
             document.getElementById('decodePasteInput').classList.add('displayNone');
             document.getElementById('decodeDragInputHint').classList.add('displayNone');
             const elements = document.getElementsByClassName('encodeDrag');

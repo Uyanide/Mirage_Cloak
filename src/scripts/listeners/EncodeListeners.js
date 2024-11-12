@@ -5,7 +5,7 @@ const encodeUpdate = async (callback, event, errorMsg = '操作失败！', isCle
     try {
         BusyStatus.showBusy();
         if (isClear) {
-            CloakProcessor.CloakEncoder.clearOutputCanvas();
+            window.CloakProcessor.CloakEncoder.clearOutputCanvas();
         }
         await callback(event);
     } catch (error) {
@@ -86,7 +86,7 @@ async function dragDropLoadImage(event) {
 function encodeLoadInnerImageFile(event) {
     encodeUpdate(
         async (event) => {
-            await CloakProcessor.CloakEncoder.updateInnerImage(await loadImage(event.target.files[0]));
+            await window.CloakProcessor.CloakEncoder.updateInnerImage(await loadImage(event.target.files[0]));
             event.target.value = '';
         },
         event,
@@ -98,7 +98,7 @@ function encodeLoadInnerImageFile(event) {
 function encodeLoadCoverImageFile(event) {
     encodeUpdate(
         async (event) => {
-            await CloakProcessor.CloakEncoder.updateCoverImage(await loadImage(event.target.files[0]));
+            await window.CloakProcessor.CloakEncoder.updateCoverImage(await loadImage(event.target.files[0]));
             event.target.value = '';
         },
         event,
@@ -110,7 +110,7 @@ function encodeLoadCoverImageFile(event) {
 function encodeLoadHiddenFile(event) {
     encodeUpdate(
         async (event) => {
-            await CloakProcessor.CloakEncoder.updateHiddenFile(event.target.files[0]);
+            await window.CloakProcessor.CloakEncoder.updateHiddenFile(event.target.files[0]);
             event.target.value = '';
         },
         event,
@@ -122,7 +122,7 @@ function encodeLoadHiddenFile(event) {
 function encodeLoadInnerImageFromDrag(event) {
     encodeUpdate(
         async (event) => {
-            await CloakProcessor.CloakEncoder.updateInnerImage(await dragDropLoadImage(event));
+            await window.CloakProcessor.CloakEncoder.updateInnerImage(await dragDropLoadImage(event));
         },
         event,
         '图像加载失败！'
@@ -133,7 +133,7 @@ function encodeLoadInnerImageFromDrag(event) {
 function encodeLoadCoverImageFromDrag(event) {
     encodeUpdate(
         async (event) => {
-            await CloakProcessor.CloakEncoder.updateCoverImage(await dragDropLoadImage(event));
+            await window.CloakProcessor.CloakEncoder.updateCoverImage(await dragDropLoadImage(event));
         },
         event,
         '图像加载失败！'
@@ -145,7 +145,7 @@ function encodeLoadHiddenFileFromDrag(event) {
     encodeUpdate(
         async (event) => {
             event.preventDefault();
-            await CloakProcessor.CloakEncoder.updateHiddenFile(event.dataTransfer.files[0]);
+            await window.CloakProcessor.CloakEncoder.updateHiddenFile(event.dataTransfer.files[0]);
         },
         event,
         '隐藏文件加载失败！'
@@ -156,60 +156,60 @@ function encodeLoadHiddenFileFromDrag(event) {
 
 // 设置里图对比度
 function encodeSetInnerContrast(event) {
-    CloakProcessor.CloakEncoder.clearOutputCanvas();
-    CloakProcessor.CloakEncoder.adjustInnerContrast(parseInt(event.target.value, 10));
+    window.CloakProcessor.CloakEncoder.clearOutputCanvas();
+    window.CloakProcessor.CloakEncoder.adjustInnerContrast(parseInt(event.target.value, 10));
 }
 
 // 重置里图对比度
 function resetInnerContrast() {
-    CloakProcessor.CloakEncoder.clearOutputCanvas();
+    window.CloakProcessor.CloakEncoder.clearOutputCanvas();
     document.getElementById('innerContrastRange').value = 50;
-    CloakProcessor.CloakEncoder.adjustInnerContrast(50);
+    window.CloakProcessor.CloakEncoder.adjustInnerContrast(50);
 }
 
 // 设置表图对比度
 function encodeSetCoverContrast(event) {
-    CloakProcessor.CloakEncoder.clearOutputCanvas();
-    CloakProcessor.CloakEncoder.adjustCoverContrast(parseInt(event.target.value, 10));
+    window.CloakProcessor.CloakEncoder.clearOutputCanvas();
+    window.CloakProcessor.CloakEncoder.adjustCoverContrast(parseInt(event.target.value, 10));
 }
 
 // 重置表图对比度
 function resetCoverContrast() {
-    CloakProcessor.CloakEncoder.clearOutputCanvas();
+    window.CloakProcessor.CloakEncoder.clearOutputCanvas();
     document.getElementById('coverContrastRange').value = 50;
-    CloakProcessor.CloakEncoder.adjustCoverContrast(50);
+    window.CloakProcessor.CloakEncoder.adjustCoverContrast(50);
 }
 
 // 设置里图亮度
 function encodeSetInnerLuminance(event) {
-    CloakProcessor.CloakEncoder.clearOutputCanvas();
-    CloakProcessor.CloakEncoder.adjustInnerLuminance(parseInt(event.target.value, 10));
+    window.CloakProcessor.CloakEncoder.clearOutputCanvas();
+    window.CloakProcessor.CloakEncoder.adjustInnerLuminance(parseInt(event.target.value, 10));
 }
 
 // 重置里图亮度
 function resetInnerLuminance() {
-    CloakProcessor.CloakEncoder.clearOutputCanvas();
+    window.CloakProcessor.CloakEncoder.clearOutputCanvas();
     document.getElementById('innerLuminanceRange').value = 50;
-    CloakProcessor.CloakEncoder.adjustInnerLuminance(50);
+    window.CloakProcessor.CloakEncoder.adjustInnerLuminance(50);
 }
 
 // 设置表图亮度
 function encodeSetCoverLuminance(event) {
-    CloakProcessor.CloakEncoder.clearOutputCanvas();
-    CloakProcessor.CloakEncoder.adjustCoverLuminance(parseInt(event.target.value, 10));
+    window.CloakProcessor.CloakEncoder.clearOutputCanvas();
+    window.CloakProcessor.CloakEncoder.adjustCoverLuminance(parseInt(event.target.value, 10));
 }
 
 // 重置表图亮度
 function resetCoverLuminance() {
-    CloakProcessor.CloakEncoder.clearOutputCanvas();
+    window.CloakProcessor.CloakEncoder.clearOutputCanvas();
     document.getElementById('coverLuminanceRange').value = 50;
-    CloakProcessor.CloakEncoder.adjustCoverLuminance(50);
+    window.CloakProcessor.CloakEncoder.adjustCoverLuminance(50);
 }
 
 // 设置是否添加水印
 function encodeSetIsAddMark(event) {
-    CloakProcessor.CloakEncoder.clearOutputCanvas();
-    CloakProcessor.CloakEncoder.setIsAddMark(event.target.checked);
+    window.CloakProcessor.CloakEncoder.clearOutputCanvas();
+    window.CloakProcessor.CloakEncoder.setIsAddMark(event.target.checked);
 }
 
 /******************************************/
@@ -222,7 +222,7 @@ function encodeSetMirageSize() {
             if (size < 0 || size > 10000) {
                 throw new Error('无效的输出图像大小');
             }
-            await CloakProcessor.CloakEncoder.setMirageSize(size);
+            await window.CloakProcessor.CloakEncoder.setMirageSize(size);
         },
         undefined,
         '设置输出图像大小失败！'
@@ -232,28 +232,28 @@ function encodeSetMirageSize() {
 // 设置是否压缩隐写图像
 function encodeSetIsCompress(event) {
     encodeUpdate(async (event) => {
-        await CloakProcessor.CloakEncoder.setIsCompress(event.target.checked);
+        await window.CloakProcessor.CloakEncoder.setIsCompress(event.target.checked);
     }, event);
 }
 
 // 设置噪声强度
 function encodeSetDiff(event) {
-    clearTimeout(applicationState.diffInputTimeout);
+    clearTimeout(window.applicationState.diffInputTimeout);
 
-    applicationState.diffInputTimeout = setTimeout(() => {
+    window.applicationState.diffInputTimeout = setTimeout(() => {
         encodeUpdate(async (event) => {
             let diff = parseInt(event.target.value, 10);
             if (isNaN(diff)) {
                 return;
             }
-            if (diff > applicationState.defaultArguments.max_difference) {
-                diff = applicationState.defaultArguments.max_difference;
-                event.target.value = applicationState.defaultArguments.max_difference;
-            } else if (diff < applicationState.defaultArguments.min_difference) {
-                diff = applicationState.defaultArguments.min_difference;
-                event.target.value = applicationState.defaultArguments.min_difference;
+            if (diff > window.applicationState.defaultArguments.max_difference) {
+                diff = window.applicationState.defaultArguments.max_difference;
+                event.target.value = window.applicationState.defaultArguments.max_difference;
+            } else if (diff < window.applicationState.defaultArguments.min_difference) {
+                diff = window.applicationState.defaultArguments.min_difference;
+                event.target.value = window.applicationState.defaultArguments.min_difference;
             }
-            await CloakProcessor.CloakEncoder.setDiff(diff * 6);
+            await window.CloakProcessor.CloakEncoder.setDiff(diff * 6);
         }, event);
     }, 500);
 }
@@ -269,49 +269,49 @@ const setDiffHelper = async (version) => {
     const encodeDiffInput = document.getElementById('encodeDiffInput');
     switch (version) {
         case '1':
-            encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大抗干扰能力越强, 但幻影坦克效果越差)`;
-            encodeDiffInput.value = Math.floor(applicationState.defaultArguments.version_1.difference / 6);
-            if (CloakProcessor.CloakEncoder !== undefined) {
-                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
-                await CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_1.difference);
+            encodeDiffInputHint.innerText = `(${window.applicationState.defaultArguments.min_difference}-${window.applicationState.defaultArguments.max_difference}, 越大抗干扰能力越强, 但幻影坦克效果越差)`;
+            encodeDiffInput.value = Math.floor(window.applicationState.defaultArguments.version_1.difference / 6);
+            if (window.CloakProcessor.CloakEncoder !== undefined) {
+                await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
+                await window.CloakProcessor.CloakEncoder.setDiff(window.applicationState.defaultArguments.version_1.difference);
             }
             break;
         case '2':
-            encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大抗干扰能力越强, 但幻影坦克效果越差)`;
-            encodeDiffInput.value = Math.floor(applicationState.defaultArguments.version_2.difference / 6);
-            if (CloakProcessor.CloakEncoder !== undefined) {
-                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
-                await CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_2.difference);
+            encodeDiffInputHint.innerText = `(${window.applicationState.defaultArguments.min_difference}-${window.applicationState.defaultArguments.max_difference}, 越大抗干扰能力越强, 但幻影坦克效果越差)`;
+            encodeDiffInput.value = Math.floor(window.applicationState.defaultArguments.version_2.difference / 6);
+            if (window.CloakProcessor.CloakEncoder !== undefined) {
+                await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
+                await window.CloakProcessor.CloakEncoder.setDiff(window.applicationState.defaultArguments.version_2.difference);
             }
             break;
         case '0':
-            encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但幻影坦克效果越差)`;
-            encodeDiffInput.value = Math.ceil(applicationState.defaultArguments.version_0.difference / 6);
-            if (CloakProcessor.CloakEncoder !== undefined) {
-                await CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_0.difference, false);
-                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
+            encodeDiffInputHint.innerText = `(${window.applicationState.defaultArguments.min_difference}-${window.applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但幻影坦克效果越差)`;
+            encodeDiffInput.value = Math.ceil(window.applicationState.defaultArguments.version_0.difference / 6);
+            if (window.CloakProcessor.CloakEncoder !== undefined) {
+                await window.CloakProcessor.CloakEncoder.setDiff(window.applicationState.defaultArguments.version_0.difference, false);
+                await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
             break;
         case '3':
-            encodeDiffInputHint.innerText = `(${applicationState.defaultArguments.min_difference}-${applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但输出图像质量越差)`;
-            encodeDiffInput.value = Math.ceil(applicationState.defaultArguments.version_3.difference / 6);
-            if (CloakProcessor.CloakEncoder !== undefined) {
-                await CloakProcessor.CloakEncoder.setDiff(applicationState.defaultArguments.version_3.difference, false);
-                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
+            encodeDiffInputHint.innerText = `(${window.applicationState.defaultArguments.min_difference}-${window.applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但输出图像质量越差)`;
+            encodeDiffInput.value = Math.ceil(window.applicationState.defaultArguments.version_3.difference / 6);
+            if (window.CloakProcessor.CloakEncoder !== undefined) {
+                await window.CloakProcessor.CloakEncoder.setDiff(window.applicationState.defaultArguments.version_3.difference, false);
+                await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
             break;
         case '4':
             encodeDiffInputHint.innerText = `制作纯幻影坦克时此设置项无效`;
             encodeDiffInput.value = 0;
-            if (CloakProcessor.CloakEncoder !== undefined) {
-                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
+            if (window.CloakProcessor.CloakEncoder !== undefined) {
+                await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
             break;
         case '5':
             encodeDiffInputHint.innerText = `制作纯幻影坦克时此设置项无效`;
             encodeDiffInput.value = 0;
-            if (CloakProcessor.CloakEncoder !== undefined) {
-                await CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
+            if (window.CloakProcessor.CloakEncoder !== undefined) {
+                await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
             break;
     }
@@ -321,7 +321,7 @@ const setDiffHelper = async (version) => {
 function encodeProcessImage() {
     encodeUpdate(
         () => {
-            CloakProcessor.CloakEncoder.process();
+            window.CloakProcessor.CloakEncoder.process();
         },
         undefined,
         '图像处理失败！'
@@ -333,7 +333,7 @@ function encodeSaveImage() {
     // 同上
     encodeUpdate(
         () => {
-            CloakProcessor.CloakEncoder.saveOutputImage();
+            window.CloakProcessor.CloakEncoder.saveOutputImage();
         },
         undefined,
         '图像保存失败！',
@@ -354,7 +354,7 @@ function toggleEncodeInfo(event) {
 }
 
 // 编码监听事件列表
-applicationState.encodeEvents = [
+window.applicationState.encodeEvents = [
     { id: 'innerSourceFileInput', event: 'change', handler: encodeLoadInnerImageFile },
     { id: 'coverSourceFileInput', event: 'change', handler: encodeLoadCoverImageFile },
     { id: 'hiddenSourceFileInput', event: 'change', handler: encodeLoadHiddenFile },
@@ -375,7 +375,7 @@ applicationState.encodeEvents = [
     { id: 'encodeSaveButton', event: 'click', handler: encodeSaveImage },
     { id: 'encodeInfoToggle', event: 'click', handler: toggleEncodeInfo },
 ];
-applicationState.encodeDragEvents = [
+window.applicationState.encodeDragEvents = [
     { id: 'innerCanvas', event: 'drop', handler: encodeLoadInnerImageFromDrag },
     { id: 'coverCanvas', event: 'drop', handler: encodeLoadCoverImageFromDrag },
     { id: 'hiddenMetaCanvas', event: 'drop', handler: encodeLoadHiddenFileFromDrag },
@@ -383,12 +383,12 @@ applicationState.encodeDragEvents = [
 
 // 设置编码事件监听器
 function encodeSetUpEventListeners() {
-    applicationState.encodeEvents.forEach(({ id, event, handler }) => {
+    window.applicationState.encodeEvents.forEach(({ id, event, handler }) => {
         document.getElementById(id).addEventListener(event, handler);
     });
 
-    if (!applicationState.isOnPhone) {
-        applicationState.encodeDragEvents.forEach(({ id, event, handler }) => {
+    if (!window.applicationState.isOnPhone) {
+        window.applicationState.encodeDragEvents.forEach(({ id, event, handler }) => {
             document.getElementById(id).addEventListener(event, handler);
         });
     }
@@ -396,12 +396,12 @@ function encodeSetUpEventListeners() {
 
 // 移除编码事件监听器
 function encodeRemoveEventListeners() {
-    applicationState.encodeEvents.forEach(({ id, event, handler }) => {
+    window.applicationState.encodeEvents.forEach(({ id, event, handler }) => {
         document.getElementById(id).removeEventListener(event, handler);
     });
 
-    if (!applicationState.isOnPhone) {
-        applicationState.encodeDragEvents.forEach(({ id, event, handler }) => {
+    if (!window.applicationState.isOnPhone) {
+        window.applicationState.encodeDragEvents.forEach(({ id, event, handler }) => {
             document.getElementById(id).removeEventListener(event, handler);
         });
     }

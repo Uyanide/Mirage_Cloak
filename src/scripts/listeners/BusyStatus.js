@@ -1,14 +1,14 @@
 const showBusy = () => {
-    if (!applicationState.isBusy) {
-        applicationState.isBusy = true;
+    if (!window.applicationState.isBusy) {
+        window.applicationState.isBusy = true;
         const busyStatusElement = document.getElementById('busyStatus');
         busyStatusElement.style.display = 'flex';
     }
 };
 
 const hideBusy = () => {
-    if (applicationState.isBusy) {
-        applicationState.isBusy = false;
+    if (window.applicationState.isBusy) {
+        window.applicationState.isBusy = false;
         const busyStatusElement = document.getElementById('busyStatus');
         busyStatusElement.style.display = 'none';
     }

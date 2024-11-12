@@ -48,7 +48,7 @@ export class MultiDecoder {
     };
 
     decode = async (event) => {
-        if (applicationState.currPageId !== 'decodePage') {
+        if (window.applicationState.currPageId !== 'decodePage') {
             UniversalListeners.switchPage();
         }
         try {
