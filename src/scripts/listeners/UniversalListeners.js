@@ -11,14 +11,25 @@ function switchPage() {
     if (applicationState.currPageId === 'decodePage') {
         if (CloakProcessor.CloakEncoder === undefined) {
             BusyStatus.showBusy();
-            import('../processors/CloakEncoder.js').then(module => {
-                CloakProcessor.CloakEncoder = new module.CloakEncoder(applicationState.defaultArguments, 'innerCanvas', 'coverCanvas', 'hiddenMetaCanvas', 'encodeOutputCanvas', 'encodeOutputSize', 'encodeHiddenSize', 'encodeSaveLabel');
-                BusyStatus.hideBusy();
-            }).catch(error => {
-                BusyStatus.hideBusy();
-                console.error('Failed to load CloakEncoder:', error);
-                alert('加载编码器失败，请刷新页面重试。');
-            });
+            import('../processors/CloakEncoder.js')
+                .then((module) => {
+                    CloakProcessor.CloakEncoder = new module.CloakEncoder(
+                        applicationState.defaultArguments,
+                        'innerCanvas',
+                        'coverCanvas',
+                        'hiddenMetaCanvas',
+                        'encodeOutputCanvas',
+                        'encodeOutputSize',
+                        'encodeHiddenSize',
+                        'encodeSaveLabel'
+                    );
+                    BusyStatus.hideBusy();
+                })
+                .catch((error) => {
+                    BusyStatus.hideBusy();
+                    console.error('Failed to load CloakEncoder:', error);
+                    alert('加载编码器失败，请刷新页面重试。');
+                });
         }
         encodePage.classList.remove('displayNone');
         encodePage.classList.add('displayFlex');
@@ -36,22 +47,26 @@ function switchPage() {
     } else {
         if (CloakProcessor.MultiDecoder === undefined) {
             BusyStatus.showBusy();
-            import('../processors/CloakDecoder.js').then(module => {
-                const decoder = new module.CloakDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputMetaCanvas');
-                import('../processors/MultiDecoder.js').then(module => {
-                    CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, decoder, 'sidebarContent', 'sidebarAmountLabel');
-                    document.getElementById('sidebarClearButton').addEventListener('click', CloakProcessor.MultiDecoder.clearQueue);
+            import('../processors/CloakDecoder.js')
+                .then((module) => {
+                    const decoder = new module.CloakDecoder(applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputMetaCanvas');
+                    import('../processors/MultiDecoder.js')
+                        .then((module) => {
+                            CloakProcessor.MultiDecoder = new module.MultiDecoder(applicationState.defaultArguments, decoder, 'sidebarContent', 'sidebarAmountLabel');
+                            document.getElementById('sidebarClearButton').addEventListener('click', CloakProcessor.MultiDecoder.clearQueue);
+                            BusyStatus.hideBusy();
+                        })
+                        .catch((error) => {
+                            BusyStatus.hideBusy();
+                            console.error('Failed to load MultiDecoder:', error);
+                            alert('加载解码器失败，请刷新页面重试。');
+                        });
+                })
+                .catch((error) => {
                     BusyStatus.hideBusy();
-                }).catch(error => {
-                    BusyStatus.hideBusy();
-                    console.error('Failed to load MultiDecoder:', error);
+                    console.error('Failed to load CloakDecoder:', error);
                     alert('加载解码器失败，请刷新页面重试。');
                 });
-            }).catch(error => {
-                BusyStatus.hideBusy();
-                console.error('Failed to load CloakDecoder:', error);
-                alert('加载解码器失败，请刷新页面重试。');
-            });
         }
         decodePage.classList.remove('displayNone');
         decodePage.classList.add('displayFlex');
@@ -72,10 +87,10 @@ function switchPage() {
 // 设置主题
 const applyTheme = (tarTheme) => {
     if (tarTheme === undefined || typeof tarTheme !== 'string') {
-        const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        tarTheme = prefersDarkScheme ? "dark" : "light";
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        tarTheme = prefersDarkScheme ? 'dark' : 'light';
     }
-    document.documentElement.setAttribute("data-theme", tarTheme);
+    document.documentElement.setAttribute('data-theme', tarTheme);
     document.getElementById('isDarkmodeCheckbox').checked = tarTheme === 'dark';
 };
 
@@ -145,7 +160,7 @@ const UniversalListeners = {
     switchPage,
     applyTheme,
     sidebarImageProcess,
-    universalSetupEventListeners
+    universalSetupEventListeners,
 };
 
 export { UniversalListeners };

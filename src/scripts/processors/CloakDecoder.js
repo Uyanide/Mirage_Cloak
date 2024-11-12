@@ -17,12 +17,11 @@ export class CloakDecoder extends CloakUniversal {
             new Decoder_v2(defaultArguments),
             new Decoder_v3(defaultArguments),
             new Decoder_v4(defaultArguments),
-            new Decoder_v5(defaultArguments)
+            new Decoder_v5(defaultArguments),
         ];
     }
 
     updateImage = async (imageFile, srcImage = null, url = null, fileExt = null, length = null) => {
-
         this._fileExtension = null;
         this._byteArray = null;
         this._fileType = null;
@@ -35,7 +34,8 @@ export class CloakDecoder extends CloakUniversal {
                 this._inputCanvas.width = srcImage.width;
                 this._inputCanvas.height = srcImage.height;
                 this._inputCanvas.getContext('2d').drawImage(srcImage, 0, 0);
-            } else if (url !== 'failed') { // srcImage can also be null sometimes if url is 'failed'
+            } else if (url !== 'failed') {
+                // srcImage can also be null sometimes if url is 'failed'
                 await new Promise((resolve, reject) => {
                     const image = new Image();
                     image.onload = () => {
@@ -49,7 +49,7 @@ export class CloakDecoder extends CloakUniversal {
                         reject(error);
                     };
                     image.src = URL.createObjectURL(imageFile);
-                })
+                });
             } else {
                 CloakUniversal.clearCanvas(this._inputCanvas);
             }
@@ -78,7 +78,7 @@ export class CloakDecoder extends CloakUniversal {
                 throw combinedError;
             }
         }
-    }
+    };
 
     _getImageDataFromImageFile = async (imageFile) => {
         return new Promise((resolve, reject) => {
@@ -97,7 +97,7 @@ export class CloakDecoder extends CloakUniversal {
             };
             reader.readAsArrayBuffer(imageFile);
         });
-    }
+    };
 
     process = () => {
         if (!this._srcImageData) {
@@ -125,7 +125,7 @@ export class CloakDecoder extends CloakUniversal {
         this._dataUrl = URL.createObjectURL(blob);
         CloakUniversal.showMetaCanvas(this._outputMetaCanvas, this._dataUrl, this._fileExtension, this._byteArray.length);
         console.log('Decoding finished');
-    }
+    };
 
     saveResult = () => {
         if (this._dataUrl === 'dontcare') {
@@ -135,7 +135,7 @@ export class CloakDecoder extends CloakUniversal {
             throw new Error('没有文件可供保存！');
         }
         CloakUniversal.saveResultFromUrl(this._dataUrl, this._fileExtension);
-    }
+    };
 
     getResult = () => {
         if (this._dataUrl === 'dontcare') {
@@ -147,10 +147,10 @@ export class CloakDecoder extends CloakUniversal {
             return {
                 url: this._dataUrl,
                 fileExt: this._fileExtension,
-                length: this._byteArray.length
-            }
+                length: this._byteArray.length,
+            };
         }
-    }
+    };
 }
 
 class Decoder_v1 {
@@ -183,7 +183,7 @@ class Decoder_v1 {
         this._threshold = this._globalDefaultThreshold;
         this._dataRange = srcImageData.data.length;
         return this._getByte(srcImageData.data);
-    }
+    };
 
     decode = (srcImageData) => {
         this._pos = 12;
@@ -221,9 +221,9 @@ class Decoder_v1 {
 
         return {
             fileExtension: fileExtension,
-            byteArray: byteArray
-        }
-    }
+            byteArray: byteArray,
+        };
+    };
 
     _getByte = (data) => {
         let buffer = 0;
@@ -232,12 +232,12 @@ class Decoder_v1 {
             if (data[this._pos] > 127) {
                 isSet = this._isSetH;
             }
-            buffer |= isSet(data[this._pos]) << (bitCount++);
-            buffer |= isSet(data[this._pos + 1]) << (bitCount++);
+            buffer |= isSet(data[this._pos]) << bitCount++;
+            buffer |= isSet(data[this._pos + 1]) << bitCount++;
             if (bitCount === 8) {
                 const isOdd = isSet(data[this._pos + 2]);
                 if (!this._checkParity(buffer, isOdd)) {
-                    console.log('Error Info:')
+                    console.log('Error Info:');
                     console.log('   Data: ' + buffer.toString(16));
                     console.log('   Parity: ' + isOdd);
                     console.log('   Pixel Index: ' + this._pos / 4);
@@ -253,19 +253,19 @@ class Decoder_v1 {
                     return buffer;
                 }
             } else {
-                buffer |= isSet(data[this._pos + 2]) << (bitCount++);
+                buffer |= isSet(data[this._pos + 2]) << bitCount++;
             }
         }
         throw new Error('不期望的文件结尾！');
-    }
+    };
 
     _isSetH = (value) => {
         return value < 255 - this._threshold;
-    }
+    };
 
     _isSetL = (value) => {
         return value > this._threshold;
-    }
+    };
 
     _checkParity = (byte, isOdd) => {
         let parity = 0;
@@ -273,7 +273,7 @@ class Decoder_v1 {
             parity ^= (byte >> i) & 1;
         }
         return parity == isOdd;
-    }
+    };
 }
 
 class Decoder_v2 {
@@ -328,9 +328,9 @@ class Decoder_v2 {
 
         return {
             fileExtension: fileExtension,
-            byteArray: byteArray
+            byteArray: byteArray,
         };
-    }
+    };
 
     _getBytePair = (data) => {
         let buffer = 0;
@@ -339,12 +339,12 @@ class Decoder_v2 {
             if (data[this._pos] > 127) {
                 getBitsPair = this._getBitsPairH;
             }
-            buffer |= getBitsPair(data[this._pos]) << ((bitCount++) << 1);
-            buffer |= getBitsPair(data[this._pos + 1]) << ((bitCount++) << 1);
+            buffer |= getBitsPair(data[this._pos]) << (bitCount++ << 1);
+            buffer |= getBitsPair(data[this._pos + 1]) << (bitCount++ << 1);
             if (bitCount === 8) {
                 const isOddPair = getBitsPair(data[this._pos + 2]);
                 if (!this._checkParityPair(buffer, isOddPair)) {
-                    console.log('Error Info:')
+                    console.log('Error Info:');
                     console.log('   Data: ' + buffer.toString(16));
                     console.log('   Parity: ' + isOddPair);
                     console.log('   Pixel Index: ' + this._pos / 4);
@@ -360,19 +360,19 @@ class Decoder_v2 {
                     return buffer;
                 }
             } else {
-                buffer |= getBitsPair(data[this._pos + 2]) << ((bitCount++) << 1);
+                buffer |= getBitsPair(data[this._pos + 2]) << (bitCount++ << 1);
             }
         }
         throw new Error('不期望的文件结尾！');
-    }
+    };
 
     _getBitsPairH = (value) => {
         return Math.max(Math.min(Math.floor((255 - value + this._threshold) / (this._threshold << 1)), 3), 0);
-    }
+    };
 
     _getBitsPairL = (value) => {
         return Math.max(Math.min(Math.floor((value + this._threshold) / (this._threshold << 1)), 3), 0);
-    }
+    };
 
     _checkParityPair = (bytePair, isOddPair) => {
         let parity = 0;
@@ -383,11 +383,12 @@ class Decoder_v2 {
             parity ^= ((bytePair >> i) & 1) << 1;
         }
         return parity == isOddPair;
-    }
+    };
 }
 
-class Decoder_v0 { // LSB
-    constructor(defaultArguments) { }
+class Decoder_v0 {
+    // LSB
+    constructor(defaultArguments) {}
 
     decode = (srcImageData) => {
         this._data = srcImageData.data;
@@ -397,7 +398,7 @@ class Decoder_v0 { // LSB
         }
         console.log('   Compression: ' + this._compress);
 
-        this._dataPos = 4, this._buffer = 0, this._bufferSize = 0;
+        (this._dataPos = 4), (this._buffer = 0), (this._bufferSize = 0);
         let byte;
         let dataLength = 0;
         while ((byte = this._getByte()) !== 1) {
@@ -414,7 +415,7 @@ class Decoder_v0 { // LSB
         }
         console.log('   File extension: ' + fileExtension);
 
-        while ((byte = this._getByte()) !== 0) { } // We dont need the file type here
+        while ((byte = this._getByte()) !== 0) {} // We dont need the file type here
 
         let byteArray = new Uint8Array(dataLength);
         for (let i = 0; i < dataLength; i++) {
@@ -423,9 +424,9 @@ class Decoder_v0 { // LSB
 
         return {
             fileExtension: fileExtension,
-            byteArray: byteArray
+            byteArray: byteArray,
         };
-    }
+    };
 
     _getByte = () => {
         while (this._bufferSize < 8) {
@@ -434,15 +435,16 @@ class Decoder_v0 { // LSB
             this._dataPos++;
             if (this._dataPos >= this._data.length) {
                 throw new Error('不期望的文件结尾！');
-            } else if ((this._dataPos & 3) === 3) { // Skip alpha channel
+            } else if ((this._dataPos & 3) === 3) {
+                // Skip alpha channel
                 this._dataPos++;
             }
         }
         this._bufferSize -= 8;
         const buffer = this._buffer & (0xff << this._bufferSize);
         this._buffer &= (1 << this._bufferSize) - 1;
-        return buffer >> (this._bufferSize);
-    }
+        return buffer >> this._bufferSize;
+    };
 }
 
 class Decoder_v3 extends Decoder_v0 {
@@ -452,6 +454,10 @@ class Decoder_v3 extends Decoder_v0 {
     }
 }
 
-class Decoder_v4 { /* Just normal Mirage, no need to decode */ }
+class Decoder_v4 {
+    /* Just normal Mirage, no need to decode */
+}
 
-class Decoder_v5 { /* Colored Mirage, also no need to decode */ }
+class Decoder_v5 {
+    /* Colored Mirage, also no need to decode */
+}

@@ -16,7 +16,7 @@ const hideBusy = () => {
 
 const BusyStatus = {
     showBusy,
-    hideBusy
+    hideBusy,
 };
 
 export { BusyStatus };

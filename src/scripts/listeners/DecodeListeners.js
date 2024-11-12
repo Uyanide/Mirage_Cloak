@@ -1,4 +1,4 @@
-import { BusyStatus } from "./BusyStatus";
+import { BusyStatus } from './BusyStatus';
 
 // 调整侧边栏宽度
 function disableHorizontalScroll() {
@@ -21,7 +21,7 @@ const showSidebar = () => {
         document.addEventListener('click', hideSidebarFullscreen);
     }, 500);
     sidebar.removeEventListener('click', showSidebar);
-}
+};
 const hideSidebar = () => {
     if (applicationState.dontCareSidebarClick) {
         applicationState.dontCareSidebarClick = false;
@@ -35,7 +35,7 @@ const hideSidebar = () => {
     setTimeout(() => {
         sidebar.addEventListener('click', showSidebar);
     }, 500);
-}
+};
 function adjustSidebarWidth(event) {
     if (!applicationState.sidebarVisible) {
         showSidebar();
@@ -52,14 +52,14 @@ function adjustSidebarWidth(event) {
     const adjustMouse = (event) => {
         applicationState.dontCareSidebarClick = true;
         offset = event.clientX - initX;
-        const newWidth = Math.min((Math.max((parseInt(initWidth) - offset), minWidth)), maxWidth);
+        const newWidth = Math.min(Math.max(parseInt(initWidth) - offset, minWidth), maxWidth);
         document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
     };
 
     const adjustTouch = (event) => {
         applicationState.dontCareSidebarClick = true;
         offset = event.touches[0].clientX - initX;
-        const newWidth = Math.min((Math.max((parseInt(initWidth) - offset), minWidth)), maxWidth);
+        const newWidth = Math.min(Math.max(parseInt(initWidth) - offset, minWidth), maxWidth);
         document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
     };
 
@@ -69,7 +69,7 @@ function adjustSidebarWidth(event) {
         document.removeEventListener('touchmove', adjustTouch);
         document.removeEventListener('touchend', adjustEnd);
         enableHorizontalScroll();
-    }
+    };
 
     applicationState.dontCareSidebarClick = false;
     if (!applicationState.isOnPhone) {
@@ -158,8 +158,8 @@ async function decodeLoadImageFromPasteButton() {
         if (permission.state === 'granted' || permission.state === 'prompt') {
             const clipboardItems = await navigator.clipboard.read();
             for (const item of clipboardItems) {
-                if (item.types.some(type => type.startsWith('image/'))) {
-                    const blob = await item.getType(item.types.find(type => type.startsWith('image/')));
+                if (item.types.some((type) => type.startsWith('image/'))) {
+                    const blob = await item.getType(item.types.find((type) => type.startsWith('image/')));
                     await decodeProcessQueue([blob]);
                 } else {
                     throw new Error('剪贴板中没有图像');
@@ -249,7 +249,7 @@ const DecodeListeners = {
     decodeSetupEventListeners,
     decodeRemoveEventListeners,
     adjustSidebarWidth,
-    showSidebar
+    showSidebar,
 };
 
 export { DecodeListeners };

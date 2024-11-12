@@ -1,5 +1,4 @@
-import { UniversalListeners } from "../listeners/UniversalListeners";
-import { CloakUniversal } from "./CloakUniversal";
+import { UniversalListeners } from '../listeners/UniversalListeners';
 
 export class MultiDecoder {
     constructor(defaultArguments, decoder, sidebarContentId, sidebarAmountLabelId) {
@@ -20,7 +19,7 @@ export class MultiDecoder {
                 const index = this._fileList.length - 1;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    canvas.id = 'queue' + (index);
+                    canvas.id = 'queue' + index;
                     canvas.addEventListener('click', UniversalListeners.sidebarImageProcess);
                     const ctx = canvas.getContext('2d');
                     canvas.width = img.width;
@@ -46,7 +45,7 @@ export class MultiDecoder {
                 reject(error);
             }
         });
-    }
+    };
 
     decode = async (event) => {
         if (applicationState.currPageId !== 'decodePage') {
@@ -82,7 +81,7 @@ export class MultiDecoder {
             alert('解码失败：' + error.message);
             console.error('Failed to decode:', error.stack, error.message);
         }
-    }
+    };
 
     showCornerStatus = (canvas, color) => {
         const offset = Math.min(canvas.width, canvas.height) / 10;
@@ -95,7 +94,7 @@ export class MultiDecoder {
         ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
         ctx.fillStyle = color;
         ctx.fill();
-    }
+    };
 
     _processSingle = async (index) => {
         switch (this._fileList[index].status) {
@@ -128,7 +127,7 @@ export class MultiDecoder {
             default:
                 throw new Error('Invalid status');
         }
-    }
+    };
 
     clearQueue = () => {
         for (let i = 0; i < this._fileList.length; i++) {
@@ -145,7 +144,7 @@ export class MultiDecoder {
         }
         this._fileList = [];
         this._sidebarAmountLabel.innerText = '数量：0';
-    }
+    };
 
     saveCurrResult = () => {
         try {
@@ -153,10 +152,11 @@ export class MultiDecoder {
         } catch (error) {
             throw error;
         }
-    }
+    };
 
     saveAllResults = async () => {
-        let successed = 0, failed = 0;
+        let successed = 0,
+            failed = 0;
         for (let i = 0; i < this._fileList.length; i++) {
             switch (this._fileList[i].status) {
                 case 'failed':
@@ -184,7 +184,7 @@ export class MultiDecoder {
                     link.click();
                     document.body.removeChild(link);
                     successed++;
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                    await new Promise((resolve) => setTimeout(resolve, 500));
                     break;
                 case 'dontcare':
                     // do nothing
@@ -195,5 +195,5 @@ export class MultiDecoder {
             }
         }
         this._sidebarAmountLabel.innerHTML = `数量：${this._fileList.length}<br>成功：${successed}<br>失败：${failed}`;
-    }
+    };
 }

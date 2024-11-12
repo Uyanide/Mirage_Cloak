@@ -22,10 +22,11 @@ async function processQueue() {
         const pngBlob = new Blob([encode(data)], { type: 'image/png' });
 
         postMessage({
-            success: true, result: {
+            success: true,
+            result: {
                 url: URL.createObjectURL(pngBlob),
-                fileName: `encoded_${new Date().getTime()}.png`
-            }
+                fileName: `encoded_${new Date().getTime()}.png`,
+            },
         });
     } catch (error) {
         postMessage({ success: false, error: error });

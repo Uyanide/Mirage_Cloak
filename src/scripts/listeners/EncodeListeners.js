@@ -8,13 +8,13 @@ const encodeUpdate = async (callback, event, errorMsg = '操作失败！', isCle
             CloakProcessor.CloakEncoder.clearOutputCanvas();
         }
         await callback(event);
-        BusyStatus.hideBusy();
     } catch (error) {
-        BusyStatus.hideBusy();
         alert(errorMsg + error.message);
         console.error('Failed to update:', error.stack, error.message);
+    } finally {
+        BusyStatus.hideBusy();
     }
-}
+};
 
 // 从源加载图像并返回
 async function loadImage(input, timeout = 5000) {
@@ -66,11 +66,13 @@ async function dragDropLoadImage(event) {
                 for (const item of event.dataTransfer.items) {
                     if (item.kind === 'file') {
                         const file = item.getAsFile();
-                        loadImage(file).then((img) => {
-                            resolve(img);
-                        }).catch((error) => {
-                            reject(error);
-                        });
+                        loadImage(file)
+                            .then((img) => {
+                                resolve(img);
+                            })
+                            .catch((error) => {
+                                reject(error);
+                            });
                     }
                 }
             }
@@ -82,58 +84,72 @@ async function dragDropLoadImage(event) {
 
 // 从文件加载里图
 function encodeLoadInnerImageFile(event) {
-    encodeUpdate(async (event) => {
-        await CloakProcessor.CloakEncoder.updateInnerImage(
-            await loadImage(event.target.files[0])
-        );
-        event.target.value = '';
-    }, event, '图像加载失败！');
+    encodeUpdate(
+        async (event) => {
+            await CloakProcessor.CloakEncoder.updateInnerImage(await loadImage(event.target.files[0]));
+            event.target.value = '';
+        },
+        event,
+        '图像加载失败！'
+    );
 }
 
 // 从文件加载表图
 function encodeLoadCoverImageFile(event) {
-    encodeUpdate(async (event) => {
-        await CloakProcessor.CloakEncoder.updateCoverImage(
-            await loadImage(event.target.files[0])
-        );
-        event.target.value = '';
-    }, event, '图像加载失败！');
+    encodeUpdate(
+        async (event) => {
+            await CloakProcessor.CloakEncoder.updateCoverImage(await loadImage(event.target.files[0]));
+            event.target.value = '';
+        },
+        event,
+        '图像加载失败！'
+    );
 }
 
 // 从文件加载隐藏文件
 function encodeLoadHiddenFile(event) {
-    encodeUpdate(async (event) => {
-        await CloakProcessor.CloakEncoder.updateHiddenFile(event.target.files[0]);
-        event.target.value = '';
-    }, event, '里文件加载失败！');
+    encodeUpdate(
+        async (event) => {
+            await CloakProcessor.CloakEncoder.updateHiddenFile(event.target.files[0]);
+            event.target.value = '';
+        },
+        event,
+        '里文件加载失败！'
+    );
 }
 
 // 从拖动加载里图
 function encodeLoadInnerImageFromDrag(event) {
-    encodeUpdate(async (event) => {
-        await CloakProcessor.CloakEncoder.updateInnerImage(
-            await dragDropLoadImage(event)
-        );
-    }, event, '图像加载失败！');
+    encodeUpdate(
+        async (event) => {
+            await CloakProcessor.CloakEncoder.updateInnerImage(await dragDropLoadImage(event));
+        },
+        event,
+        '图像加载失败！'
+    );
 }
 
 // 从拖动加载表图
 function encodeLoadCoverImageFromDrag(event) {
-    encodeUpdate(async (event) => {
-        await CloakProcessor.CloakEncoder.updateCoverImage(
-            await dragDropLoadImage(event)
-        );
-    }, event, '图像加载失败！');
+    encodeUpdate(
+        async (event) => {
+            await CloakProcessor.CloakEncoder.updateCoverImage(await dragDropLoadImage(event));
+        },
+        event,
+        '图像加载失败！'
+    );
 }
 
 // 从拖动加载隐藏文件
 function encodeLoadHiddenFileFromDrag(event) {
-    encodeUpdate(async (event) => {
-        event.preventDefault();
-        await CloakProcessor.CloakEncoder.updateHiddenFile(
-            event.dataTransfer.files[0]
-        );
-    }, event, '隐藏文件加载失败！');
+    encodeUpdate(
+        async (event) => {
+            event.preventDefault();
+            await CloakProcessor.CloakEncoder.updateHiddenFile(event.dataTransfer.files[0]);
+        },
+        event,
+        '隐藏文件加载失败！'
+    );
 }
 
 /******图像参数调整为即时渲染，不使用框架*****/
@@ -200,19 +216,23 @@ function encodeSetIsAddMark(event) {
 
 // 设置指定输出图像大小
 function encodeSetMirageSize() {
-    encodeUpdate(async () => {
-        const size = parseInt(document.getElementById('mirageSizeInput').value, 10);
-        if (size < 0 || size > 10000) {
-            throw new Error('无效的输出图像大小');
-        }
-        await CloakProcessor.CloakEncoder.setMirageSize(size);
-    }, undefined, '设置输出图像大小失败！');
+    encodeUpdate(
+        async () => {
+            const size = parseInt(document.getElementById('mirageSizeInput').value, 10);
+            if (size < 0 || size > 10000) {
+                throw new Error('无效的输出图像大小');
+            }
+            await CloakProcessor.CloakEncoder.setMirageSize(size);
+        },
+        undefined,
+        '设置输出图像大小失败！'
+    );
 }
 
 // 设置是否压缩隐写图像
 function encodeSetIsCompress(event) {
     encodeUpdate(async (event) => {
-        await CloakProcessor.CloakEncoder.setIsCompress(event.target.checked)
+        await CloakProcessor.CloakEncoder.setIsCompress(event.target.checked);
     }, event);
 }
 
@@ -222,7 +242,7 @@ function encodeSetDiff(event) {
 
     applicationState.diffInputTimeout = setTimeout(() => {
         encodeUpdate(async (event) => {
-            let diff = parseInt(event.target.value, 10)
+            let diff = parseInt(event.target.value, 10);
             if (isNaN(diff)) {
                 return;
             }
@@ -241,7 +261,7 @@ function encodeSetDiff(event) {
 // 设置编码方法
 function encodeSetMethod(event) {
     encodeUpdate(async () => {
-        await setDiffHelper(event.target.value)
+        await setDiffHelper(event.target.value);
     }, event);
 }
 const setDiffHelper = async (version) => {
@@ -295,22 +315,30 @@ const setDiffHelper = async (version) => {
             }
             break;
     }
-}
+};
 
 // 处理图像
 function encodeProcessImage() {
-    encodeUpdate(() => {
-        CloakProcessor.CloakEncoder.process();
-
-    }, undefined, '图像处理失败！');
+    encodeUpdate(
+        () => {
+            CloakProcessor.CloakEncoder.process();
+        },
+        undefined,
+        '图像处理失败！'
+    );
 }
 
 // 保存图像
 function encodeSaveImage() {
     // 同上
-    encodeUpdate(() => {
-        CloakProcessor.CloakEncoder.saveOutputImage();
-    }, undefined, '图像保存失败！', false);
+    encodeUpdate(
+        () => {
+            CloakProcessor.CloakEncoder.saveOutputImage();
+        },
+        undefined,
+        '图像保存失败！',
+        false
+    );
 }
 
 // 切换编码信息显示
@@ -345,12 +373,12 @@ applicationState.encodeEvents = [
     { id: 'encodeMethodSelect', event: 'change', handler: encodeSetMethod },
     { id: 'encodeProcessButton', event: 'click', handler: encodeProcessImage },
     { id: 'encodeSaveButton', event: 'click', handler: encodeSaveImage },
-    { id: 'encodeInfoToggle', event: 'click', handler: toggleEncodeInfo }
+    { id: 'encodeInfoToggle', event: 'click', handler: toggleEncodeInfo },
 ];
 applicationState.encodeDragEvents = [
     { id: 'innerCanvas', event: 'drop', handler: encodeLoadInnerImageFromDrag },
     { id: 'coverCanvas', event: 'drop', handler: encodeLoadCoverImageFromDrag },
-    { id: 'hiddenMetaCanvas', event: 'drop', handler: encodeLoadHiddenFileFromDrag }
+    { id: 'hiddenMetaCanvas', event: 'drop', handler: encodeLoadHiddenFileFromDrag },
 ];
 
 // 设置编码事件监听器
@@ -382,7 +410,7 @@ function encodeRemoveEventListeners() {
 const EncodeListeners = {
     setDiffHelper,
     encodeSetUpEventListeners,
-    encodeRemoveEventListeners
+    encodeRemoveEventListeners,
 };
 
 export { EncodeListeners };

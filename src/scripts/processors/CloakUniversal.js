@@ -1,11 +1,11 @@
 import { ext2mime } from './MimeMap.js';
 
 export class CloakUniversal {
-    constructor(defaultArguments) { }
+    constructor(defaultArguments) {}
 
     static classifyFileType = (extension) => {
         return ext2mime[extension] || 'application/octet-stream';
-    }
+    };
 
     static showTextOnMetaCanvas(metaCanvas, text = '暂不支持预览此文件', additionalText = '') {
         CloakUniversal.clearMetaCanvas(metaCanvas);
@@ -16,10 +16,9 @@ export class CloakUniversal {
         ctx.textAlign = 'center';
         if (!additionalText) {
             ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-        }
-        else {
+        } else {
             ctx.fillText(text, canvas.width / 2, canvas.height / 2 - 10);
-            ctx.fillText(additionalText, canvas.width / 2, canvas.height / 2 + 10)
+            ctx.fillText(additionalText, canvas.width / 2, canvas.height / 2 + 10);
         }
     }
 
@@ -99,11 +98,7 @@ export class CloakUniversal {
         return new Promise((resolve, reject) => {
             const type = CloakUniversal.classifyFileType(fileExt);
 
-            const displayers = [
-                metaCanvas.querySelector('canvas'),
-                metaCanvas.querySelector('video'),
-                metaCanvas.querySelector('audio')
-            ];
+            const displayers = [metaCanvas.querySelector('canvas'), metaCanvas.querySelector('video'), metaCanvas.querySelector('audio')];
             displayers.forEach((displayer) => {
                 displayer.classList.remove('displayFlex');
             });
@@ -144,19 +139,21 @@ export class CloakUniversal {
     }
 
     static showSize(sizeLabel, length) {
-        sizeLabel.innerText = '里文件大小：' + ((length) => {
-            if (length >= 0x100000) {
-                return (length / 0x100000).toFixed(2) + ' MB';
-            } else if (length > 0x400) {
-                return (length / 0x400).toFixed(2) + ' KB';
-            } else {
-                return length + ' B';
-            }
-        })(length);
+        sizeLabel.innerText =
+            '里文件大小：' +
+            ((length) => {
+                if (length >= 0x100000) {
+                    return (length / 0x100000).toFixed(2) + ' MB';
+                } else if (length > 0x400) {
+                    return (length / 0x400).toFixed(2) + ' KB';
+                } else {
+                    return length + ' B';
+                }
+            })(length);
     }
 
     static clearCanvas = (canvas) => {
         canvas.width = 300;
         canvas.height = 150;
-    }
+    };
 }

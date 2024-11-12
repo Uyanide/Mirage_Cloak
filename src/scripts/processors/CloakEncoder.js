@@ -80,7 +80,7 @@ export class CloakEncoder extends CloakUniversal {
         };
         this._encoder.postMessage({
             mission: 'init',
-            defaultArguments: defaultArguments
+            defaultArguments: defaultArguments,
         });
     }
 
@@ -90,10 +90,10 @@ export class CloakEncoder extends CloakUniversal {
         if (this._mirageSize !== 0) {
             if (this._innerImage.width > this._innerImage.height) {
                 this._width = this._mirageSize;
-                this._height = Math.ceil(this._innerImage.height * this._mirageSize / this._innerImage.width);
+                this._height = Math.ceil((this._innerImage.height * this._mirageSize) / this._innerImage.width);
             } else {
                 this._height = this._mirageSize;
-                this._width = Math.ceil(this._innerImage.width * this._mirageSize / this._innerImage.height);
+                this._width = Math.ceil((this._innerImage.width * this._mirageSize) / this._innerImage.height);
             }
         } else {
             this._width = this._innerImage.width;
@@ -123,23 +123,28 @@ export class CloakEncoder extends CloakUniversal {
         if (this._coverImageData) {
             this.updateCoverImage(this._coverImage);
         }
-    }
+    };
 
     _adjustSize = async () => {
         let currLength = this._width * this._height;
         let tarLength = await this._getRequiredLength(this._version, this._byteArray, this._diff);
 
-        if (tarLength > currLength) { // if the hidden file is too large
+        if (tarLength > currLength) {
+            // if the hidden file is too large
             let ratio = tarLength / currLength;
-            if (this._hiddenFile.type.startsWith('image') && !this._hiddenFile.type.startsWith('image/gif')) { // if the hidden file is a static image
+            if (this._hiddenFile.type.startsWith('image') && !this._hiddenFile.type.startsWith('image/gif')) {
+                // if the hidden file is a static image
                 await CloakUniversal.showMetaCanvas(this._hiddenMetaCanvas, this._hiddenUrl, this._fileExtension, this._hiddenFile.size); // repaint the hidden image
-                if (this._isCompress) { // if compress is enabled
+                if (this._isCompress) {
+                    // if compress is enabled
                     let hiddenImageData = this._hiddenCanvas.getContext('2d').getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
-                    if (hiddenImageData) { // if get image data successfully, try to compress the hidden image by converting it to jpeg
+                    if (hiddenImageData) {
+                        // if get image data successfully, try to compress the hidden image by converting it to jpeg
                         let jpegData = this._JpegEncoder.encode(hiddenImageData, this._compressQuality);
                         tarLength = await this._getRequiredLength(this._version, jpegData, this._diff); // get target length after compression
                         ratio = tarLength / currLength;
-                        if (ratio > 1) { // if the hidden image is still too large after compression, resize it
+                        if (ratio > 1) {
+                            // if the hidden image is still too large after compression, resize it
                             ratio = Math.sqrt(ratio);
                             await CloakUniversal.showMetaCanvas(this._hiddenMetaCanvas, this._hiddenUrl, this._fileExtension, this._hiddenFile.size, 1 / ratio);
                             hiddenImageData = this._hiddenCanvas.getContext('2d').getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
@@ -147,7 +152,8 @@ export class CloakEncoder extends CloakUniversal {
 
                             tarLength = await this._getRequiredLength(this._version, jpegData, this._diff); // update target length
                             ratio = tarLength / currLength; // update ratio
-                            if (ratio > 1) { // if the hidden image is still too large after resizing, scale the size of the inner image
+                            if (ratio > 1) {
+                                // if the hidden image is still too large after resizing, scale the size of the inner image
                                 this._scaleSize(ratio);
                             }
                         }
@@ -159,7 +165,8 @@ export class CloakEncoder extends CloakUniversal {
                     }
                 }
                 this._hiddenSizeLabel.innerHTML = `隐藏图像尺寸：${this._hiddenCanvas.width}x${this._hiddenCanvas.height}`;
-            } else { // if the hidden file is not an image, not compressible
+            } else {
+                // if the hidden file is not an image, not compressible
                 this._hiddenSizeLabel.innerHTML = '';
                 this._byteArrayCompressed = null;
                 this._fileExtensionCompressed = '';
@@ -171,7 +178,7 @@ export class CloakEncoder extends CloakUniversal {
             this._fileExtensionCompressed = '';
             return this._byteArray.length;
         }
-    }
+    };
 
     _getRequiredLength = async (version, hiddenFile, diff) => {
         return new Promise((resolve, reject) => {
@@ -189,16 +196,16 @@ export class CloakEncoder extends CloakUniversal {
                 mission: 'length',
                 version: version,
                 hiddenFile: hiddenFile,
-                diff: diff
+                diff: diff,
             });
         });
-    }
+    };
 
     _scaleSize = (ratio) => {
         ratio = Math.sqrt(ratio);
         this._width = Math.ceil(this._width * ratio);
         this._height = Math.ceil(this._height * ratio);
-    }
+    };
 
     updateCoverImage = (img) => {
         this._coverImage = img;
@@ -236,7 +243,7 @@ export class CloakEncoder extends CloakUniversal {
         if (this._version !== 4 && this._version !== 5 && this._isAddMark) {
             this.addMark(this._coverCanvas);
         }
-    }
+    };
 
     updateHiddenFile = async (file) => {
         this._hiddenFile = file;
@@ -265,7 +272,7 @@ export class CloakEncoder extends CloakUniversal {
             this._hiddenSizeLabel.innerHTML = '';
         }
         await this._getHiddenByteArray();
-    }
+    };
 
     _getHiddenByteArray = async () => {
         return new Promise((resolve, reject) => {
@@ -281,10 +288,10 @@ export class CloakEncoder extends CloakUniversal {
                 } catch (error) {
                     reject(error);
                 }
-            }
+            };
             reader.readAsArrayBuffer(this._hiddenFile);
         });
-    }
+    };
 
     process = () => {
         if (!this._innerImageData || (this._version !== 3 && !this._coverImageData) || (this._version !== 4 && this._version !== 5 && !this._byteArray)) {
@@ -298,8 +305,8 @@ export class CloakEncoder extends CloakUniversal {
         console.log('    Version: ' + this._version);
         console.log('    Output size: ' + this._width + 'x' + this._height);
         if (this._byteArray) {
-            console.log('    Size to be encoded: ' + ((this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed.length : this._byteArray.length));
-            console.log('    File extension: ' + ((this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension));
+            console.log('    Size to be encoded: ' + (this._isCompress && this._byteArrayCompressed ? this._byteArrayCompressed.length : this._byteArray.length));
+            console.log('    File extension: ' + (this._isCompress && this._fileExtensionCompressed ? this._fileExtensionCompressed : this._fileExtension));
             console.log('    Difference: ' + this._diff);
         }
 
@@ -330,11 +337,11 @@ export class CloakEncoder extends CloakUniversal {
             version: this._version,
             innerImageData: innerImageDataAdjust,
             coverImageData: coverImageDataAdjust,
-            hiddenFile: (this._isCompress && this._byteArrayCompressed) ? this._byteArrayCompressed : this._byteArray,
-            fileExt: (this._isCompress && this._fileExtensionCompressed) ? this._fileExtensionCompressed : this._fileExtension,
-            diff: this._diff
+            hiddenFile: this._isCompress && this._byteArrayCompressed ? this._byteArrayCompressed : this._byteArray,
+            fileExt: this._isCompress && this._fileExtensionCompressed ? this._fileExtensionCompressed : this._fileExtension,
+            diff: this._diff,
         });
-    }
+    };
 
     convertGray = (imgData) => {
         const data = imgData.data;
@@ -344,7 +351,7 @@ export class CloakEncoder extends CloakUniversal {
             data[i + 1] = gray;
             data[i + 2] = gray;
         }
-    }
+    };
 
     adjustInnerContrast = (contrast) => {
         this._innerContrast = contrast;
@@ -354,7 +361,7 @@ export class CloakEncoder extends CloakUniversal {
                 this.addMark(this._innerCanvas);
             }
         }
-    }
+    };
 
     adjustCoverContrast = (contrast) => {
         this._coverContrast = contrast;
@@ -364,7 +371,7 @@ export class CloakEncoder extends CloakUniversal {
                 this.addMark(this._coverCanvas);
             }
         }
-    }
+    };
 
     adjustInnerLuminance = (luminance) => {
         this._innerLuminance = luminance;
@@ -374,7 +381,7 @@ export class CloakEncoder extends CloakUniversal {
                 this.addMark(this._innerCanvas);
             }
         }
-    }
+    };
 
     adjustCoverLuminance = (luminance) => {
         this._coverLuminance = luminance;
@@ -384,7 +391,7 @@ export class CloakEncoder extends CloakUniversal {
                 this.addMark(this._coverCanvas);
             }
         }
-    }
+    };
 
     saveOutputImage = () => {
         if (!this._outputData) {
@@ -394,13 +401,15 @@ export class CloakEncoder extends CloakUniversal {
         this._PngEncoder.postMessage({
             width: this._width,
             height: this._height,
-            data: this._outputData
+            data: this._outputData,
         });
-    }
+    };
 
     setIsAddMark = (isAddMark) => {
         this._isAddMark = isAddMark;
-        if (this._version === 4 || this._version === 5) { return; }
+        if (this._version === 4 || this._version === 5) {
+            return;
+        }
         if (isAddMark) {
             if (this._innerImageData) {
                 this.addMark(this._innerCanvas);
@@ -416,10 +425,12 @@ export class CloakEncoder extends CloakUniversal {
                 CloakUniversal.adjustImageData(this._coverCanvas, this._coverImageData, this._coverContrast, this._coverLuminance);
             }
         }
-    }
+    };
 
     addMark(canvas, markImage) {
-        if (this._version === 4 || this._version === 5) { return; }
+        if (this._version === 4 || this._version === 5) {
+            return;
+        }
         if (!markImage) {
             if (applicationState.markImage) {
                 markImage = applicationState.markImage;
@@ -445,30 +456,34 @@ export class CloakEncoder extends CloakUniversal {
         if (this._innerImage) {
             await this.updateInnerImage(this._innerImage); // update inner image to adjust size
         }
-    }
+    };
 
     setDiff = async (diff, resize = true) => {
         this._diff = diff;
-        if (this._version === 4 || this._version === 5) { return; } // mirage tanks dont need diff
-        if (resize === false) { return; }
+        if (this._version === 4 || this._version === 5) {
+            return;
+        } // mirage tanks dont need diff
+        if (resize === false) {
+            return;
+        }
         if ((this._version === 0 || this._version === 3) && this._byteArray && this._innerImage) {
             await this.updateInnerImage(this._innerImage); // only when using LSB diff can affect the required size
         }
-    }
+    };
 
     setVersion = async (version) => {
         this._version = version;
         if (this._innerImage) {
             await this.updateInnerImage(this._innerImage); // update inner image to adjust size
         }
-    }
+    };
 
     setIsCompress = async (isCompress) => {
         this._isCompress = isCompress;
         if (this._version !== 4 && this._version !== 5 && this._byteArray && this._innerImage) {
             await this.updateInnerImage(this._innerImage); // update inner image to adjust size
         }
-    }
+    };
 
     clearOutputCanvas = () => {
         if (!this._isOutputCanvasCleared) {
@@ -477,5 +492,5 @@ export class CloakEncoder extends CloakUniversal {
             this._outputData = null;
             this._saveLabel.innerText = '';
         }
-    }
+    };
 }

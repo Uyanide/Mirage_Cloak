@@ -2,7 +2,7 @@ import DefaultArgumentsConfig from '../DefaultArgumentsConfig.json';
 
 const loadDefaultArguments = () => {
     return DefaultArgumentsConfig;
-}
+};
 
 const setDefaultValues = () => {
     document.getElementById('innerContrastRange').value = DefaultArgumentsConfig.contrast_inner;
@@ -13,7 +13,7 @@ const setDefaultValues = () => {
     document.getElementById('isEncodeCompressCheckbox').checked = DefaultArgumentsConfig.encode_compress;
     document.getElementById('mirageSizeInput').value = DefaultArgumentsConfig.mirage_size;
     document.getElementById('encodeMethodSelect').value = DefaultArgumentsConfig.version;
-}
+};
 
 const DefaultArguments = {
     loadDefaultArguments,

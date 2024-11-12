@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // 设置主题与监听系统设置变化
         UniversalListeners.applyTheme();
-        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", UniversalListeners.applyTheme);
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', UniversalListeners.applyTheme);
 
         // 屏蔽贴吧内置浏览器，某些浏览器提示兼容性
         if (applicationState.isOnTiebaBrowser) {
