@@ -212,7 +212,7 @@
                         </slider>
                     </div>
 
-                    <div class="encodeFileInput displayFlex flexColumn justifyCenter alignCenter refWidthHalf">
+                    <div class="encodeCoverInput encodeFileInput displayFlex flexColumn justifyCenter alignCenter refWidthHalf">
                         <label for="coverSourceFileInput" class="fileInputLabel inputReact transformSize">选择幻坦表图</label>
                         <input type="file" id="coverSourceFileInput" accept="image/*" />
                         <label for="coverSourceFileInput" class="encodeDrag marginTopMedium fontSmall"
@@ -232,23 +232,23 @@
                     </div>
                 </div>
 
-                <div class="displayFlex flexRow justifyCenter alignCenter marginTopHigh">
+                <div class="encodeEncryptFileInput displayFlex flexRow justifyCenter alignCenter marginTopHigh">
                     <label for="hiddenSourceFileInput" class="fileInputLabel inputReact transformSize marginLeftLow">
                         选择隐写文件</label
                     >
                     <input type="file" id="hiddenSourceFileInput" />
                 </div>
-                <div class="encodeDrag marginTopMedium fontMedium">或直接拖动至下方画布</div>
-                <div class="marginTopLow fontSmall frontSecondaryColor">(可选择任意格式的文件)</div>
-                <div class="displayFlex flexColumn alignCenter" id="hiddenMetaCanvas">
+                <div class="encodeEncryptFileInput encodeDrag marginTopMedium fontMedium">或直接拖动至下方画布</div>
+                <div class="encodeEncryptFileInput marginTopLow fontSmall frontSecondaryColor">(可选择任意格式的文件)</div>
+                <div class="encodeEncryptFileInput displayFlex flexColumn alignCenter" id="hiddenMetaCanvas">
                     <canvas class="marginTopMedium refWidthFull displayNone displayFlex"></canvas>
                     <video controls class="marginTopMedium refWidthFull displayNone"></video>
                     <audio controls class="marginTopMedium refWidthFull displayNone"></audio>
                     <div class="sizeLabel marginTopMedium fontMedium frontSecondaryColor"></div>
                     <div class="typeLabel marginTopLow fontMedium frontSecondaryColor"></div>
                 </div>
-                <div id="encodeOutputSize" class="marginTopLow frontSecondaryColor"></div>
-                <div id="encodeHiddenSize" class="marginTopLow frontSecondaryColor"></div>
+                <div id="encodeOutputSize" class="encodeEncryptFileInput marginTopLow frontSecondaryColor"></div>
+                <div id="encodeHiddenSize" class="encodeEncryptFileInput marginTopLow frontSecondaryColor"></div>
 
                 <hr class="refWidthHalf marginTopMedium marginBottomMedium" />
                 <label for="mirageSizeInput" class="">1. 预期输出尺寸:</label>
@@ -258,20 +258,20 @@
                 </div>
                 <div class="fontSmall marginTopLow frontSecondaryColor">(指长宽中较大值，0即为不指定)</div>
                 <div class="fontSmall marginTopLow frontSecondaryColor">(若隐藏文件过大则实际输出尺寸可能会大于此值)</div>
-                <hr class="refWidthHalf marginTopMedium marginBottomMedium" />
-                <div class="displayFlex flexRow justifyCenter alignCenter">
+                <hr class="isAddMarkContainer refWidthHalf marginTopMedium marginBottomMedium" />
+                <div class="isAddMarkContainer displayFlex flexRow justifyCenter alignCenter">
                     <label for="isAddMarkCheckbox">2. </label>
                     <input type="checkbox" id="isAddMarkCheckbox" class="inputReact marginLeftLow marginRightLow" />
                     <label for="isAddMarkCheckbox">是否添加坦克水印</label>
                 </div>
-                <hr class="refWidthHalf marginTopMedium marginBottomMedium" />
-                <div class="diplayFlex flexRow justifyCenter alignCenter">
+                <hr class="encodeDiffInputContainer refWidthHalf marginTopMedium marginBottomMedium" />
+                <div class="encodeDiffInputContainer diplayFlex flexRow justifyCenter alignCenter">
                     <label for="encodeDiffInput">3. 噪声强度:</label>
                     <input type="number" id="encodeDiffInput" class="inputReact marginLeftLow" />
                 </div>
-                <div id="encodeDiffinputHint" class="fontSmall marginTopLow frontSecondaryColor"></div>
-                <hr class="refWidthHalf marginTopMedium marginBottomMedium" />
-                <div class="displayFlex flexRow justifyCenter alignCenter refWidthHigh">
+                <div id="encodeDiffinputHint" class="encodeDiffInputContainer fontSmall marginTopLow frontSecondaryColor"></div>
+                <hr class="isEncodeCompressCheckboxContainer refWidthHalf marginTopMedium marginBottomMedium" />
+                <div class="isEncodeCompressCheckboxContainer displayFlex flexRow justifyCenter alignCenter refWidthHigh">
                     <label for="isEncodeCompressCheckbox">4. </label>
                     <input type="checkbox" id="isEncodeCompressCheckbox" class="inputReact marginLeftLow marginRightLow" />
                     <label for="isEncodeCompressCheckbox">是否尝试压缩隐写图像以限制输出图像大小</label>
@@ -402,6 +402,10 @@
                                     重构部分代码，优化错误处理；<br />
                                     添加了三种新模式，全彩/灰度幻影/纯无影。
                                 </td>
+                            </tr>
+                            <tr>
+                                <td>1.0.11</td>
+                                <td>切换模式时自动隐藏或取消隐藏部分控件。</td>
                             </tr>
                         </tbody>
                     </table>

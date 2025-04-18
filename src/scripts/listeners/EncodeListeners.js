@@ -264,27 +264,50 @@ function encodeSetMethod(event) {
         await setDiffHelper(event.target.value);
     }, event);
 }
+function setVisibility(className, isVisible) {
+    const elements = document.getElementsByClassName(className);
+    for (let i = 0; i < elements.length; i++) {
+        if (isVisible) {
+            elements[i].classList.remove('hidden');
+        } else {
+            elements[i].classList.add('hidden');
+        }
+    }
+}
 const setDiffHelper = async (version) => {
     const encodeDiffInputHint = document.getElementById('encodeDiffinputHint');
     const encodeDiffInput = document.getElementById('encodeDiffInput');
+    const encodeInnerInputLabel = document.getElementById('innerSourceFileInput').previousElementSibling;
     switch (version) {
-        case '1':
+        case '1': // 双极
             encodeDiffInputHint.innerText = `(${window.applicationState.defaultArguments.min_difference}-${window.applicationState.defaultArguments.max_difference}, 越大抗干扰能力越强, 但幻影坦克效果越差)`;
             encodeDiffInput.value = Math.floor(window.applicationState.defaultArguments.version_1.difference / 6);
             if (window.CloakProcessor.CloakEncoder !== undefined) {
                 await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
                 await window.CloakProcessor.CloakEncoder.setDiff(window.applicationState.defaultArguments.version_1.difference);
             }
+            setVisibility('encodeCoverInput', true);
+            setVisibility('encodeEncryptFileInput', true);
+            setVisibility('isAddMarkContainer', true);
+            setVisibility('encodeDiffInputContainer', true);
+            setVisibility('isEncodeCompressCheckboxContainer', true);
+            encodeInnerInputLabel.innerText = '选择幻坦里图';
             break;
-        case '2':
+        case '2': // 四极
             encodeDiffInputHint.innerText = `(${window.applicationState.defaultArguments.min_difference}-${window.applicationState.defaultArguments.max_difference}, 越大抗干扰能力越强, 但幻影坦克效果越差)`;
             encodeDiffInput.value = Math.floor(window.applicationState.defaultArguments.version_2.difference / 6);
             if (window.CloakProcessor.CloakEncoder !== undefined) {
                 await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
                 await window.CloakProcessor.CloakEncoder.setDiff(window.applicationState.defaultArguments.version_2.difference);
             }
+            setVisibility('encodeCoverInput', true);
+            setVisibility('encodeEncryptFileInput', true);
+            setVisibility('isAddMarkContainer', true);
+            setVisibility('encodeDiffInputContainer', true);
+            setVisibility('isEncodeCompressCheckboxContainer', true);
+            encodeInnerInputLabel.innerText = '选择幻坦里图';
             break;
-        case '0':
+        case '0': // 无影棋盘
             encodeDiffInputHint.innerText = `(${window.applicationState.defaultArguments.min_difference}-${window.applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但幻影坦克效果越差)`;
             encodeDiffInput.value = Math.ceil(window.applicationState.defaultArguments.version_0.difference / 6);
             if (window.CloakProcessor.CloakEncoder !== undefined) {
@@ -294,8 +317,14 @@ const setDiffHelper = async (version) => {
                 );
                 await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
+            setVisibility('encodeCoverInput', true);
+            setVisibility('encodeEncryptFileInput', true);
+            setVisibility('isAddMarkContainer', true);
+            setVisibility('encodeDiffInputContainer', true);
+            setVisibility('isEncodeCompressCheckboxContainer', true);
+            encodeInnerInputLabel.innerText = '选择幻坦里图';
             break;
-        case '3':
+        case '3': // 传统无影
             encodeDiffInputHint.innerText = `(${window.applicationState.defaultArguments.min_difference}-${window.applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但输出图像质量越差)`;
             encodeDiffInput.value = Math.ceil(window.applicationState.defaultArguments.version_3.difference / 6);
             if (window.CloakProcessor.CloakEncoder !== undefined) {
@@ -305,20 +334,38 @@ const setDiffHelper = async (version) => {
                 );
                 await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
+            setVisibility('encodeCoverInput', false);
+            setVisibility('encodeEncryptFileInput', true);
+            setVisibility('isAddMarkContainer', true);
+            setVisibility('encodeDiffInputContainer', true);
+            setVisibility('isEncodeCompressCheckboxContainer', true);
+            encodeInnerInputLabel.innerText = '选择表图';
             break;
-        case '4':
+        case '4': // 黑白幻影
             encodeDiffInputHint.innerText = `制作纯幻影坦克时此设置项无效`;
             encodeDiffInput.value = 0;
             if (window.CloakProcessor.CloakEncoder !== undefined) {
                 await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
+            setVisibility('encodeCoverInput', true);
+            setVisibility('encodeEncryptFileInput', false);
+            setVisibility('isAddMarkContainer', false);
+            setVisibility('encodeDiffInputContainer', false);
+            setVisibility('isEncodeCompressCheckboxContainer', false);
+            encodeInnerInputLabel.innerText = '选择幻坦里图';
             break;
-        case '5':
+        case '5': // 全彩幻影
             encodeDiffInputHint.innerText = `制作纯幻影坦克时此设置项无效`;
             encodeDiffInput.value = 0;
             if (window.CloakProcessor.CloakEncoder !== undefined) {
                 await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
+            setVisibility('encodeCoverInput', true);
+            setVisibility('encodeEncryptFileInput', false);
+            setVisibility('isAddMarkContainer', false);
+            setVisibility('encodeDiffInputContainer', false);
+            setVisibility('isEncodeCompressCheckboxContainer', false);
+            encodeInnerInputLabel.innerText = '选择幻坦里图';
             break;
     }
 };
