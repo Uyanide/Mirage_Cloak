@@ -8,7 +8,10 @@ function enableHorizontalScroll() {
     document.documentElement.style.overflowX = 'auto';
 }
 function hideSidebarFullscreen(event) {
-    if (!document.getElementById('isDarkmodeContainer').contains(event.target) && (event.target.id == 'sidebarToggleButton' || !document.getElementById('sidebar').contains(event.target))) {
+    if (
+        !document.getElementById('isDarkmodeContainer').contains(event.target) &&
+        (event.target.id == 'sidebarToggleButton' || !document.getElementById('sidebar').contains(event.target))
+    ) {
         hideSidebar();
     }
 }

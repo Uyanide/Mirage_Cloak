@@ -49,11 +49,22 @@ function switchPage() {
             BusyStatus.showBusy();
             import('../processors/CloakDecoder.js')
                 .then((module) => {
-                    const decoder = new module.CloakDecoder(window.applicationState.defaultArguments, 'decodeInputCanvas', 'decodeOutputMetaCanvas');
+                    const decoder = new module.CloakDecoder(
+                        window.applicationState.defaultArguments,
+                        'decodeInputCanvas',
+                        'decodeOutputMetaCanvas'
+                    );
                     import('../processors/MultiDecoder.js')
                         .then((module) => {
-                            window.CloakProcessor.MultiDecoder = new module.MultiDecoder(window.applicationState.defaultArguments, decoder, 'sidebarContent', 'sidebarAmountLabel');
-                            document.getElementById('sidebarClearButton').addEventListener('click', window.CloakProcessor.MultiDecoder.clearQueue);
+                            window.CloakProcessor.MultiDecoder = new module.MultiDecoder(
+                                window.applicationState.defaultArguments,
+                                decoder,
+                                'sidebarContent',
+                                'sidebarAmountLabel'
+                            );
+                            document
+                                .getElementById('sidebarClearButton')
+                                .addEventListener('click', window.CloakProcessor.MultiDecoder.clearQueue);
                             BusyStatus.hideBusy();
                         })
                         .catch((error) => {
@@ -152,7 +163,9 @@ function universalSetupEventListeners() {
         applyTheme(theme);
     });
 
-    document.getElementById('sidebarToggleButton').addEventListener(window.applicationState.isOnPhone ? 'touchstart' : 'mousedown', DecodeListeners.adjustSidebarWidth);
+    document
+        .getElementById('sidebarToggleButton')
+        .addEventListener(window.applicationState.isOnPhone ? 'touchstart' : 'mousedown', DecodeListeners.adjustSidebarWidth);
     document.getElementById('sidebar').addEventListener('click', DecodeListeners.showSidebar);
 }
 

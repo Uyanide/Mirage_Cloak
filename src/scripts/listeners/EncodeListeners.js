@@ -288,7 +288,10 @@ const setDiffHelper = async (version) => {
             encodeDiffInputHint.innerText = `(${window.applicationState.defaultArguments.min_difference}-${window.applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但幻影坦克效果越差)`;
             encodeDiffInput.value = Math.ceil(window.applicationState.defaultArguments.version_0.difference / 6);
             if (window.CloakProcessor.CloakEncoder !== undefined) {
-                await window.CloakProcessor.CloakEncoder.setDiff(window.applicationState.defaultArguments.version_0.difference, false);
+                await window.CloakProcessor.CloakEncoder.setDiff(
+                    window.applicationState.defaultArguments.version_0.difference,
+                    false
+                );
                 await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
             break;
@@ -296,7 +299,10 @@ const setDiffHelper = async (version) => {
             encodeDiffInputHint.innerText = `(${window.applicationState.defaultArguments.min_difference}-${window.applicationState.defaultArguments.max_difference}, 越大隐写信息密度越高, 但输出图像质量越差)`;
             encodeDiffInput.value = Math.ceil(window.applicationState.defaultArguments.version_3.difference / 6);
             if (window.CloakProcessor.CloakEncoder !== undefined) {
-                await window.CloakProcessor.CloakEncoder.setDiff(window.applicationState.defaultArguments.version_3.difference, false);
+                await window.CloakProcessor.CloakEncoder.setDiff(
+                    window.applicationState.defaultArguments.version_3.difference,
+                    false
+                );
                 await window.CloakProcessor.CloakEncoder.setVersion(parseInt(version, 10));
             }
             break;

@@ -13,8 +13,11 @@ import icon from '../res/mugi.ico';
 
 // 运行环境检测
 window.errorHandling.userAgent = navigator.userAgent;
-window.applicationState.isOnPhone = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(window.errorHandling.userAgent);
-window.applicationState.isDownloadNotSupported = window.applicationState.isOnPhone && /xiaomi|miui|quark|ucbrowser/i.test(window.errorHandling.userAgent);
+window.applicationState.isOnPhone = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+    window.errorHandling.userAgent
+);
+window.applicationState.isDownloadNotSupported =
+    window.applicationState.isOnPhone && /xiaomi|miui|quark|ucbrowser/i.test(window.errorHandling.userAgent);
 window.applicationState.isOnTiebaBrowser = /tieba/i.test(window.errorHandling.userAgent);
 // window.applicationState.isOnPhone = true;
 
@@ -86,7 +89,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         UniversalListeners.universalSetupEventListeners();
 
         // 设置默认页面
-        window.applicationState.currPageId = window.applicationState.defaultArguments.defaultPageId === 'decodePage' ? 'encodePage' : 'decodePage';
+        window.applicationState.currPageId =
+            window.applicationState.defaultArguments.defaultPageId === 'decodePage' ? 'encodePage' : 'decodePage';
         UniversalListeners.switchPage();
 
         // 移动端隐藏部分元素，启用粘贴按钮

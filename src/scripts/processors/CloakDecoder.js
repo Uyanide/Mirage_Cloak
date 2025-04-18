@@ -69,7 +69,9 @@ export class CloakDecoder extends CloakUniversal {
         } catch (error) {
             error.message = '第一次处理失败！' + error.message;
             try {
-                this._srcImageData = this._inputCanvas.getContext('2d').getImageData(0, 0, this._inputCanvas.width, this._inputCanvas.height);
+                this._srcImageData = this._inputCanvas
+                    .getContext('2d')
+                    .getImageData(0, 0, this._inputCanvas.width, this._inputCanvas.height);
                 this.process();
             } catch (innerError) {
                 CloakUniversal.clearMetaCanvas(this._outputMetaCanvas);

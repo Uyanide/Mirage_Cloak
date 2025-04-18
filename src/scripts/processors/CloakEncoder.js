@@ -4,7 +4,16 @@ import PngEncoder from '../workers/PngEncoder.worker.js';
 import Encoder from '../workers/Encoder.worker.js';
 
 export class CloakEncoder extends CloakUniversal {
-    constructor(defaultArguments, innerCanvasId, coverCanvasId, hiddenMetaCanvasId, outputCanvasId, sizeLabelId, hiddenSizeLabelId, saveLabelId) {
+    constructor(
+        defaultArguments,
+        innerCanvasId,
+        coverCanvasId,
+        hiddenMetaCanvasId,
+        outputCanvasId,
+        sizeLabelId,
+        hiddenSizeLabelId,
+        saveLabelId
+    ) {
         super(defaultArguments);
         this._innerImage = null;
         this._coverImage = null;
@@ -134,10 +143,17 @@ export class CloakEncoder extends CloakUniversal {
             let ratio = tarLength / currLength;
             if (this._hiddenFile.type.startsWith('image') && !this._hiddenFile.type.startsWith('image/gif')) {
                 // if the hidden file is a static image
-                await CloakUniversal.showMetaCanvas(this._hiddenMetaCanvas, this._hiddenUrl, this._fileExtension, this._hiddenFile.size); // repaint the hidden image
+                await CloakUniversal.showMetaCanvas(
+                    this._hiddenMetaCanvas,
+                    this._hiddenUrl,
+                    this._fileExtension,
+                    this._hiddenFile.size
+                ); // repaint the hidden image
                 if (this._isCompress) {
                     // if compress is enabled
-                    let hiddenImageData = this._hiddenCanvas.getContext('2d').getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
+                    let hiddenImageData = this._hiddenCanvas
+                        .getContext('2d')
+                        .getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
                     if (hiddenImageData) {
                         // if get image data successfully, try to compress the hidden image by converting it to jpeg
                         let jpegData = this._JpegEncoder.encode(hiddenImageData, this._compressQuality);
@@ -146,8 +162,16 @@ export class CloakEncoder extends CloakUniversal {
                         if (ratio > 1) {
                             // if the hidden image is still too large after compression, resize it
                             ratio = Math.sqrt(ratio);
-                            await CloakUniversal.showMetaCanvas(this._hiddenMetaCanvas, this._hiddenUrl, this._fileExtension, this._hiddenFile.size, 1 / ratio);
-                            hiddenImageData = this._hiddenCanvas.getContext('2d').getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
+                            await CloakUniversal.showMetaCanvas(
+                                this._hiddenMetaCanvas,
+                                this._hiddenUrl,
+                                this._fileExtension,
+                                this._hiddenFile.size,
+                                1 / ratio
+                            );
+                            hiddenImageData = this._hiddenCanvas
+                                .getContext('2d')
+                                .getImageData(0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height);
                             jpegData = this._JpegEncoder.encode(hiddenImageData, this._compressQuality);
 
                             tarLength = await this._getRequiredLength(this._version, jpegData, this._diff); // update target length
@@ -294,7 +318,11 @@ export class CloakEncoder extends CloakUniversal {
     };
 
     process = () => {
-        if (!this._innerImageData || (this._version !== 3 && !this._coverImageData) || (this._version !== 4 && this._version !== 5 && !this._byteArray)) {
+        if (
+            !this._innerImageData ||
+            (this._version !== 3 && !this._coverImageData) ||
+            (this._version !== 4 && this._version !== 5 && !this._byteArray)
+        ) {
             throw new Error('请先选择图像和文件！');
         }
 
@@ -305,8 +333,14 @@ export class CloakEncoder extends CloakUniversal {
         console.log('    Version: ' + this._version);
         console.log('    Output size: ' + this._width + 'x' + this._height);
         if (this._byteArray) {
-            console.log('    Size to be encoded: ' + (this._isCompress && this._byteArrayCompressed ? this._byteArrayCompressed.length : this._byteArray.length));
-            console.log('    File extension: ' + (this._isCompress && this._fileExtensionCompressed ? this._fileExtensionCompressed : this._fileExtension));
+            console.log(
+                '    Size to be encoded: ' +
+                    (this._isCompress && this._byteArrayCompressed ? this._byteArrayCompressed.length : this._byteArray.length)
+            );
+            console.log(
+                '    File extension: ' +
+                    (this._isCompress && this._fileExtensionCompressed ? this._fileExtensionCompressed : this._fileExtension)
+            );
             console.log('    Difference: ' + this._diff);
         }
 
@@ -419,10 +453,20 @@ export class CloakEncoder extends CloakUniversal {
             }
         } else {
             if (this._innerImageData) {
-                CloakUniversal.adjustImageData(this._innerCanvas, this._innerImageData, this._innerContrast, this._innerLuminance);
+                CloakUniversal.adjustImageData(
+                    this._innerCanvas,
+                    this._innerImageData,
+                    this._innerContrast,
+                    this._innerLuminance
+                );
             }
             if (this._coverImageData) {
-                CloakUniversal.adjustImageData(this._coverCanvas, this._coverImageData, this._coverContrast, this._coverLuminance);
+                CloakUniversal.adjustImageData(
+                    this._coverCanvas,
+                    this._coverImageData,
+                    this._coverContrast,
+                    this._coverLuminance
+                );
             }
         }
     };

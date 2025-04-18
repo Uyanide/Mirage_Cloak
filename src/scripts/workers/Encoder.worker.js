@@ -21,7 +21,13 @@ self.onmessage = async (event) => {
             case 'encode':
                 postMessage({
                     success: true,
-                    result: encoders[event.data.version].encode(event.data.innerImageData, event.data.coverImageData, event.data.hiddenFile, event.data.fileExt, event.data.diff),
+                    result: encoders[event.data.version].encode(
+                        event.data.innerImageData,
+                        event.data.coverImageData,
+                        event.data.hiddenFile,
+                        event.data.fileExt,
+                        event.data.diff
+                    ),
                 });
                 break;
             default:
@@ -111,7 +117,9 @@ class Encoder_v1 {
             return this._getBitsFromByte((this._targetSize >> ((byteIndex - 2) << 3)) & 0xff, pixelIndexMod3);
         } else if (byteIndex < this._remained) {
             // file extension name
-            return byteIndex - 6 < this._fileExtension.length ? this._getBitsFromByte(this._fileExtension.charCodeAt(byteIndex - 6), pixelIndexMod3) : this._getBitsFromByte(0, pixelIndexMod3);
+            return byteIndex - 6 < this._fileExtension.length
+                ? this._getBitsFromByte(this._fileExtension.charCodeAt(byteIndex - 6), pixelIndexMod3)
+                : this._getBitsFromByte(0, pixelIndexMod3);
         } else if (byteIndex < this._targetSize + this._remained) {
             // data
             return this._getBitsFromByte(this._byteArray[byteIndex - this._remained], pixelIndexMod3);
@@ -236,7 +244,11 @@ class Encoder_v2 extends Encoder_v1 {
                 : this._getBitsFromByte(0, pixelIndexMod3);
         } else if (bytePairIndex < Math.ceil(this._targetSize / 2) + this._remained) {
             // data
-            return this._getBitsFromBytePair(this._byteArray[(bytePairIndex - this._remained) << 1] | (this._byteArray[((bytePairIndex - this._remained) << 1) + 1] << 8), pixelIndexMod3);
+            return this._getBitsFromBytePair(
+                this._byteArray[(bytePairIndex - this._remained) << 1] |
+                    (this._byteArray[((bytePairIndex - this._remained) << 1) + 1] << 8),
+                pixelIndexMod3
+            );
         } else {
             // random padding
             return this._getRandomBits();
@@ -336,7 +348,9 @@ class Encoder_v0 {
             outputData[4 * pixelIndex] = isInner ? baseInner | this._popBits() : this._popBits();
             outputData[4 * pixelIndex + 1] = isInner ? baseInner | this._popBits() : this._popBits();
             outputData[4 * pixelIndex + 2] = isInner ? baseInner | this._popBits() : this._popBits();
-            outputData[4 * pixelIndex + 3] = isInner ? this._scaleInner(innerData[4 * pixelIndex]) : 255 - this._scaleCover(coverData[4 * pixelIndex]);
+            outputData[4 * pixelIndex + 3] = isInner
+                ? this._scaleInner(innerData[4 * pixelIndex])
+                : 255 - this._scaleCover(coverData[4 * pixelIndex]);
         }
 
         if (this._bytePos < this._byteArray.length + this._targetSize) {
@@ -371,7 +385,9 @@ class Encoder_v0 {
         if (this._bufferSize < this._compress) {
             this._pushByte();
         }
-        const bits = (this._buffer & (((1 << this._compress) - 1) << (this._bufferSize - this._compress))) >> (this._bufferSize - this._compress);
+        const bits =
+            (this._buffer & (((1 << this._compress) - 1) << (this._bufferSize - this._compress))) >>
+            (this._bufferSize - this._compress);
         this._bufferSize -= this._compress;
         this._buffer &= (1 << this._bufferSize) - 1;
         return bits;
@@ -517,7 +533,12 @@ class Encoder_v5 extends Encoder_v4 {
             const dr = ir - cr,
                 dg = ig - cg,
                 db = ib - cb;
-            const a = Math.max(1 + ((2048 | (dr + ((ir + cr) << 1))) * dr - (db + ((ir + cr) << 1) - 3068) * db + (dg << 12)) / (1020 * (dr - db) + 2349060), 0);
+            const a = Math.max(
+                1 +
+                    ((2048 | (dr + ((ir + cr) << 1))) * dr - (db + ((ir + cr) << 1) - 3068) * db + (dg << 12)) /
+                        (1020 * (dr - db) + 2349060),
+                0
+            );
             outputData[i] = (ir / a) * this._weight_i + (255 - (255 - cr) / a) * this._weight_c;
             outputData[i + 1] = (ig / a) * this._weight_i + (255 - (255 - cg) / a) * this._weight_c;
             outputData[i + 2] = (ib / a) * this._weight_i + (255 - (255 - cb) / a) * this._weight_c;

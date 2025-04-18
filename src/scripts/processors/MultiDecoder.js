@@ -119,7 +119,13 @@ export class MultiDecoder {
                 }
                 return true;
             case 'decoded':
-                await this._decoder.updateImage(null, this._fileList[index].image, this._fileList[index].url, this._fileList[index].fileExt, this._fileList[index].length);
+                await this._decoder.updateImage(
+                    null,
+                    this._fileList[index].image,
+                    this._fileList[index].url,
+                    this._fileList[index].fileExt,
+                    this._fileList[index].length
+                );
                 return true;
             case 'failed':
                 await this._decoder.updateImage(null, this._fileList[index].image, 'failed', null, null);

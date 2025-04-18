@@ -98,7 +98,11 @@ export class CloakUniversal {
         return new Promise((resolve, reject) => {
             const type = CloakUniversal.classifyFileType(fileExt);
 
-            const displayers = [metaCanvas.querySelector('canvas'), metaCanvas.querySelector('video'), metaCanvas.querySelector('audio')];
+            const displayers = [
+                metaCanvas.querySelector('canvas'),
+                metaCanvas.querySelector('video'),
+                metaCanvas.querySelector('audio'),
+            ];
             displayers.forEach((displayer) => {
                 displayer.classList.remove('displayFlex');
             });
